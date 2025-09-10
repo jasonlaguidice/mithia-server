@@ -9,9 +9,9 @@ services:
       - "6121:6121"  # Character Server
       - "5121:5121"  # Map Server
     volumes:
-      - "./rtk:/home/RTK/rtk"
-      - "./rtklua:/home/RTK/rtklua"
-      - "./rtkmaps:/home/RTK/rtkmaps"
+      - "rtk_data:/home/RTK/rtk"
+      - "rtklua_data:/home/RTK/rtklua"
+      - "rtkmaps_data:/home/RTK/rtkmaps"
       - "./data/backups:/home/RTK/backups"
       - "./data/logs:/home/RTK/rtk/logs"
 
@@ -29,3 +29,11 @@ services:
       - "./database/scripts:/docker-entrypoint-initdb.d" # Every script in docker-entrypoint-initdb.d is executed in alphabetical order as soon as the container starts
       - "./data/mysql:/var/lib/mysql"
       - "./data/backups:/backups"
+
+volumes:
+  rtk_data:
+    driver: local
+  rtklua_data:
+    driver: local
+  rtkmaps_data:
+    driver: local
