@@ -7,6 +7,28 @@ A containerized mithia server setup using Docker for easy deployment and develop
 ### Prerequisites
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
+- **QEMU emulation** (required for AMD64/ARM64 hosts since server runs on i386 architecture)
+
+#### QEMU Installation
+The server uses 32-bit i386 architecture and requires QEMU emulation on modern 64-bit hosts:
+
+**For Ubuntu/Debian (ARM64/AMD64 hosts):**
+```bash
+sudo apt update
+sudo apt install qemu-user-static binfmt-support
+sudo systemctl restart systemd-binfmt
+```
+
+**Alternative Docker method:**
+```bash
+# For AMD64 hosts:
+sudo docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
+# For ARM64 hosts:
+sudo docker run --rm --privileged multiarch/qemu-user-static:register --reset
+```
+
+**Note:** QEMU registration persists until system reboot. You may need to re-run after rebooting your host.
 
 ### Setup
 1. Clone this repository
