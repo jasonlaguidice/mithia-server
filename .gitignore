@@ -146,3 +146,6 @@ TODO.md
 
 # Database backups
 /database/history/*.sql
+
+# Docker persistent data
+/data/

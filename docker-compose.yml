@@ -1,21 +1,19 @@
 version: '3.8'
 services:
   server:
-    image: rtk-server:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: tail -F /dev/null # TODO: Add commands to build/run servers
+    image: ghcr.io/jasonlaguidice/mithia-server:latest
+    command: ["/bin/bash", "-c", "cd /home/RTK/rtk && ./start-mithia-servers && tail -f /dev/null"]
     restart: always
     ports:
-      - "2000:2000"
-      - "2001:2001"
-      - "2005:2005"
+      - "6900:6900"  # Login Server
+      - "6121:6121"  # Character Server
+      - "5121:5121"  # Map Server
     volumes:
       - "./rtk:/home/RTK/rtk"
       - "./rtklua:/home/RTK/rtklua"
       - "./rtkmaps:/home/RTK/rtkmaps"
-    # TODO: Add volume for automated database backups
+      - "./data/backups:/home/RTK/backups"
+      - "./data/logs:/home/RTK/rtk/logs"
 
   database:
     image: mysql/mysql-server:latest
@@ -29,4 +27,5 @@ services:
       - "3306:3306"
     volumes:
       - "./database/scripts:/docker-entrypoint-initdb.d" # Every script in docker-entrypoint-initdb.d is executed in alphabetical order as soon as the container starts
-      # TODO: Add volume to persist data
+      - "./data/mysql:/var/lib/mysql"
+      - "./data/backups:/backups"
