@@ -105,6 +105,10 @@ luac.out
 ######################
 
 .vscode/
+CLAUDE.md
+.claude/
+TODO.md
+.serena/
 
 #######
 # RTK #

@@ -1,15 +1,45 @@
-FROM i386/ubuntu:latest
+# Use i386 Ubuntu for 32-bit compatibility
+# QEMU will automatically emulate this on ARM64
+FROM i386/ubuntu:22.04
 
+# Set up timezone configuration to avoid interactive prompts
 RUN echo tzdata tzdata/Zones/Europe select London | debconf-set-selections && \
-    echo tzdata tzdata/Zones/Etc select UTC | debconf-set-selections && \
-    export DEBIAN_FRONTEND=noninteractive && \
+    echo tzdata tzdata/Zones/Etc select UTC | debconf-set-selections
+
+# Install dependencies for 32-bit compilation
+RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && apt-get install -y \
     build-essential \
     make \
-    libmysqlclient20 \
+    gcc \
+    g++ \
+    libc6-dev \
+    libmysqlclient21 \
     libmysqlclient-dev \
     lua5.1 \
-    liblua5.1 \
-	mysql-client-5.7
+    liblua5.1-dev \
+    mysql-client-8.0 \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create RTK user and directories
+RUN useradd -m -d /home/RTK -s /bin/bash RTK
+
+# Set working directory
+WORKDIR /home/RTK
+
+# Copy source code (excluding build artifacts via .dockerignore)
+COPY --chown=RTK:RTK . .
+
+# Build the application as RTK user
+USER RTK
+RUN cd rtk && make clean && make
+
+# Expose default ports for RTK servers
+# Login server: 6900, Char server: 6121, Map server: 5121
+EXPOSE 6900 6121 5121
+
+# Default command - can be overridden in docker-compose or run commands
+CMD ["tail", "-f", "/dev/null"]
 
 # TODO: Implement cron job for automated database backups

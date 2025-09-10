@@ -1,0 +1,56 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# GitHub Actions
+.github
+
+# Documentation
+README.md
+TODO.md
+*.md
+
+# Logs and temporary files
+*.log
+*.tmp
+**/logs/*
+**/logs-archive/*
+rtk/logs/*
+rtk/logs-archive/*
+rtklua/History/logs/*
+rtklua/History-archive/logs/*
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Build artifacts (will be rebuilt in container)
+rtk/src/char/char-server
+rtk/src/login/login-server
+rtk/src/map/map-server
+rtk/src/decrypt/decrypt
+rtk/src/metan/metan
+**/*.o
+**/*.a
+
+# Database backups and dumps
+*.sql.gz
+*.sql.bz2
+database/history/*
+
+# Test files
+test_*
+debug_*
+__debug*
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile.*
+docker-compose.override.yml
