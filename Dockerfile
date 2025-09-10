@@ -1,6 +1,6 @@
 # Use i386 Ubuntu for 32-bit compatibility
 # QEMU will automatically emulate this on ARM64
-FROM i386/ubuntu:22.04
+FROM i386/ubuntu:latest
 
 # Set up timezone configuration to avoid interactive prompts
 RUN echo tzdata tzdata/Zones/Europe select London | debconf-set-selections && \
@@ -14,11 +14,11 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     gcc \
     g++ \
     libc6-dev \
-    libmysqlclient21 \
+    libmysqlclient20 \
     libmysqlclient-dev \
     lua5.1 \
-    liblua5.1-dev \
-    mysql-client-8.0 \
+    liblua5.1 \
+    mysql-client-5.7 \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
