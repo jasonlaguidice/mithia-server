@@ -35,6 +35,9 @@ COPY --chown=RTK:RTK . .
 USER RTK
 RUN cd rtk && make clean && make
 
+# Make server management scripts executable
+RUN chmod +x rtk/*-server* rtk/check-mithia-server-state
+
 # Expose default ports for RTK servers
 # Login server: 6900, Char server: 6121, Map server: 5121
 EXPOSE 6900 6121 5121
