@@ -5,9 +5,9 @@ services:
     command: ["/bin/bash", "-c", "cd /home/RTK/rtk && ./start-mithia-servers && tail -f /dev/null"]
     restart: always
     ports:
-      - "6900:6900"  # Login Server
-      - "6121:6121"  # Character Server
-      - "5121:5121"  # Map Server
+      - "2000:2000"  # Login Server
+      - "2001:2001"  # Map Server
+      - "2005:2005"  # Character Server
     volumes:
       - "rtk_data:/home/RTK/rtk"
       - "rtklua_data:/home/RTK/rtklua"

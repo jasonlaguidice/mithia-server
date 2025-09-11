@@ -39,8 +39,8 @@ RUN cd rtk && make clean && make
 RUN chmod +x rtk/*-server* rtk/check-mithia-server-state
 
 # Expose default ports for RTK servers
-# Login server: 6900, Char server: 6121, Map server: 5121
-EXPOSE 6900 6121 5121
+# Login server: 2000, Map server: 2001, Character server: 2005
+EXPOSE 2000 2001 2005
 
 # Default command - can be overridden in docker-compose or run commands
 CMD ["tail", "-f", "/dev/null"]

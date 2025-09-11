@@ -37,9 +37,9 @@ sudo docker run --rm --privileged multiarch/qemu-user-static:register --reset
    docker-compose up -d
    ```
 3. The server will be available on:
-   - Login Server: `localhost:6900`
-   - Character Server: `localhost:6121` 
-   - Map Server: `localhost:5121`
+   - Login Server: `localhost:2000`
+   - Map Server: `localhost:2001` 
+   - Character Server: `localhost:2005`
    - MySQL Database: `localhost:3306`
 
 ### Initial Database Setup
@@ -108,7 +108,9 @@ Modify `docker-compose.yml` to change:
 - **database**: MySQL 8.0 database server
 
 ### Ports
-- `2000-2001, 2005`: Game server ports
+- `2000`: Login server port
+- `2001`: Map server port  
+- `2005`: Character server port
 - `3306`: MySQL database port
 
 ### Volumes
