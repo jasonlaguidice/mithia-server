@@ -32,13 +32,25 @@ sudo docker run --rm --privileged multiarch/qemu-user-static:register --reset
 
 ### Setup
 1. Clone this repository
-2. Start the server stack:
+2. Create environment file for database secrets:
+   ```bash
+   cp stack.env.example stack.env
+   # Edit stack.env with your database passwords
+   ```
+3. Create required directories and copy initial config files:
+   ```bash
+   sudo mkdir -p /opt/mithia/{config,data/{backups,logs,mysql},database/scripts}
+   sudo cp -r rtk/conf/* /opt/mithia/config/
+   sudo cp -r database/scripts/* /opt/mithia/database/scripts/
+   sudo chown -R $USER:$USER /opt/mithia
+   ```
+4. Start the server stack:
    ```bash
    docker-compose up -d
    ```
-3. The server will be available on:
+5. The server will be available on:
    - Login Server: `localhost:2000`
-   - Map Server: `localhost:2001` 
+   - Map Server: `localhost:2001`
    - Character Server: `localhost:2005`
    - MySQL Database: `localhost:3306`
 
@@ -90,16 +102,36 @@ Use these GM commands in-game to reload data after database changes:
 
 ## Configuration
 
-### Server Configuration
-Server settings are located in `rtk/conf/map.conf`. Key settings:
+### Server Configuration Management
+After deployment, you can modify server configuration files:
+
+1. **Stop the server** (config changes require restart):
+   ```bash
+   docker-compose stop server
+   ```
+
+2. **Edit configuration files** in `/opt/mithia/config/`:
+   - `map.conf`: Map server settings (IP, ports, rates)
+   - `login.conf`: Login server settings
+   - `char.conf`: Character server and database settings
+
+3. **Restart the server**:
+   ```bash
+   docker-compose start server
+   ```
+
+Key settings in `map.conf`:
 - `map_ip`: Server IP address
 - `loginip`: Login server IP
+- `xprate`: Experience multiplier
+- `droprate`: Item drop rate multiplier
 
 ### Environment Variables
-Modify `docker-compose.yml` to change:
+Database credentials are stored in `stack.env`:
 - `MYSQL_ROOT_PASSWORD`: MySQL root password
-- `MYSQL_PASSWORD`: mithia user password
-- Port mappings
+- `MYSQL_PASSWORD`: RTK user password
+- `MYSQL_USER`: Database username (default: rtk)
+- `MYSQL_DATABASE`: Database name (default: RTK)
 
 ## Architecture
 

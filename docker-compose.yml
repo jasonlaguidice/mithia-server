@@ -2,8 +2,8 @@ version: '3.8'
 services:
   server:
     image: ghcr.io/jasonlaguidice/mithia-server:latest
-    command: ["/bin/bash", "-c", "cd /home/RTK/rtk && ./start-mithia-servers && tail -f /dev/null"]
-    restart: always
+    command: ["/bin/bash", "-c", "cd /home/RTK/rtk && ./start-mithia-servers && tail -f logs/*.log"]
+    restart: no
     ports:
       - "2000:2000"  # Login Server
       - "2001:2001"  # Map Server
@@ -12,23 +12,21 @@ services:
       - "rtk_data:/home/RTK/rtk"
       - "rtklua_data:/home/RTK/rtklua"
       - "rtkmaps_data:/home/RTK/rtkmaps"
-      - "./data/backups:/home/RTK/backups"
-      - "./data/logs:/home/RTK/rtk/logs"
+      - "/opt/mithia/config:/home/RTK/rtk/conf"  # Config files editable from host
+      - "/opt/mithia/data/backups:/home/RTK/backups"
+      - "/opt/mithia/data/logs:/home/RTK/rtk/logs"
 
   database:
     image: mysql/mysql-server:latest
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: 'definitelyChangeMe'
-      MYSQL_USER: 'rtk'
-      MYSQL_PASSWORD: 'changeMe'
-      MYSQL_DATABASE: 'RTK'
+    env_file:
+      - stack.env
     ports:
       - "3306:3306"
     volumes:
-      - "./database/scripts:/docker-entrypoint-initdb.d" # Every script in docker-entrypoint-initdb.d is executed in alphabetical order as soon as the container starts
-      - "./data/mysql:/var/lib/mysql"
-      - "./data/backups:/backups"
+      - "/opt/mithia/database/scripts:/docker-entrypoint-initdb.d" # Every script in docker-entrypoint-initdb.d is executed in alphabetical order as soon as the container starts
+      - "/opt/mithia/data/mysql:/var/lib/mysql"
+      - "/opt/mithia/data/backups:/backups"
 
 volumes:
   rtk_data:
