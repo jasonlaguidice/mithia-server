@@ -31,9 +31,8 @@ WORKDIR /home/RTK
 # Install getent for hostname resolution and envsubst for template processing
 RUN apt-get update && apt-get install -y gettext-base dnsutils curl && rm -rf /var/lib/apt/lists/*
 
-# Copy source files needed for map server (includes Lua scripts and maps)
-COPY --chown=RTK:RTK rtk/src/common/ rtk/src/common/
-COPY --chown=RTK:RTK rtk/src/map/ rtk/src/map/
+# Copy ALL source files (dependencies exist across directories)
+COPY --chown=RTK:RTK rtk/src/ rtk/src/
 COPY --chown=RTK:RTK rtk/Makefile rtk/Makefile
 COPY --chown=RTK:RTK rtklua/ rtklua/
 COPY --chown=RTK:RTK rtkmaps/ rtkmaps/

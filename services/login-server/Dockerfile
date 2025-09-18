@@ -31,9 +31,8 @@ WORKDIR /home/RTK
 # Install getent for hostname resolution and envsubst for template processing
 RUN apt-get update && apt-get install -y gettext-base dnsutils curl && rm -rf /var/lib/apt/lists/*
 
-# Copy source files needed for login server
-COPY --chown=RTK:RTK rtk/src/common/ rtk/src/common/
-COPY --chown=RTK:RTK rtk/src/login/ rtk/src/login/
+# Copy ALL source files (dependencies exist across directories)
+COPY --chown=RTK:RTK rtk/src/ rtk/src/
 COPY --chown=RTK:RTK rtk/Makefile rtk/Makefile
 
 # Copy configuration templates and startup script
