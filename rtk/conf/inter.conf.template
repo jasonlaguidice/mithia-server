@@ -1,0 +1,20 @@
+// Inter-Server Configuration - IPs resolved at runtime
+// ==========================
+
+// Login server setting
+login_ip: ${LOGIN_SERVER_IP}
+login_port: ${LOGIN_SERVER_PORT:-2000}
+login_id: yuri_login_id
+login_pw: yuri_login_pw
+
+// Char server setting
+char_ip: ${CHAR_SERVER_IP}
+char_port: ${CHAR_SERVER_PORT:-2005}
+char_id: yuri_char_id
+char_pw: yuri_char_pw
+
+// Save server setting
+save_ip: ${CHAR_SERVER_IP}
+save_port: ${SAVE_SERVER_PORT:-2006}
+save_id: yuri_save_id
+save_pw: yuri_save_pw

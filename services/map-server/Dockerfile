@@ -28,13 +28,21 @@ RUN useradd -m -d /home/RTK -s /bin/bash RTK
 # Set working directory
 WORKDIR /home/RTK
 
-# Copy files needed for map server (includes Lua scripts and maps)
+# Install getent for hostname resolution and envsubst for template processing
+RUN apt-get update && apt-get install -y gettext-base dnsutils curl && rm -rf /var/lib/apt/lists/*
+
+# Copy source files needed for map server (includes Lua scripts and maps)
 COPY --chown=RTK:RTK rtk/src/common/ rtk/src/common/
 COPY --chown=RTK:RTK rtk/src/map/ rtk/src/map/
 COPY --chown=RTK:RTK rtk/Makefile rtk/Makefile
-COPY --chown=RTK:RTK rtk/conf/ rtk/conf/
 COPY --chown=RTK:RTK rtklua/ rtklua/
 COPY --chown=RTK:RTK rtkmaps/ rtkmaps/
+
+# Copy configuration templates and startup script
+COPY --chown=RTK:RTK rtk/conf/*.template rtk/conf/
+COPY --chown=RTK:RTK rtk/conf/*.conf rtk/conf/
+COPY --chown=RTK:RTK docker/startup.sh /startup.sh
+RUN chmod +x /startup.sh
 
 # Build only map server as RTK user
 USER RTK
@@ -46,6 +54,7 @@ RUN chmod +x rtk/map-server
 # Expose map server port
 EXPOSE 2001
 
-# Run map server
+# Use startup script as entrypoint
 WORKDIR /home/RTK/rtk
+ENTRYPOINT ["/startup.sh"]
 CMD ["./map-server"]

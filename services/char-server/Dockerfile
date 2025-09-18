@@ -28,11 +28,19 @@ RUN useradd -m -d /home/RTK -s /bin/bash RTK
 # Set working directory
 WORKDIR /home/RTK
 
-# Copy only the files needed for character server
+# Install getent for hostname resolution and envsubst for template processing
+RUN apt-get update && apt-get install -y gettext-base dnsutils curl && rm -rf /var/lib/apt/lists/*
+
+# Copy source files needed for character server
 COPY --chown=RTK:RTK rtk/src/common/ rtk/src/common/
 COPY --chown=RTK:RTK rtk/src/char/ rtk/src/char/
 COPY --chown=RTK:RTK rtk/Makefile rtk/Makefile
-COPY --chown=RTK:RTK rtk/conf/ rtk/conf/
+
+# Copy configuration templates and startup script
+COPY --chown=RTK:RTK rtk/conf/*.template rtk/conf/
+COPY --chown=RTK:RTK rtk/conf/*.conf rtk/conf/
+COPY --chown=RTK:RTK docker/startup.sh /startup.sh
+RUN chmod +x /startup.sh
 
 # Build only character server as RTK user
 USER RTK
@@ -44,6 +52,7 @@ RUN chmod +x rtk/char-server
 # Expose character server port
 EXPOSE 2005
 
-# Run character server
+# Use startup script as entrypoint
 WORKDIR /home/RTK/rtk
+ENTRYPOINT ["/startup.sh"]
 CMD ["./char-server"]

@@ -1,0 +1,22 @@
+//YURI CHAR CONFIGURATION FILE
+//=============================
+
+//sql server configuration - IP resolved at runtime
+sql_ip: ${DB_IP}
+sql_port: ${DB_PORT:-3306}
+sql_id: ${DB_USER:-rtk}
+sql_pw: ${DB_PASSWORD:-changeme}
+sql_db: ${DB_NAME:-RTK}
+
+//logfile
+char_log: logs/char.log
+
+//dump configuration
+dump_log: logs/char_dump.log
+dump_save: 1
+
+//New Character Database
+//start money
+start_money: ${START_MONEY:-100}
+//map location (map number, x, y)
+start_point: ${START_POINT:-0, 1, 1}
