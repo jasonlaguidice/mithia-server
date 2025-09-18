@@ -1,12 +1,12 @@
-name: Build and Push Docker Images
+name: Build and Push Docker Images (Monolithic - Manual Only)
 
 on:
-  push:
-    branches: [ main ]
-    tags: [ 'v*.*.*' ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:  # Allows manual triggering
+  workflow_dispatch:  # Manual triggering only for monolithic build
+    inputs:
+      reason:
+        description: 'Reason for building monolithic container'
+        required: true
+        default: 'Legacy deployment or testing'
 
 env:
   REGISTRY: ghcr.io
@@ -50,15 +50,16 @@ jobs:
           type=semver,pattern={{major}}
           type=raw,value=latest,enable={{is_default_branch}}
 
-    - name: Build and push Docker image
+    - name: Build and push monolithic Docker image
       uses: docker/build-push-action@v5
       with:
         context: .
         platforms: linux/amd64,linux/arm64
-        push: ${{ github.event_name != 'pull_request' }}
+        push: true  # Always push when manually triggered
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
         build-args: |
           BUILDKIT_INLINE_CACHE=1
+          REASON="${{ github.event.inputs.reason }}"

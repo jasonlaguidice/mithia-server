@@ -1,0 +1,49 @@
+version: '3.8'
+services:
+  server:
+    image: ghcr.io/jasonlaguidice/mithia-server:latest
+    command: ["/bin/bash", "-c", "cd /home/RTK/rtk && ./start-mithia-servers && tail -f logs/*.log"]
+    restart: no
+    networks:
+      mithia_network:
+        ipv4_address: 172.20.0.10
+    ports:
+      - "2000:2000"  # Login Server
+      - "2001:2001"  # Map Server
+      - "2005:2005"  # Character Server
+    volumes:
+      - "rtk_data:/home/RTK/rtk"
+      - "rtklua_data:/home/RTK/rtklua"
+      - "rtkmaps_data:/home/RTK/rtkmaps"
+      - "/opt/mithia/config:/home/RTK/rtk/conf"  # Config files editable from host
+      - "/opt/mithia/data/backups:/home/RTK/backups"
+      - "/opt/mithia/data/logs:/home/RTK/rtk/logs"
+
+  database:
+    image: mysql/mysql-server:latest
+    restart: always
+    env_file:
+      - stack.env
+    networks:
+      mithia_network:
+        ipv4_address: 172.20.0.20
+    ports:
+      - "3306:3306"
+    volumes:
+      - "/opt/mithia/database/scripts:/docker-entrypoint-initdb.d" # Every script in docker-entrypoint-initdb.d is executed in alphabetical order as soon as the container starts
+      - "/opt/mithia/data/mysql:/var/lib/mysql"
+      - "/opt/mithia/data/backups:/backups"
+
+volumes:
+  rtk_data:
+    driver: local
+  rtklua_data:
+    driver: local
+  rtkmaps_data:
+    driver: local
+
+networks:
+  mithia_network:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

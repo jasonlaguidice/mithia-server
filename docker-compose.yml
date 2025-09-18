@@ -1,49 +1,116 @@
 version: '3.8'
 services:
-  server:
-    image: ghcr.io/jasonlaguidice/mithia-server:latest
-    command: ["/bin/bash", "-c", "cd /home/RTK/rtk && ./start-mithia-servers && tail -f logs/*.log"]
-    restart: no
+  # Login Server - Handles user authentication
+  mithia-login:
+    image: ghcr.io/jasonlaguidice/mithia-server/mithia-login-server:latest
+    restart: unless-stopped
     networks:
-      mithia_network:
-        ipv4_address: 172.20.0.10
+      - mithia_network
     ports:
-      - "2000:2000"  # Login Server
-      - "2001:2001"  # Map Server
-      - "2005:2005"  # Character Server
+      - "2000:2000"
+    environment:
+      - CHAR_SERVER_HOST=mithia-char
+      - CHAR_SERVER_PORT=2005
+      - DB_HOST=mithia-db
+      - DB_PORT=3306
     volumes:
-      - "rtk_data:/home/RTK/rtk"
-      - "rtklua_data:/home/RTK/rtklua"
-      - "rtkmaps_data:/home/RTK/rtkmaps"
-      - "/opt/mithia/config:/home/RTK/rtk/conf"  # Config files editable from host
-      - "/opt/mithia/data/backups:/home/RTK/backups"
+      - "./rtk/conf:/home/RTK/rtk/conf"
       - "/opt/mithia/data/logs:/home/RTK/rtk/logs"
+    depends_on:
+      - mithia-db
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  database:
-    image: mysql/mysql-server:latest
-    restart: always
-    env_file:
-      - stack.env
+  # Character Server - Manages character data and bridges login/map
+  mithia-char:
+    image: ghcr.io/jasonlaguidice/mithia-server/mithia-char-server:latest
+    restart: unless-stopped
     networks:
-      mithia_network:
-        ipv4_address: 172.20.0.20
+      - mithia_network
+    ports:
+      - "2005:2005"
+    environment:
+      - LOGIN_SERVER_HOST=mithia-login
+      - LOGIN_SERVER_PORT=2000
+      - MAP_SERVER_HOST=mithia-map
+      - MAP_SERVER_PORT=2001
+      - DB_HOST=mithia-db
+      - DB_PORT=3306
+    volumes:
+      - "./rtk/conf:/home/RTK/rtk/conf"
+      - "/opt/mithia/data/logs:/home/RTK/rtk/logs"
+    depends_on:
+      - mithia-db
+      - mithia-login
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2005"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Map Server - Game world simulation (scalable)
+  mithia-map:
+    image: ghcr.io/jasonlaguidice/mithia-server/mithia-map-server:latest
+    restart: unless-stopped
+    networks:
+      - mithia_network
+    ports:
+      - "2001:2001"
+    environment:
+      - CHAR_SERVER_HOST=mithia-char
+      - CHAR_SERVER_PORT=2005
+      - DB_HOST=mithia-db
+      - DB_PORT=3306
+    volumes:
+      - "./rtk/conf:/home/RTK/rtk/conf"
+      - "./rtklua:/home/RTK/rtklua"
+      - "./rtkmaps:/home/RTK/rtkmaps"
+      - "/opt/mithia/data/logs:/home/RTK/rtk/logs"
+    depends_on:
+      - mithia-char
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2001"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Database Server - MySQL
+  mithia-db:
+    image: mysql/mysql-server:8.0
+    restart: unless-stopped
+    networks:
+      - mithia_network
     ports:
       - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=changeMe
+      - MYSQL_DATABASE=RTK
+      - MYSQL_USER=mithia
+      - MYSQL_PASSWORD=mithia_password
     volumes:
-      - "/opt/mithia/database/scripts:/docker-entrypoint-initdb.d" # Every script in docker-entrypoint-initdb.d is executed in alphabetical order as soon as the container starts
+      - "/opt/mithia/database/scripts:/docker-entrypoint-initdb.d"
       - "/opt/mithia/data/mysql:/var/lib/mysql"
       - "/opt/mithia/data/backups:/backups"
-
-volumes:
-  rtk_data:
-    driver: local
-  rtklua_data:
-    driver: local
-  rtkmaps_data:
-    driver: local
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
 networks:
   mithia_network:
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
+    driver: bridge
+
+# Usage Examples:
+#
+# Production deployment (uses pre-built images):
+#   docker-compose -f docker-compose.production.yml up
+#
+# Development with local builds:
+#   docker-compose -f docker-compose.microservices.yml up --build
+#
+# Scale map servers:
+#   docker-compose -f docker-compose.production.yml up --scale mithia-map=3
