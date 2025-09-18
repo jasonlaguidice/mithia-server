@@ -44,7 +44,7 @@ RUN chmod +x /startup.sh
 
 # Build only login server as RTK user
 USER RTK
-RUN cd rtk && make clean && make login
+RUN cd rtk && make login
 
 # Make server executable
 RUN chmod +x rtk/login-server

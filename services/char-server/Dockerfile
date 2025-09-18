@@ -44,7 +44,7 @@ RUN chmod +x /startup.sh
 
 # Build only character server as RTK user
 USER RTK
-RUN cd rtk && make clean && make char
+RUN cd rtk && make char
 
 # Make server executable
 RUN chmod +x rtk/char-server

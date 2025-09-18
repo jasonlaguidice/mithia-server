@@ -46,7 +46,7 @@ RUN chmod +x /startup.sh
 
 # Build only map server as RTK user
 USER RTK
-RUN cd rtk && make clean && make map
+RUN cd rtk && make map
 
 # Make server executable
 RUN chmod +x rtk/map-server
