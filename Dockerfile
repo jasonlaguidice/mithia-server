@@ -18,6 +18,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     libmysqlclient-dev \
     lua5.1 \
     liblua5.1 \
+    liblua5.1-dev \
     mysql-client-5.7 \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*

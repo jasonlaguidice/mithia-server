@@ -1,12 +1,12 @@
 # Mithia Map Server - Standalone Container
-# Supports 32-bit execution on ARM64 via qemu
-FROM i386/ubuntu:latest
+# Using Ubuntu 16.04 for legacy library compatibility
+FROM i386/ubuntu:16.04
 
 # Set up timezone configuration to avoid interactive prompts
-RUN echo tzdata tzdata/Zones/Europe select London | debconf-set-selections && \
-    echo tzdata tzdata/Zones/Etc select UTC | debconf-set-selections
+RUN echo tzdata tzdata/Zones/America select New_York | debconf-set-selections && \
+    echo tzdata tzdata/Zones/Etc select EST | debconf-set-selections
 
-# Install dependencies matching working Dockerfile
+# Install legacy dependencies matching RTK server era
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && apt-get install -y \
     build-essential \
@@ -18,8 +18,10 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     libmysqlclient-dev \
     lua5.1 \
     liblua5.1 \
+    liblua5.1-dev \
     mysql-client-5.7 \
     pkg-config \
+    zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Create RTK user and directories
@@ -34,6 +36,7 @@ RUN apt-get update && apt-get install -y gettext-base dnsutils curl && rm -rf /v
 # Copy ALL source files (dependencies exist across directories)
 COPY --chown=RTK:RTK rtk/src/ rtk/src/
 COPY --chown=RTK:RTK rtk/Makefile rtk/Makefile
+COPY --chown=RTK:RTK rtk/db/ rtk/db/
 COPY --chown=RTK:RTK rtklua/ rtklua/
 COPY --chown=RTK:RTK rtkmaps/ rtkmaps/
 
@@ -41,10 +44,11 @@ COPY --chown=RTK:RTK rtkmaps/ rtkmaps/
 COPY --chown=RTK:RTK rtk/conf/*.template rtk/conf/
 COPY --chown=RTK:RTK rtk/conf/*.conf rtk/conf/
 COPY --chown=RTK:RTK docker/startup.sh /startup.sh
-RUN chmod +x /startup.sh
+RUN chmod +x /startup.sh && sed -i 's/\r$//' /startup.sh
 
-# Build only map server as RTK user
+# Create log directory and build map server as RTK user
 USER RTK
+RUN mkdir -p rtk/log rtk/logs
 RUN cd rtk && make map
 
 # Make server executable

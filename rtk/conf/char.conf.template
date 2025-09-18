@@ -3,10 +3,10 @@
 
 //sql server configuration - IP resolved at runtime
 sql_ip: ${DB_IP}
-sql_port: ${DB_PORT:-3306}
-sql_id: ${DB_USER:-rtk}
-sql_pw: ${DB_PASSWORD:-changeme}
-sql_db: ${DB_NAME:-RTK}
+sql_port: ${DB_PORT}
+sql_id: rtk
+sql_pw: 50LM8U8Poq5uX2AZJVKs
+sql_db: ${DB_NAME}
 
 //logfile
 char_log: logs/char.log
@@ -17,6 +17,6 @@ dump_save: 1
 
 //New Character Database
 //start money
-start_money: ${START_MONEY:-100}
+start_money: ${START_MONEY}
 //map location (map number, x, y)
-start_point: ${START_POINT:-0, 1, 1}
+start_point: ${START_POINT}

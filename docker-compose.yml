@@ -2,22 +2,25 @@ version: '3.8'
 services:
   # Login Server - Handles user authentication
   mithia-login:
-    image: ghcr.io/jasonlaguidice/mithia-server/mithia-login-server:latest
+    image: mithia-login-server:fixed
     restart: unless-stopped
     networks:
-      - mithia_network
+      mithia_network:
+        ipv4_address: 172.20.0.10
     ports:
       - "2000:2000"
     environment:
+      - LOGIN_SERVER_HOST=mithia-login
       - CHAR_SERVER_HOST=mithia-char
       - CHAR_SERVER_PORT=2005
       - DB_HOST=mithia-db
       - DB_PORT=3306
     volumes:
       - "./rtk/conf:/home/RTK/rtk/conf"
-      - "/opt/mithia/data/logs:/home/RTK/rtk/logs"
+      - "./mithia-data/data/logs:/home/RTK/rtk/logs"
     depends_on:
-      - mithia-db
+      mithia-db:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "2000"]
       interval: 30s
@@ -29,7 +32,8 @@ services:
     image: ghcr.io/jasonlaguidice/mithia-server/mithia-char-server:latest
     restart: unless-stopped
     networks:
-      - mithia_network
+      mithia_network:
+        ipv4_address: 172.20.0.20
     ports:
       - "2005:2005"
     environment:
@@ -41,10 +45,12 @@ services:
       - DB_PORT=3306
     volumes:
       - "./rtk/conf:/home/RTK/rtk/conf"
-      - "/opt/mithia/data/logs:/home/RTK/rtk/logs"
+      - "./mithia-data/data/logs:/home/RTK/rtk/logs"
     depends_on:
-      - mithia-db
-      - mithia-login
+      mithia-db:
+        condition: service_healthy
+      mithia-login:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "2005"]
       interval: 30s
@@ -53,10 +59,11 @@ services:
 
   # Map Server - Game world simulation (scalable)
   mithia-map:
-    image: ghcr.io/jasonlaguidice/mithia-server/mithia-map-server:latest
+    image: mithia-map-server:with-logs
     restart: unless-stopped
     networks:
-      - mithia_network
+      mithia_network:
+        ipv4_address: 172.20.0.30
     ports:
       - "2001:2001"
     environment:
@@ -64,13 +71,17 @@ services:
       - CHAR_SERVER_PORT=2005
       - DB_HOST=mithia-db
       - DB_PORT=3306
+    env_file:
+      - stack.env
     volumes:
       - "./rtk/conf:/home/RTK/rtk/conf"
+      - "./rtk/db:/home/RTK/rtk/db"
       - "./rtklua:/home/RTK/rtklua"
       - "./rtkmaps:/home/RTK/rtkmaps"
-      - "/opt/mithia/data/logs:/home/RTK/rtk/logs"
+      - "./mithia-data/data/logs:/home/RTK/rtk/logs"
     depends_on:
-      - mithia-char
+      mithia-char:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "2001"]
       interval: 30s
@@ -82,18 +93,16 @@ services:
     image: mysql/mysql-server:8.0
     restart: unless-stopped
     networks:
-      - mithia_network
+      mithia_network:
+        ipv4_address: 172.20.0.5
     ports:
       - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=changeMe
-      - MYSQL_DATABASE=RTK
-      - MYSQL_USER=mithia
-      - MYSQL_PASSWORD=mithia_password
+    env_file:
+      - stack.env
     volumes:
-      - "/opt/mithia/database/scripts:/docker-entrypoint-initdb.d"
-      - "/opt/mithia/data/mysql:/var/lib/mysql"
-      - "/opt/mithia/data/backups:/backups"
+      - "./mithia-data/database/scripts:/docker-entrypoint-initdb.d"
+      - "./mithia-data/data/mysql:/var/lib/mysql"
+      - "./mithia-data/data/backups:/backups"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 30s
@@ -103,6 +112,10 @@ services:
 networks:
   mithia_network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
 
 # Usage Examples:
 #

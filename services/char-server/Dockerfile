@@ -1,12 +1,12 @@
 # Mithia Character Server - Standalone Container
 # Supports 32-bit execution on ARM64 via qemu
-FROM i386/ubuntu:latest
+FROM i386/ubuntu:16.04
 
 # Set up timezone configuration to avoid interactive prompts
-RUN echo tzdata tzdata/Zones/Europe select London | debconf-set-selections && \
-    echo tzdata tzdata/Zones/Etc select UTC | debconf-set-selections
+RUN echo tzdata tzdata/Zones/America select New_York | debconf-set-selections && \
+    echo tzdata tzdata/Zones/Etc select EST | debconf-set-selections
 
-# Install dependencies matching working Dockerfile
+# Install legacy dependencies matching RTK server era
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && apt-get install -y \
     build-essential \
@@ -18,8 +18,10 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     libmysqlclient-dev \
     lua5.1 \
     liblua5.1 \
+    liblua5.1-dev \
     mysql-client-5.7 \
     pkg-config \
+    zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Create RTK user and directories
@@ -39,7 +41,7 @@ COPY --chown=RTK:RTK rtk/Makefile rtk/Makefile
 COPY --chown=RTK:RTK rtk/conf/*.template rtk/conf/
 COPY --chown=RTK:RTK rtk/conf/*.conf rtk/conf/
 COPY --chown=RTK:RTK docker/startup.sh /startup.sh
-RUN chmod +x /startup.sh
+RUN chmod +x /startup.sh && sed -i 's/\r$//' /startup.sh
 
 # Build only character server as RTK user
 USER RTK

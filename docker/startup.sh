@@ -21,8 +21,10 @@ if [ -n "${MAP_SERVER_HOST:-}" ]; then
 fi
 
 if [ -n "${DB_HOST:-}" ]; then
-    DB_IP=$(getent hosts ${DB_HOST} | awk '{ print $1 }' | head -1)
+    DB_IP=$(getent hosts ${DB_HOST} | awk '{ print $1 }' | head -1 || echo "${DB_HOST}")
     echo "  Database (internal): $DB_IP"
+else
+    DB_IP="127.0.0.1"
 fi
 
 # Get our own container IP
@@ -49,9 +51,9 @@ fi
 echo "  Public Login IP: $PUBLIC_LOGIN_IP"
 
 # Set default database credentials if not provided
-DB_USER=${DB_USER:-rtk}
-DB_PASSWORD=${DB_PASSWORD:-changeme}
-DB_NAME=${DB_NAME:-RTK}
+DB_USER=${DB_USER:-${MYSQL_USER:-rtk}}
+DB_PASSWORD=${DB_PASSWORD:-${MYSQL_PASSWORD:-changeme}}
+DB_NAME=${DB_NAME:-${MYSQL_DATABASE:-RTK}}
 DB_PORT=${DB_PORT:-3306}
 
 # Set default server ports (fixed, not configurable)
@@ -59,11 +61,19 @@ LOGIN_SERVER_PORT=${LOGIN_SERVER_PORT:-2000}
 CHAR_SERVER_PORT=${CHAR_SERVER_PORT:-2005}
 MAP_SERVER_PORT=${MAP_SERVER_PORT:-2001}
 
+# Set default game configuration
+START_MONEY=${START_MONEY:-100}
+START_POINT=${START_POINT:-"0, 1, 1"}
+XP_RATE=${XP_RATE:-1}
+DROP_RATE=${DROP_RATE:-1}
+SERVER_ID=${SERVER_ID:-0}
+
 # Export all variables for envsubst
 export LOGIN_SERVER_IP CHAR_SERVER_IP MAP_SERVER_IP DB_IP OWN_IP
 export PUBLIC_MAP_IP PUBLIC_LOGIN_IP
 export DB_USER DB_PASSWORD DB_NAME DB_PORT
 export LOGIN_SERVER_PORT CHAR_SERVER_PORT MAP_SERVER_PORT
+export START_MONEY START_POINT XP_RATE DROP_RATE SERVER_ID
 
 echo ""
 echo "=== Generating Configuration Files ==="
@@ -82,6 +92,11 @@ fi
 if [ -f /home/RTK/rtk/conf/map.conf.template ]; then
     envsubst < /home/RTK/rtk/conf/map.conf.template > /home/RTK/rtk/conf/map.conf
     echo "  Generated map.conf"
+fi
+
+if [ -f /home/RTK/rtk/conf/login.conf.template ]; then
+    envsubst < /home/RTK/rtk/conf/login.conf.template > /home/RTK/rtk/conf/login.conf
+    echo "  Generated login.conf"
 fi
 
 echo ""
