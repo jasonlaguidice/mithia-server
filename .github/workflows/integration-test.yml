@@ -1,14 +1,15 @@
 name: Integration Tests
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_run:
+    workflows: ["Build and Push Docker Images (Individual)"]
+    types:
+      - completed
   workflow_dispatch:  # Allow manual triggering
 
 jobs:
   test-microservices:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -27,7 +28,7 @@ jobs:
     - name: Build microservices images
       run: |
         echo "Building microservices containers..."
-        docker-compose build --parallel
+        docker compose build --parallel
 
     - name: Show Docker images
       run: |
@@ -49,38 +50,38 @@ jobs:
 
         echo ""
         echo "=== Docker Compose Status ==="
-        docker-compose ps || true
+        docker compose ps || true
 
         echo ""
         echo "=== Container Logs ==="
-        docker-compose logs --tail=50 || true
+        docker compose logs --tail=50 || true
 
         echo ""
         echo "=== Login Server Logs ==="
-        docker-compose logs mithia-login || true
+        docker compose logs mithia-login || true
 
         echo ""
         echo "=== Character Server Logs ==="
-        docker-compose logs mithia-char || true
+        docker compose logs mithia-char || true
 
         echo ""
         echo "=== Map Server Logs ==="
-        docker-compose logs mithia-map || true
+        docker compose logs mithia-map || true
 
         echo ""
         echo "=== Database Logs ==="
-        docker-compose logs mithia-db || true
+        docker compose logs mithia-db || true
 
         echo ""
         echo "=== Network Information ==="
         docker network ls || true
-        docker-compose exec -T mithia-char ip addr show || true
+        docker compose exec -T mithia-char ip addr show || true
 
     - name: Cleanup test environment
       if: always()
       run: |
         echo "Cleaning up test environment..."
-        docker-compose down -v --remove-orphans || true
+        docker compose down -v --remove-orphans || true
         docker system prune -f || true
 
   # Summary job that depends on the test completion
