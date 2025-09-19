@@ -12,7 +12,6 @@ services:
     mem_limit: 4g
     networks:
       mithia_network:
-        ipv4_address: 172.20.0.10
     ports:
       - "2000:2000"
     environment:
@@ -45,7 +44,6 @@ services:
     mem_limit: 4g
     networks:
       mithia_network:
-        ipv4_address: 172.20.0.20
     ports:
       - "2005:2005"
     environment:
@@ -81,7 +79,6 @@ services:
     mem_limit: 4g
     networks:
       mithia_network:
-        ipv4_address: 172.20.0.30
     ports:
       - "2001:2001"
     environment:
@@ -112,7 +109,6 @@ services:
     restart: unless-stopped
     networks:
       mithia_network:
-        ipv4_address: 172.20.0.5
     ports:
       - "3306:3306"
     env_file:
@@ -130,10 +126,6 @@ services:
 networks:
   mithia_network:
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
-          gateway: 172.20.0.1
 
 volumes:
   mysql_data:
