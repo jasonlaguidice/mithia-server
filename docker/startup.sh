@@ -68,20 +68,37 @@ export LOGIN_SERVER_PORT CHAR_SERVER_PORT MAP_SERVER_PORT
 echo ""
 echo "=== Generating Configuration Files ==="
 
+# Debug: List available template files
+echo "Available template files:"
+ls -la /home/RTK/rtk/conf/*.template 2>/dev/null || echo "  No template files found"
+
 # Generate configuration files from templates
 if [ -f /home/RTK/rtk/conf/inter.conf.template ]; then
     envsubst < /home/RTK/rtk/conf/inter.conf.template > /home/RTK/rtk/conf/inter.conf
     echo "  Generated inter.conf"
+else
+    echo "  inter.conf.template not found"
 fi
 
 if [ -f /home/RTK/rtk/conf/char.conf.template ]; then
     envsubst < /home/RTK/rtk/conf/char.conf.template > /home/RTK/rtk/conf/char.conf
     echo "  Generated char.conf"
+    echo "  DB_IP resolved to: $DB_IP"
+else
+    echo "  char.conf.template not found"
 fi
 
 if [ -f /home/RTK/rtk/conf/map.conf.template ]; then
     envsubst < /home/RTK/rtk/conf/map.conf.template > /home/RTK/rtk/conf/map.conf
     echo "  Generated map.conf"
+else
+    echo "  map.conf.template not found"
+fi
+
+# Debug: Show final char.conf database config
+if [ -f /home/RTK/rtk/conf/char.conf ]; then
+    echo "Final char.conf database config:"
+    grep -A5 "sql_ip:" /home/RTK/rtk/conf/char.conf || echo "  No sql_ip found in char.conf"
 fi
 
 echo ""
