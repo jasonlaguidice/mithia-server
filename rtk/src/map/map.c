@@ -1825,12 +1825,22 @@ int do_init(int argc, char** argv) {
 
 	//sql_init();
 	uptime();
+	printf("DEBUG: About to call guidedb_init()\n");
 	guidedb_init();
+	printf("DEBUG: guidedb_init() completed\n");
+	printf("DEBUG: About to call map_read()\n");
 	map_read();
+	printf("DEBUG: map_read() completed\n");
+	printf("DEBUG: About to call map_initblock()\n");
 	map_initblock();
+	printf("DEBUG: map_initblock() completed\n");
+	printf("DEBUG: About to call map_initiddb()\n");
 	map_initiddb();
+	printf("DEBUG: map_initiddb() completed\n");
 	//script_init();
+	printf("DEBUG: About to call npc_init()\n");
 	npc_init();
+	printf("DEBUG: npc_init() completed\n");
 	warp_init();
 	itemdb_init();
 	recipedb_init();

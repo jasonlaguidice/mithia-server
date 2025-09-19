@@ -112,5 +112,35 @@ echo "    Login: $PUBLIC_LOGIN_IP:$LOGIN_SERVER_PORT"
 echo ""
 
 echo "=== Starting Server ==="
-# Execute the server
-exec "$@"
+
+# Debug: Show executable information
+echo "DEBUG: Executable path: $1"
+echo "DEBUG: File exists: $(ls -la "$1" 2>/dev/null || echo "FILE NOT FOUND")"
+echo "DEBUG: File permissions: $(stat -c '%A' "$1" 2>/dev/null || echo "STAT FAILED")"
+
+# Debug: Check library dependencies
+echo "DEBUG: Library dependencies:"
+ldd "$1" 2>/dev/null || echo "LDD failed - not a dynamic executable or missing libraries"
+
+echo "DEBUG: Installed MySQL client libraries:"
+find /usr/lib* -name "*mysql*" 2>/dev/null | head -10
+
+echo "DEBUG: Installed Lua libraries:"
+find /usr/lib* -name "*lua*" 2>/dev/null | head -10
+
+echo "DEBUG: Architecture information:"
+echo "  Container arch: $(uname -m)"
+echo "  Executable arch: $(file "$1" 2>/dev/null || echo "FILE command failed")"
+
+# Test if the executable can run at all
+echo "DEBUG: Testing if executable starts..."
+echo "DEBUG: About to exec (line-buffered): $@"
+
+# Execute the server with line-buffered stdout/stderr so Docker logs capture prints immediately
+# Also mirror output into logs/console.log so you can compare with bare metal logs on the host
+mkdir -p logs
+if command -v stdbuf >/dev/null 2>&1; then
+  stdbuf -oL -eL "$@" 2>&1 | tee -a logs/console.log
+else
+  "$@" 2>&1 | tee -a logs/console.log
+fi

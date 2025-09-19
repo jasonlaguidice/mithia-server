@@ -1,0 +1,2145 @@
+
+2025-09-18 09:08:30.666: RetroTK Map Server Started.
+
+2025-09-18 09:08:31.356: RetroTK Map Server Started.
+
+2025-09-18 09:08:31.988: RetroTK Map Server Started.
+
+2025-09-18 09:08:32.764: RetroTK Map Server Started.
+
+2025-09-18 09:08:33.940: RetroTK Map Server Started.
+
+2025-09-18 09:08:34.403: RetroTK Char Server Started.
+
+2025-09-18 09:08:35.910: RetroTK Map Server Started.
+
+2025-09-18 09:08:38.983: RetroTK Char Server Started.
+
+2025-09-18 09:08:39.682: RetroTK Char Server Started.
+
+2025-09-18 09:08:40.448: RetroTK Char Server Started.
+
+2025-09-18 09:08:41.622: RetroTK Char Server Started.
+
+2025-09-18 09:08:43.482: RetroTK Map Server Started.
+
+2025-09-18 09:08:43.579: RetroTK Char Server Started.
+
+2025-09-18 09:08:50.268: RetroTK Map Server Started.
+
+2025-09-18 09:08:55.074: RetroTK Char Server Started.
+
+2025-09-18 09:09:03.437: RetroTK Map Server Started.
+
+2025-09-18 09:09:09.890: RetroTK Char Server Started.
+
+2025-09-18 09:09:29.469: RetroTK Map Server Started.
+
+2025-09-18 09:09:30.934: RetroTK Char Server Started.
+
+2025-09-18 09:10:04.797: RetroTK Char Server Started.
+
+2025-09-18 16:15:37.037: RetroTK Map Server Started.
+
+2025-09-18 16:15:37.645: RetroTK Map Server Started.
+
+2025-09-18 16:15:38.264: RetroTK Map Server Started.
+
+2025-09-18 16:15:39.014: RetroTK Map Server Started.
+
+2025-09-18 16:15:40.184: RetroTK Map Server Started.
+
+2025-09-18 16:15:40.640: RetroTK Char Server Started.
+
+2025-09-18 16:15:42.132: RetroTK Map Server Started.
+
+2025-09-18 16:15:45.134: RetroTK Char Server Started.
+
+2025-09-18 16:15:45.709: RetroTK Map Server Started.
+
+2025-09-18 16:15:45.760: RetroTK Char Server Started.
+
+2025-09-18 16:15:50.458: RetroTK Char Server Started.
+
+2025-09-18 16:15:52.494: RetroTK Map Server Started.
+
+2025-09-18 16:15:55.441: RetroTK Char Server Started.
+
+2025-09-18 16:16:01.370: RetroTK Char Server Started.
+
+2025-09-18 16:16:05.674: RetroTK Map Server Started.
+
+2025-09-18 16:16:12.838: RetroTK Char Server Started.
+
+2025-09-18 16:16:27.521: RetroTK Char Server Started.
+
+2025-09-18 16:16:35.705: RetroTK Map Server Started.
+
+2025-09-18 16:16:48.551: RetroTK Char Server Started.
+
+2025-09-18 16:17:22.425: RetroTK Char Server Started.
+
+2025-09-18 16:17:31.258: RetroTK Map Server Started.
+
+2025-09-18 16:18:21.908: RetroTK Char Server Started.
+
+2025-09-18 16:18:35.572: RetroTK Map Server Started.
+
+2025-09-18 16:19:02.174: RetroTK Map Server Started.
+
+2025-09-18 16:19:02.789: RetroTK Map Server Started.
+
+2025-09-18 16:19:03.451: RetroTK Map Server Started.
+
+2025-09-18 16:19:04.245: RetroTK Map Server Started.
+
+2025-09-18 16:19:05.416: RetroTK Map Server Started.
+
+2025-09-18 16:19:05.873: RetroTK Char Server Started.
+
+2025-09-18 16:19:07.394: RetroTK Map Server Started.
+
+2025-09-18 16:19:10.372: RetroTK Char Server Started.
+
+2025-09-18 16:19:10.989: RetroTK Map Server Started.
+
+2025-09-18 16:19:11.070: RetroTK Char Server Started.
+
+2025-09-18 16:19:15.778: RetroTK Char Server Started.
+
+2025-09-18 16:19:17.776: RetroTK Map Server Started.
+
+2025-09-18 16:19:20.760: RetroTK Char Server Started.
+
+2025-09-18 16:19:26.718: RetroTK Char Server Started.
+
+2025-09-18 16:19:30.963: RetroTK Map Server Started.
+
+2025-09-18 16:19:38.192: RetroTK Char Server Started.
+
+2025-09-18 16:19:52.850: RetroTK Char Server Started.
+
+2025-09-18 16:20:00.952: RetroTK Map Server Started.
+
+2025-09-18 16:20:13.943: RetroTK Char Server Started.
+
+2025-09-18 16:20:47.806: RetroTK Char Server Started.
+
+2025-09-18 16:20:56.510: RetroTK Map Server Started.
+
+2025-09-18 16:21:47.288: RetroTK Char Server Started.
+
+2025-09-18 16:22:00.842: RetroTK Map Server Started.
+
+2025-09-18 16:22:55.587: RetroTK Char Server Started.
+
+2025-09-18 16:23:05.170: RetroTK Map Server Started.
+
+2025-09-18 16:24:03.874: RetroTK Char Server Started.
+
+2025-09-18 16:24:09.523: RetroTK Map Server Started.
+
+2025-09-18 16:26:19.305: RetroTK Login Server Started.
+2025-09-18 16:26:19.307: Server Ready! Listening at 0.
+2025-09-18 16:26:25.326: Shutdown.
+
+2025-09-18 16:26:29.889: RetroTK Login Server Started.
+2025-09-18 16:26:29.891: Server Ready! Listening at 0.
+
+2025-09-18 16:30:38.592: RetroTK Char Server Started.
+2025-09-18 16:30:38.601: Server Ready! Listening at 0.
+2025-09-18 16:30:39.601: Can't connect to Login Server.
+2025-09-18 16:30:49.601: Can't connect to Login Server.
+2025-09-18 16:30:59.601: Can't connect to Login Server.
+2025-09-18 16:31:09.601: Can't connect to Login Server.
+
+2025-09-18 16:31:14.965: RetroTK Map Server Started.
+2025-09-18 16:31:19.601: Can't connect to Login Server.
+2025-09-18 16:31:29.601: Can't connect to Login Server.
+2025-09-18 16:31:39.601: Can't connect to Login Server.
+
+2025-09-18 16:31:44.359: RetroTK Map Server Started.
+2025-09-18 16:31:49.601: Can't connect to Login Server.
+2025-09-18 16:31:59.601: Can't connect to Login Server.
+2025-09-18 16:32:09.601: Can't connect to Login Server.
+
+2025-09-18 16:32:13.700: RetroTK Map Server Started.
+2025-09-18 16:32:19.601: Can't connect to Login Server.
+2025-09-18 16:32:29.601: Can't connect to Login Server.
+2025-09-18 16:32:39.601: Can't connect to Login Server.
+
+2025-09-18 16:32:42.563: RetroTK Map Server Started.
+2025-09-18 16:32:49.601: Can't connect to Login Server.
+2025-09-18 16:32:59.601: Can't connect to Login Server.
+2025-09-18 16:33:09.601: Can't connect to Login Server.
+
+2025-09-18 16:33:10.957: RetroTK Map Server Started.
+2025-09-18 16:33:19.601: Can't connect to Login Server.
+2025-09-18 16:33:29.601: Can't connect to Login Server.
+
+2025-09-18 16:33:39.123: RetroTK Map Server Started.
+2025-09-18 16:33:39.601: Can't connect to Login Server.
+2025-09-18 16:33:49.601: Can't connect to Login Server.
+2025-09-18 16:33:59.601: Can't connect to Login Server.
+
+2025-09-18 16:34:07.188: RetroTK Map Server Started.
+2025-09-18 16:34:09.601: Can't connect to Login Server.
+2025-09-18 16:34:19.601: Can't connect to Login Server.
+2025-09-18 16:34:29.601: Can't connect to Login Server.
+
+2025-09-18 16:34:35.412: RetroTK Map Server Started.
+2025-09-18 16:34:39.601: Can't connect to Login Server.
+2025-09-18 16:34:49.601: Can't connect to Login Server.
+2025-09-18 16:34:59.601: Can't connect to Login Server.
+
+2025-09-18 16:35:03.158: RetroTK Map Server Started.
+2025-09-18 16:35:09.601: Can't connect to Login Server.
+2025-09-18 16:35:19.601: Can't connect to Login Server.
+2025-09-18 16:35:29.601: Can't connect to Login Server.
+
+2025-09-18 16:35:30.760: RetroTK Map Server Started.
+2025-09-18 16:35:39.601: Can't connect to Login Server.
+2025-09-18 16:35:49.601: Can't connect to Login Server.
+
+2025-09-18 16:35:58.087: RetroTK Map Server Started.
+2025-09-18 16:35:59.601: Can't connect to Login Server.
+2025-09-18 16:36:09.601: Can't connect to Login Server.
+2025-09-18 16:36:19.601: Can't connect to Login Server.
+
+2025-09-18 16:36:25.386: RetroTK Map Server Started.
+2025-09-18 16:36:29.601: Can't connect to Login Server.
+2025-09-18 16:36:39.601: Can't connect to Login Server.
+2025-09-18 16:36:49.601: Can't connect to Login Server.
+
+2025-09-18 16:36:52.605: RetroTK Map Server Started.
+2025-09-18 16:36:59.601: Can't connect to Login Server.
+2025-09-18 16:37:09.601: Can't connect to Login Server.
+2025-09-18 16:37:19.601: Can't connect to Login Server.
+
+2025-09-18 16:37:19.871: RetroTK Map Server Started.
+2025-09-18 16:37:29.601: Can't connect to Login Server.
+2025-09-18 16:37:39.601: Can't connect to Login Server.
+
+2025-09-18 16:37:47.310: RetroTK Map Server Started.
+2025-09-18 16:37:49.601: Can't connect to Login Server.
+2025-09-18 16:37:59.601: Can't connect to Login Server.
+2025-09-18 16:38:09.601: Can't connect to Login Server.
+
+2025-09-18 16:38:15.575: RetroTK Map Server Started.
+2025-09-18 16:38:19.601: Can't connect to Login Server.
+2025-09-18 16:38:29.601: Can't connect to Login Server.
+2025-09-18 16:38:39.601: Can't connect to Login Server.
+
+2025-09-18 16:38:43.562: RetroTK Map Server Started.
+2025-09-18 16:38:49.601: Can't connect to Login Server.
+2025-09-18 16:38:59.601: Can't connect to Login Server.
+2025-09-18 16:39:09.601: Can't connect to Login Server.
+
+2025-09-18 16:39:11.706: RetroTK Map Server Started.
+2025-09-18 16:39:19.601: Can't connect to Login Server.
+2025-09-18 16:39:29.601: Can't connect to Login Server.
+2025-09-18 16:39:39.601: Can't connect to Login Server.
+
+2025-09-18 16:39:39.890: RetroTK Map Server Started.
+2025-09-18 16:39:49.601: Can't connect to Login Server.
+2025-09-18 16:39:59.601: Can't connect to Login Server.
+
+2025-09-18 16:40:07.898: RetroTK Map Server Started.
+2025-09-18 16:40:09.601: Can't connect to Login Server.
+2025-09-18 16:40:19.601: Can't connect to Login Server.
+2025-09-18 16:40:29.601: Can't connect to Login Server.
+
+2025-09-18 16:40:35.773: RetroTK Map Server Started.
+2025-09-18 16:40:39.601: Can't connect to Login Server.
+2025-09-18 16:40:49.601: Can't connect to Login Server.
+2025-09-18 16:40:59.601: Can't connect to Login Server.
+
+2025-09-18 16:41:03.641: RetroTK Map Server Started.
+2025-09-18 16:41:09.601: Can't connect to Login Server.
+2025-09-18 16:41:19.601: Can't connect to Login Server.
+2025-09-18 16:41:29.601: Can't connect to Login Server.
+
+2025-09-18 16:41:32.349: RetroTK Map Server Started.
+2025-09-18 16:41:39.601: Can't connect to Login Server.
+2025-09-18 16:41:49.601: Can't connect to Login Server.
+2025-09-18 16:41:59.601: Can't connect to Login Server.
+
+2025-09-18 16:42:01.213: RetroTK Map Server Started.
+2025-09-18 16:42:08.774: Shutdown.
+
+2025-09-18 16:42:09.423: RetroTK Map Server Started.
+2025-09-18 16:42:09.601: Can't connect to Login Server.
+2025-09-18 16:42:19.601: Can't connect to Login Server.
+2025-09-18 16:42:29.601: Can't connect to Login Server.
+
+2025-09-18 16:42:37.922: RetroTK Map Server Started.
+2025-09-18 16:42:39.601: Can't connect to Login Server.
+2025-09-18 16:42:49.601: Can't connect to Login Server.
+2025-09-18 16:42:59.601: Can't connect to Login Server.
+2025-09-18 16:43:02.832: Shutdown.
+2025-09-18 16:43:09.601: Can't connect to Login Server.
+
+2025-09-18 16:43:12.541: RetroTK Map Server Started.
+2025-09-18 16:43:19.601: Can't connect to Login Server.
+2025-09-18 16:43:29.601: Can't connect to Login Server.
+2025-09-18 16:43:39.601: Can't connect to Login Server.
+
+2025-09-18 16:43:43.938: RetroTK Map Server Started.
+2025-09-18 16:43:49.601: Can't connect to Login Server.
+2025-09-18 16:43:59.601: Can't connect to Login Server.
+2025-09-18 16:44:09.601: Can't connect to Login Server.
+
+2025-09-18 16:44:15.024: RetroTK Map Server Started.
+2025-09-18 16:44:19.601: Can't connect to Login Server.
+2025-09-18 16:44:29.601: Can't connect to Login Server.
+2025-09-18 16:44:39.601: Can't connect to Login Server.
+
+2025-09-18 16:44:46.370: RetroTK Map Server Started.
+2025-09-18 16:44:49.601: Can't connect to Login Server.
+2025-09-18 16:44:59.601: Can't connect to Login Server.
+2025-09-18 16:45:09.601: Can't connect to Login Server.
+
+2025-09-18 16:45:17.498: RetroTK Map Server Started.
+2025-09-18 16:45:19.601: Can't connect to Login Server.
+2025-09-18 16:45:29.601: Can't connect to Login Server.
+2025-09-18 16:45:39.601: Can't connect to Login Server.
+2025-09-18 16:45:49.601: Can't connect to Login Server.
+
+2025-09-18 16:45:49.727: RetroTK Map Server Started.
+2025-09-18 16:45:59.601: Can't connect to Login Server.
+2025-09-18 16:46:04.481: Shutdown.
+
+2025-09-18 16:46:05.110: RetroTK Map Server Started.
+2025-09-18 16:46:09.601: Can't connect to Login Server.
+2025-09-18 16:46:19.601: Can't connect to Login Server.
+2025-09-18 16:46:29.601: Can't connect to Login Server.
+
+2025-09-18 16:46:36.951: RetroTK Map Server Started.
+2025-09-18 16:46:39.601: Can't connect to Login Server.
+2025-09-18 16:46:49.601: Can't connect to Login Server.
+2025-09-18 16:46:59.601: Can't connect to Login Server.
+
+2025-09-18 16:47:08.991: RetroTK Map Server Started.
+2025-09-18 16:47:09.601: Can't connect to Login Server.
+2025-09-18 16:47:19.601: Can't connect to Login Server.
+2025-09-18 16:47:29.601: Can't connect to Login Server.
+2025-09-18 16:47:39.601: Can't connect to Login Server.
+
+2025-09-18 16:47:40.955: RetroTK Map Server Started.
+2025-09-18 16:47:49.601: Can't connect to Login Server.
+2025-09-18 16:47:59.601: Can't connect to Login Server.
+2025-09-18 16:48:09.601: Can't connect to Login Server.
+
+2025-09-18 16:48:12.417: RetroTK Map Server Started.
+2025-09-18 16:48:19.601: Can't connect to Login Server.
+2025-09-18 16:48:29.601: Can't connect to Login Server.
+2025-09-18 16:48:39.601: Can't connect to Login Server.
+
+2025-09-18 16:48:43.786: RetroTK Map Server Started.
+2025-09-18 16:48:49.601: Can't connect to Login Server.
+2025-09-18 16:48:59.601: Can't connect to Login Server.
+2025-09-18 16:49:09.601: Can't connect to Login Server.
+
+2025-09-18 16:49:15.232: RetroTK Map Server Started.
+2025-09-18 16:49:19.601: Can't connect to Login Server.
+2025-09-18 16:49:29.601: Can't connect to Login Server.
+2025-09-18 16:49:39.601: Can't connect to Login Server.
+
+2025-09-18 16:49:46.824: RetroTK Map Server Started.
+2025-09-18 16:49:49.601: Can't connect to Login Server.
+2025-09-18 16:49:59.601: Can't connect to Login Server.
+2025-09-18 16:50:09.601: Can't connect to Login Server.
+
+2025-09-18 16:50:18.147: RetroTK Map Server Started.
+2025-09-18 16:50:19.601: Can't connect to Login Server.
+2025-09-18 16:50:29.601: Can't connect to Login Server.
+2025-09-18 16:50:39.601: Can't connect to Login Server.
+2025-09-18 16:50:49.601: Can't connect to Login Server.
+
+2025-09-18 16:50:50.428: RetroTK Map Server Started.
+2025-09-18 16:50:59.601: Can't connect to Login Server.
+2025-09-18 16:51:09.601: Can't connect to Login Server.
+2025-09-18 16:51:19.601: Can't connect to Login Server.
+
+2025-09-18 16:51:22.822: RetroTK Map Server Started.
+2025-09-18 16:51:29.601: Can't connect to Login Server.
+2025-09-18 16:51:39.601: Can't connect to Login Server.
+2025-09-18 16:51:49.601: Can't connect to Login Server.
+
+2025-09-18 16:51:55.091: RetroTK Map Server Started.
+2025-09-18 16:51:59.601: Can't connect to Login Server.
+2025-09-18 16:52:09.601: Can't connect to Login Server.
+2025-09-18 16:52:19.601: Can't connect to Login Server.
+
+2025-09-18 16:52:27.495: RetroTK Map Server Started.
+2025-09-18 16:52:29.601: Can't connect to Login Server.
+2025-09-18 16:52:39.601: Can't connect to Login Server.
+2025-09-18 16:52:49.601: Can't connect to Login Server.
+2025-09-18 16:52:59.601: Can't connect to Login Server.
+
+2025-09-18 16:52:59.798: RetroTK Map Server Started.
+2025-09-18 16:53:09.601: Can't connect to Login Server.
+2025-09-18 16:53:19.601: Can't connect to Login Server.
+2025-09-18 16:53:29.601: Can't connect to Login Server.
+
+2025-09-18 16:53:31.948: RetroTK Map Server Started.
+2025-09-18 16:53:39.601: Can't connect to Login Server.
+2025-09-18 16:53:49.601: Can't connect to Login Server.
+2025-09-18 16:53:51.746: Shutdown.
+
+2025-09-18 16:53:52.505: RetroTK Login Server Started.
+2025-09-18 16:53:52.508: Server Ready! Listening at 0.
+2025-09-18 16:53:59.602: Can't connect to Login Server.
+
+2025-09-18 16:54:04.614: RetroTK Map Server Started.
+2025-09-18 16:54:09.601: Can't connect to Login Server.
+2025-09-18 16:54:19.601: Can't connect to Login Server.
+
+2025-09-18 16:54:21.197: RetroTK Char Server Started.
+2025-09-18 16:54:21.204: Server Ready! Listening at 0.
+2025-09-18 16:54:22.204: Can't connect to Login Server.
+2025-09-18 16:54:32.204: Can't connect to Login Server.
+
+2025-09-18 16:54:37.181: RetroTK Map Server Started.
+2025-09-18 16:54:42.204: Can't connect to Login Server.
+2025-09-18 16:54:52.204: Can't connect to Login Server.
+2025-09-18 16:55:02.204: Can't connect to Login Server.
+
+2025-09-18 16:55:10.121: RetroTK Map Server Started.
+2025-09-18 16:55:12.204: Can't connect to Login Server.
+2025-09-18 16:55:22.204: Can't connect to Login Server.
+2025-09-18 16:55:32.204: Can't connect to Login Server.
+2025-09-18 16:55:42.204: Can't connect to Login Server.
+
+2025-09-18 16:55:42.377: RetroTK Map Server Started.
+2025-09-18 16:55:52.204: Can't connect to Login Server.
+2025-09-18 16:56:02.204: Can't connect to Login Server.
+2025-09-18 16:56:12.204: Can't connect to Login Server.
+
+2025-09-18 16:56:14.614: RetroTK Map Server Started.
+2025-09-18 16:56:22.204: Can't connect to Login Server.
+2025-09-18 16:56:32.204: Can't connect to Login Server.
+2025-09-18 16:56:42.204: Can't connect to Login Server.
+
+2025-09-18 16:56:46.878: RetroTK Map Server Started.
+2025-09-18 16:56:52.204: Can't connect to Login Server.
+2025-09-18 16:57:02.204: Can't connect to Login Server.
+2025-09-18 16:57:12.204: Can't connect to Login Server.
+
+2025-09-18 16:57:19.248: RetroTK Map Server Started.
+2025-09-18 16:57:22.204: Can't connect to Login Server.
+2025-09-18 16:57:32.204: Can't connect to Login Server.
+2025-09-18 16:57:42.204: Can't connect to Login Server.
+
+2025-09-18 16:57:51.863: RetroTK Map Server Started.
+2025-09-18 16:57:52.204: Can't connect to Login Server.
+2025-09-18 16:58:02.204: Can't connect to Login Server.
+2025-09-18 16:58:12.204: Can't connect to Login Server.
+2025-09-18 16:58:22.205: Can't connect to Login Server.
+
+2025-09-18 16:58:23.830: RetroTK Map Server Started.
+2025-09-18 16:58:32.204: Can't connect to Login Server.
+2025-09-18 16:58:42.204: Can't connect to Login Server.
+2025-09-18 16:58:52.204: Can't connect to Login Server.
+
+2025-09-18 16:58:55.547: RetroTK Map Server Started.
+2025-09-18 16:59:02.204: Can't connect to Login Server.
+2025-09-18 16:59:12.204: Can't connect to Login Server.
+2025-09-18 16:59:22.204: Can't connect to Login Server.
+
+2025-09-18 16:59:27.362: RetroTK Map Server Started.
+2025-09-18 16:59:32.204: Can't connect to Login Server.
+2025-09-18 16:59:42.204: Can't connect to Login Server.
+2025-09-18 16:59:52.204: Can't connect to Login Server.
+
+2025-09-18 16:59:59.716: RetroTK Map Server Started.
+2025-09-18 17:00:02.204: Can't connect to Login Server.
+2025-09-18 17:00:12.204: Can't connect to Login Server.
+2025-09-18 17:00:22.204: Can't connect to Login Server.
+
+2025-09-18 17:00:31.711: RetroTK Map Server Started.
+2025-09-18 17:00:32.204: Can't connect to Login Server.
+2025-09-18 17:00:42.204: Can't connect to Login Server.
+2025-09-18 17:00:52.204: Can't connect to Login Server.
+2025-09-18 17:01:02.204: Can't connect to Login Server.
+
+2025-09-18 17:01:03.974: RetroTK Map Server Started.
+2025-09-18 17:01:12.204: Can't connect to Login Server.
+2025-09-18 17:01:22.204: Can't connect to Login Server.
+2025-09-18 17:01:32.204: Can't connect to Login Server.
+2025-09-18 17:01:36.382: Shutdown.
+
+2025-09-18 17:01:36.542: RetroTK Map Server Started.
+2025-09-18 17:02:04.622: Can't connect to Login Server.
+
+2025-09-18 17:02:07.040: RetroTK Map Server Started.
+
+2025-09-18 17:02:10.036: RetroTK Login Server Started.
+2025-09-18 17:02:10.039: Server Ready! Listening at 0.
+2025-09-18 17:02:12.204: Can't connect to Login Server.
+2025-09-18 17:02:22.204: Can't connect to Login Server.
+2025-09-18 17:02:32.204: Can't connect to Login Server.
+
+2025-09-18 17:02:39.358: RetroTK Map Server Started.
+2025-09-18 17:02:42.204: Can't connect to Login Server.
+2025-09-18 17:02:52.204: Can't connect to Login Server.
+2025-09-18 17:03:02.204: Can't connect to Login Server.
+
+2025-09-18 17:03:11.045: RetroTK Map Server Started.
+2025-09-18 17:03:12.204: Can't connect to Login Server.
+2025-09-18 17:03:22.204: Can't connect to Login Server.
+2025-09-18 17:03:32.204: Can't connect to Login Server.
+2025-09-18 17:03:42.204: Can't connect to Login Server.
+
+2025-09-18 17:03:43.283: RetroTK Map Server Started.
+2025-09-18 17:03:52.204: Can't connect to Login Server.
+2025-09-18 17:04:02.204: Can't connect to Login Server.
+2025-09-18 17:04:12.204: Can't connect to Login Server.
+
+2025-09-18 17:04:15.359: RetroTK Map Server Started.
+2025-09-18 17:04:22.204: Can't connect to Login Server.
+2025-09-18 17:04:32.204: Can't connect to Login Server.
+2025-09-18 17:04:42.204: Can't connect to Login Server.
+
+2025-09-18 17:04:47.684: RetroTK Map Server Started.
+2025-09-18 17:04:52.204: Can't connect to Login Server.
+2025-09-18 17:05:02.204: Can't connect to Login Server.
+2025-09-18 17:05:12.204: Can't connect to Login Server.
+
+2025-09-18 17:05:20.100: RetroTK Map Server Started.
+2025-09-18 17:05:22.204: Can't connect to Login Server.
+2025-09-18 17:05:32.204: Can't connect to Login Server.
+2025-09-18 17:05:42.204: Can't connect to Login Server.
+2025-09-18 17:05:52.204: Can't connect to Login Server.
+
+2025-09-18 17:05:52.929: RetroTK Map Server Started.
+2025-09-18 17:06:02.204: Can't connect to Login Server.
+2025-09-18 17:06:12.204: Can't connect to Login Server.
+2025-09-18 17:06:22.204: Can't connect to Login Server.
+
+2025-09-18 17:06:25.237: RetroTK Map Server Started.
+2025-09-18 17:06:32.204: Can't connect to Login Server.
+2025-09-18 17:06:42.204: Can't connect to Login Server.
+2025-09-18 17:06:52.204: Can't connect to Login Server.
+
+2025-09-18 17:06:59.019: RetroTK Map Server Started.
+2025-09-18 17:07:02.204: Can't connect to Login Server.
+2025-09-18 17:07:12.204: Can't connect to Login Server.
+2025-09-18 17:07:22.204: Can't connect to Login Server.
+
+2025-09-18 17:07:32.028: RetroTK Map Server Started.
+2025-09-18 17:07:32.204: Can't connect to Login Server.
+2025-09-18 17:07:42.204: Can't connect to Login Server.
+2025-09-18 17:07:52.204: Can't connect to Login Server.
+2025-09-18 17:08:01.253: Shutdown.
+2025-09-18 17:08:02.204: Can't connect to Login Server.
+
+2025-09-18 17:08:04.099: RetroTK Map Server Started.
+2025-09-18 17:08:12.204: Can't connect to Login Server.
+2025-09-18 17:08:22.204: Can't connect to Login Server.
+
+2025-09-18 17:08:31.240: RetroTK Login Server Started.
+2025-09-18 17:08:31.243: Server Ready! Listening at 0.
+2025-09-18 17:08:32.204: Can't connect to Login Server.
+
+2025-09-18 17:08:35.443: RetroTK Map Server Started.
+2025-09-18 17:08:42.204: Can't connect to Login Server.
+2025-09-18 17:08:52.204: Can't connect to Login Server.
+2025-09-18 17:09:02.204: Can't connect to Login Server.
+
+2025-09-18 17:09:06.640: RetroTK Map Server Started.
+2025-09-18 17:09:12.204: Can't connect to Login Server.
+2025-09-18 17:09:22.204: Can't connect to Login Server.
+2025-09-18 17:09:32.204: Can't connect to Login Server.
+
+2025-09-18 17:09:38.225: RetroTK Map Server Started.
+2025-09-18 17:09:42.204: Can't connect to Login Server.
+2025-09-18 17:09:52.204: Can't connect to Login Server.
+2025-09-18 17:10:02.204: Can't connect to Login Server.
+
+2025-09-18 17:10:09.642: RetroTK Map Server Started.
+2025-09-18 17:10:12.204: Can't connect to Login Server.
+2025-09-18 17:10:22.204: Can't connect to Login Server.
+2025-09-18 17:10:32.204: Can't connect to Login Server.
+
+2025-09-18 17:10:40.910: RetroTK Map Server Started.
+2025-09-18 17:10:42.204: Can't connect to Login Server.
+2025-09-18 17:10:52.204: Can't connect to Login Server.
+2025-09-18 17:11:02.204: Can't connect to Login Server.
+
+2025-09-18 17:11:12.172: RetroTK Map Server Started.
+2025-09-18 17:11:12.204: Can't connect to Login Server.
+2025-09-18 17:11:22.204: Can't connect to Login Server.
+2025-09-18 17:11:32.204: Can't connect to Login Server.
+2025-09-18 17:11:42.204: Can't connect to Login Server.
+
+2025-09-18 17:11:43.821: RetroTK Map Server Started.
+2025-09-18 17:11:52.204: Can't connect to Login Server.
+2025-09-18 17:12:02.204: Can't connect to Login Server.
+2025-09-18 17:12:12.204: Can't connect to Login Server.
+
+2025-09-18 17:12:16.106: RetroTK Map Server Started.
+2025-09-18 17:12:22.204: Can't connect to Login Server.
+2025-09-18 17:12:32.204: Can't connect to Login Server.
+2025-09-18 17:12:42.204: Can't connect to Login Server.
+
+2025-09-18 17:12:47.655: RetroTK Map Server Started.
+2025-09-18 17:12:52.204: Can't connect to Login Server.
+2025-09-18 17:13:02.204: Can't connect to Login Server.
+2025-09-18 17:13:09.687: Shutdown.
+
+2025-09-18 17:13:10.404: RetroTK Login Server Started.
+2025-09-18 17:13:10.407: Server Ready! Listening at 2000.
+2025-09-18 17:13:12.204: Can't connect to Login Server.
+
+2025-09-18 17:13:19.432: RetroTK Map Server Started.
+
+2025-09-18 17:13:20.124: RetroTK Char Server Started.
+2025-09-18 17:13:20.131: Server Ready! Listening at 2005.
+2025-09-18 17:13:21.131: Can't connect to Login Server.
+2025-09-18 17:13:31.131: Can't connect to Login Server.
+2025-09-18 17:13:41.131: Can't connect to Login Server.
+2025-09-18 17:13:51.131: Can't connect to Login Server.
+
+2025-09-18 17:13:52.804: RetroTK Map Server Started.
+2025-09-18 17:14:01.131: Can't connect to Login Server.
+2025-09-18 17:14:11.131: Can't connect to Login Server.
+2025-09-18 17:14:21.131: Can't connect to Login Server.
+
+2025-09-18 17:14:25.478: RetroTK Map Server Started.
+2025-09-18 17:14:31.131: Can't connect to Login Server.
+2025-09-18 17:14:41.131: Can't connect to Login Server.
+2025-09-18 17:14:51.131: Can't connect to Login Server.
+
+2025-09-18 17:14:58.027: RetroTK Map Server Started.
+2025-09-18 17:15:01.131: Can't connect to Login Server.
+2025-09-18 17:15:11.131: Can't connect to Login Server.
+2025-09-18 17:15:21.131: Can't connect to Login Server.
+
+2025-09-18 17:15:30.555: RetroTK Map Server Started.
+2025-09-18 17:15:31.131: Can't connect to Login Server.
+2025-09-18 17:15:41.131: Can't connect to Login Server.
+2025-09-18 17:15:51.131: Can't connect to Login Server.
+2025-09-18 17:16:01.131: Can't connect to Login Server.
+
+2025-09-18 17:16:01.505: RetroTK Map Server Started.
+2025-09-18 17:16:11.131: Can't connect to Login Server.
+2025-09-18 17:16:21.131: Can't connect to Login Server.
+2025-09-18 17:16:31.131: Can't connect to Login Server.
+
+2025-09-18 17:16:33.537: RetroTK Map Server Started.
+2025-09-18 17:16:41.131: Can't connect to Login Server.
+2025-09-18 17:16:51.131: Can't connect to Login Server.
+2025-09-18 17:17:01.131: Can't connect to Login Server.
+
+2025-09-18 17:17:05.347: RetroTK Map Server Started.
+2025-09-18 17:17:11.131: Can't connect to Login Server.
+2025-09-18 17:17:21.131: Can't connect to Login Server.
+2025-09-18 17:17:31.131: Can't connect to Login Server.
+
+2025-09-18 17:17:37.406: RetroTK Map Server Started.
+2025-09-18 17:17:41.131: Can't connect to Login Server.
+2025-09-18 17:17:51.131: Can't connect to Login Server.
+2025-09-18 17:18:01.131: Can't connect to Login Server.
+
+2025-09-18 17:18:09.192: RetroTK Map Server Started.
+2025-09-18 17:18:11.131: Can't connect to Login Server.
+2025-09-18 17:18:21.131: Can't connect to Login Server.
+2025-09-18 17:18:31.131: Can't connect to Login Server.
+
+2025-09-18 17:18:40.352: RetroTK Map Server Started.
+2025-09-18 17:18:41.131: Can't connect to Login Server.
+2025-09-18 17:18:51.131: Can't connect to Login Server.
+2025-09-18 17:19:01.131: Can't connect to Login Server.
+2025-09-18 17:19:11.131: Can't connect to Login Server.
+
+2025-09-18 17:19:11.944: RetroTK Map Server Started.
+2025-09-18 17:19:21.131: Can't connect to Login Server.
+2025-09-18 17:19:31.130: Can't connect to Login Server.
+2025-09-18 17:19:41.131: Can't connect to Login Server.
+
+2025-09-18 17:19:43.365: RetroTK Map Server Started.
+2025-09-18 17:19:51.131: Can't connect to Login Server.
+2025-09-18 17:20:01.131: Can't connect to Login Server.
+2025-09-18 17:20:11.131: Can't connect to Login Server.
+
+2025-09-18 17:20:14.730: RetroTK Map Server Started.
+2025-09-18 17:20:21.131: Can't connect to Login Server.
+2025-09-18 17:20:31.131: Can't connect to Login Server.
+2025-09-18 17:20:41.131: Can't connect to Login Server.
+
+2025-09-18 17:20:47.467: RetroTK Map Server Started.
+2025-09-18 17:20:51.131: Can't connect to Login Server.
+2025-09-18 17:21:01.131: Can't connect to Login Server.
+2025-09-18 17:21:11.131: Can't connect to Login Server.
+2025-09-18 17:21:19.860: Shutdown.
+
+2025-09-18 17:21:20.412: RetroTK Map Server Started.
+
+2025-09-18 17:21:20.766: RetroTK Login Server Started.
+2025-09-18 17:21:20.769: Server Ready! Listening at 2000.
+
+2025-09-18 17:21:24.609: RetroTK Char Server Started.
+2025-09-18 17:21:24.616: Server Ready! Listening at 2005.
+2025-09-18 17:21:25.616: Can't connect to Login Server.
+2025-09-18 17:21:35.616: Can't connect to Login Server.
+2025-09-18 17:21:45.616: Can't connect to Login Server.
+
+2025-09-18 17:21:52.474: RetroTK Map Server Started.
+2025-09-18 17:21:55.616: Can't connect to Login Server.
+2025-09-18 17:22:05.616: Can't connect to Login Server.
+2025-09-18 17:22:15.616: Can't connect to Login Server.
+
+2025-09-18 17:22:25.354: RetroTK Map Server Started.
+2025-09-18 17:22:25.616: Can't connect to Login Server.
+2025-09-18 17:22:35.616: Can't connect to Login Server.
+2025-09-18 17:22:45.616: Can't connect to Login Server.
+2025-09-18 17:22:55.619: Can't connect to Login Server.
+
+2025-09-18 17:22:57.095: RetroTK Map Server Started.
+2025-09-18 17:23:05.616: Can't connect to Login Server.
+2025-09-18 17:23:15.616: Can't connect to Login Server.
+2025-09-18 17:23:25.616: Can't connect to Login Server.
+
+2025-09-18 17:23:29.126: RetroTK Map Server Started.
+2025-09-18 17:23:35.616: Can't connect to Login Server.
+2025-09-18 17:23:45.616: Can't connect to Login Server.
+2025-09-18 17:23:55.616: Can't connect to Login Server.
+
+2025-09-18 17:24:01.116: RetroTK Map Server Started.
+2025-09-18 17:24:05.616: Can't connect to Login Server.
+2025-09-18 17:24:15.616: Can't connect to Login Server.
+2025-09-18 17:24:25.616: Can't connect to Login Server.
+
+2025-09-18 17:24:34.461: RetroTK Map Server Started.
+2025-09-18 17:24:35.616: Can't connect to Login Server.
+2025-09-18 17:24:45.616: Can't connect to Login Server.
+2025-09-18 17:24:55.616: Can't connect to Login Server.
+2025-09-18 17:25:05.616: Can't connect to Login Server.
+
+2025-09-18 17:25:06.340: RetroTK Map Server Started.
+2025-09-18 17:25:15.616: Can't connect to Login Server.
+2025-09-18 17:25:25.616: Can't connect to Login Server.
+2025-09-18 17:25:35.616: Can't connect to Login Server.
+
+2025-09-18 17:25:37.770: RetroTK Map Server Started.
+2025-09-18 17:25:45.616: Can't connect to Login Server.
+2025-09-18 17:25:55.616: Can't connect to Login Server.
+2025-09-18 17:26:05.616: Can't connect to Login Server.
+
+2025-09-18 17:26:09.552: RetroTK Map Server Started.
+2025-09-18 17:26:15.616: Can't connect to Login Server.
+2025-09-18 17:26:25.616: Can't connect to Login Server.
+2025-09-18 17:26:26.038: Shutdown.
+2025-09-18 17:26:26.796: Shutdown.
+
+2025-09-18 17:29:34.688: RetroTK Login Server Started.
+2025-09-18 17:29:34.690: Server Ready! Listening at 2000.
+2025-09-18 17:37:08.334: Shutdown.
+
+2025-09-18 17:37:13.040: RetroTK Login Server Started.
+2025-09-18 17:37:13.043: Server Ready! Listening at 2000.
+2025-09-18 17:38:52.015: Shutdown.
+
+2025-09-18 17:40:26.044: RetroTK Login Server Started.
+2025-09-18 17:40:26.046: Server Ready! Listening at 2000.
+
+2025-09-18 17:42:12.697: RetroTK Char Server Started.
+2025-09-18 17:42:12.709: Server Ready! Listening at 2005.
+2025-09-18 17:42:13.721: Connection from Char Server accepted.
+2025-09-18 17:42:13.725: Connected to Login Server.
+
+2025-09-18 17:44:16.836: RetroTK Map Server Started.
+
+2025-09-18 17:44:49.503: RetroTK Map Server Started.
+
+2025-09-18 17:45:22.943: RetroTK Map Server Started.
+
+2025-09-18 17:45:55.383: RetroTK Map Server Started.
+
+2025-09-18 17:46:27.162: RetroTK Map Server Started.
+
+2025-09-18 17:46:58.512: RetroTK Map Server Started.
+
+2025-09-18 17:47:29.988: RetroTK Map Server Started.
+
+2025-09-18 17:48:01.616: RetroTK Map Server Started.
+
+2025-09-18 17:48:33.625: RetroTK Map Server Started.
+
+2025-09-18 17:49:06.264: RetroTK Map Server Started.
+
+2025-09-18 17:49:38.240: RetroTK Map Server Started.
+
+2025-09-18 17:50:10.680: RetroTK Map Server Started.
+
+2025-09-18 17:50:42.932: RetroTK Map Server Started.
+
+2025-09-18 17:51:15.453: RetroTK Map Server Started.
+
+2025-09-18 17:51:48.061: RetroTK Map Server Started.
+
+2025-09-18 17:52:20.557: RetroTK Map Server Started.
+2025-09-18 17:52:32.518: Shutdown.
+
+2025-09-18 17:52:33.200: RetroTK Map Server Started.
+
+2025-09-18 17:53:05.667: RetroTK Map Server Started.
+
+2025-09-18 17:53:37.596: RetroTK Map Server Started.
+
+2025-09-18 17:54:08.950: RetroTK Map Server Started.
+
+2025-09-18 17:54:40.464: RetroTK Map Server Started.
+
+2025-09-18 17:55:11.530: RetroTK Map Server Started.
+
+2025-09-18 17:55:42.393: RetroTK Map Server Started.
+
+2025-09-18 17:56:13.138: RetroTK Map Server Started.
+
+2025-09-18 17:56:43.901: RetroTK Map Server Started.
+
+2025-09-18 17:57:14.747: RetroTK Map Server Started.
+
+2025-09-18 17:57:45.701: RetroTK Map Server Started.
+
+2025-09-18 17:58:16.500: RetroTK Map Server Started.
+
+2025-09-18 17:58:47.471: RetroTK Map Server Started.
+
+2025-09-18 17:59:18.250: RetroTK Map Server Started.
+
+2025-09-18 17:59:49.045: RetroTK Map Server Started.
+
+2025-09-18 18:00:19.935: RetroTK Map Server Started.
+
+2025-09-18 18:00:50.921: RetroTK Map Server Started.
+
+2025-09-18 18:01:21.684: RetroTK Map Server Started.
+
+2025-09-18 18:01:52.654: RetroTK Map Server Started.
+
+2025-09-18 18:02:23.586: RetroTK Map Server Started.
+
+2025-09-18 18:02:54.476: RetroTK Map Server Started.
+
+2025-09-18 18:03:25.512: RetroTK Map Server Started.
+
+2025-09-18 18:03:56.649: RetroTK Map Server Started.
+
+2025-09-18 18:04:27.629: RetroTK Map Server Started.
+
+2025-09-18 18:04:58.626: RetroTK Map Server Started.
+
+2025-09-18 18:05:29.601: RetroTK Map Server Started.
+
+2025-09-18 18:06:00.634: RetroTK Map Server Started.
+
+2025-09-18 18:06:31.969: RetroTK Map Server Started.
+
+2025-09-18 18:07:02.921: RetroTK Map Server Started.
+
+2025-09-18 18:07:34.034: RetroTK Map Server Started.
+
+2025-09-18 18:08:05.164: RetroTK Map Server Started.
+
+2025-09-18 18:08:36.133: RetroTK Map Server Started.
+
+2025-09-18 18:09:07.145: RetroTK Map Server Started.
+
+2025-09-18 18:09:38.028: RetroTK Map Server Started.
+
+2025-09-18 18:10:09.118: RetroTK Map Server Started.
+
+2025-09-18 18:10:40.093: RetroTK Map Server Started.
+
+2025-09-18 18:11:10.990: RetroTK Map Server Started.
+
+2025-09-18 18:11:42.045: RetroTK Map Server Started.
+
+2025-09-18 18:12:12.735: RetroTK Map Server Started.
+
+2025-09-18 18:12:43.530: RetroTK Map Server Started.
+
+2025-09-18 18:13:14.466: RetroTK Map Server Started.
+
+2025-09-18 18:13:45.260: RetroTK Map Server Started.
+
+2025-09-18 18:14:16.129: RetroTK Map Server Started.
+
+2025-09-18 18:14:47.130: RetroTK Map Server Started.
+
+2025-09-18 18:15:18.157: RetroTK Map Server Started.
+
+2025-09-18 18:15:49.005: RetroTK Map Server Started.
+
+2025-09-18 18:16:19.880: RetroTK Map Server Started.
+
+2025-09-18 18:16:50.688: RetroTK Map Server Started.
+
+2025-09-18 18:17:21.690: RetroTK Map Server Started.
+
+2025-09-18 18:17:52.411: RetroTK Map Server Started.
+
+2025-09-18 18:18:23.023: RetroTK Map Server Started.
+
+2025-09-18 18:18:54.127: RetroTK Map Server Started.
+
+2025-09-18 18:19:25.143: RetroTK Map Server Started.
+
+2025-09-18 18:19:56.172: RetroTK Map Server Started.
+
+2025-09-18 18:20:27.473: RetroTK Map Server Started.
+
+2025-09-18 18:20:58.625: RetroTK Map Server Started.
+
+2025-09-18 18:21:29.599: RetroTK Map Server Started.
+
+2025-09-18 18:22:00.725: RetroTK Map Server Started.
+
+2025-09-18 18:22:31.894: RetroTK Map Server Started.
+2025-09-18 18:22:47.701: Shutdown.
+
+2025-09-18 18:22:48.373: RetroTK Map Server Started.
+
+2025-09-18 18:23:20.547: RetroTK Map Server Started.
+
+2025-09-18 18:23:53.188: RetroTK Map Server Started.
+
+2025-09-18 18:24:24.749: RetroTK Map Server Started.
+
+2025-09-18 18:24:56.422: RetroTK Map Server Started.
+
+2025-09-18 18:25:28.371: RetroTK Map Server Started.
+
+2025-09-18 18:26:00.879: RetroTK Map Server Started.
+
+2025-09-18 18:26:32.887: RetroTK Map Server Started.
+
+2025-09-18 18:27:04.712: RetroTK Map Server Started.
+2025-09-18 18:27:18.969: Shutdown.
+
+2025-09-18 18:27:19.699: RetroTK Map Server Started.
+
+2025-09-18 18:27:51.687: RetroTK Map Server Started.
+
+2025-09-18 18:28:23.672: RetroTK Map Server Started.
+
+2025-09-18 18:28:56.073: RetroTK Map Server Started.
+
+2025-09-18 18:28:56.745: RetroTK Map Server Started.
+
+2025-09-18 18:28:57.537: RetroTK Map Server Started.
+
+2025-09-18 18:28:58.753: RetroTK Map Server Started.
+
+2025-09-18 18:29:00.775: RetroTK Map Server Started.
+
+2025-09-18 18:29:04.338: RetroTK Map Server Started.
+
+2025-09-18 18:29:11.127: RetroTK Map Server Started.
+
+2025-09-18 18:29:24.285: RetroTK Map Server Started.
+
+2025-09-18 18:29:50.237: RetroTK Map Server Started.
+
+2025-09-18 18:30:41.788: RetroTK Map Server Started.
+
+2025-09-18 18:31:42.141: RetroTK Map Server Started.
+
+2025-09-18 18:32:42.527: RetroTK Map Server Started.
+
+2025-09-18 18:33:42.890: RetroTK Map Server Started.
+
+2025-09-18 18:34:43.256: RetroTK Map Server Started.
+
+2025-09-18 18:35:43.658: RetroTK Map Server Started.
+
+2025-09-18 18:36:44.008: RetroTK Map Server Started.
+
+2025-09-18 18:37:44.347: RetroTK Map Server Started.
+
+2025-09-18 18:38:44.745: RetroTK Map Server Started.
+
+2025-09-18 18:39:45.118: RetroTK Map Server Started.
+
+2025-09-18 18:40:45.532: RetroTK Map Server Started.
+
+2025-09-18 18:41:45.919: RetroTK Map Server Started.
+
+2025-09-18 18:42:46.265: RetroTK Map Server Started.
+
+2025-09-18 18:43:46.657: RetroTK Map Server Started.
+
+2025-09-18 18:44:47.028: RetroTK Map Server Started.
+
+2025-09-18 18:45:47.438: RetroTK Map Server Started.
+
+2025-09-18 18:46:47.791: RetroTK Map Server Started.
+
+2025-09-18 18:47:48.133: RetroTK Map Server Started.
+
+2025-09-18 18:48:48.508: RetroTK Map Server Started.
+
+2025-09-18 18:49:48.875: RetroTK Map Server Started.
+
+2025-09-18 18:50:49.322: RetroTK Map Server Started.
+
+2025-09-18 18:51:49.691: RetroTK Map Server Started.
+
+2025-09-18 18:52:50.058: RetroTK Map Server Started.
+
+2025-09-18 18:53:50.536: RetroTK Map Server Started.
+
+2025-09-18 18:54:50.930: RetroTK Map Server Started.
+
+2025-09-18 18:55:51.345: RetroTK Map Server Started.
+
+2025-09-18 18:56:51.708: RetroTK Map Server Started.
+
+2025-09-18 18:57:52.071: RetroTK Map Server Started.
+
+2025-09-18 18:58:52.475: RetroTK Map Server Started.
+2025-09-18 18:59:44.111: Shutdown.
+2025-09-18 18:59:44.122: Shutdown.
+
+2025-09-18 18:59:44.623: RetroTK Map Server Started.
+
+2025-09-18 18:59:45.259: RetroTK Map Server Started.
+
+2025-09-18 18:59:45.863: RetroTK Map Server Started.
+
+2025-09-18 18:59:46.626: RetroTK Map Server Started.
+
+2025-09-18 18:59:49.122: RetroTK Char Server Started.
+
+2025-09-18 18:59:49.913: RetroTK Char Server Started.
+
+2025-09-18 18:59:50.545: RetroTK Char Server Started.
+
+2025-09-18 18:59:51.294: RetroTK Char Server Started.
+
+2025-09-18 18:59:51.791: RetroTK Map Server Started.
+
+2025-09-18 18:59:53.761: RetroTK Map Server Started.
+
+2025-09-18 18:59:56.423: RetroTK Char Server Started.
+
+2025-09-18 18:59:58.390: RetroTK Char Server Started.
+
+2025-09-18 19:00:01.333: RetroTK Map Server Started.
+
+2025-09-18 19:00:05.865: RetroTK Char Server Started.
+
+2025-09-18 19:00:12.064: RetroTK Map Server Started.
+
+2025-09-18 19:00:16.561: RetroTK Char Server Started.
+
+2025-09-18 19:00:29.203: RetroTK Map Server Started.
+
+2025-09-18 19:00:33.707: RetroTK Char Server Started.
+
+2025-09-18 19:00:59.125: RetroTK Map Server Started.
+
+2025-09-18 19:01:03.607: RetroTK Char Server Started.
+
+2025-09-18 19:01:54.660: RetroTK Map Server Started.
+
+2025-09-18 19:01:59.116: RetroTK Char Server Started.
+
+2025-09-18 19:02:59.007: RetroTK Map Server Started.
+
+2025-09-18 19:03:03.488: RetroTK Char Server Started.
+
+2025-09-18 19:04:58.659: RetroTK Char Server Started.
+
+2025-09-18 19:05:07.158: RetroTK Char Server Started.
+
+2025-09-18 19:05:10.494: RetroTK Map Server Started.
+
+2025-09-18 19:05:11.073: RetroTK Map Server Started.
+
+2025-09-18 19:05:11.682: RetroTK Char Server Started.
+
+2025-09-18 19:05:11.704: RetroTK Map Server Started.
+
+2025-09-18 19:05:12.529: RetroTK Map Server Started.
+
+2025-09-18 19:05:13.666: RetroTK Map Server Started.
+
+2025-09-18 19:05:15.642: RetroTK Map Server Started.
+
+2025-09-18 19:05:19.180: RetroTK Map Server Started.
+
+2025-09-18 19:05:20.224: RetroTK Char Server Started.
+
+2025-09-18 19:05:25.956: RetroTK Map Server Started.
+
+2025-09-18 19:05:29.285: RetroTK Char Server Started.
+
+2025-09-18 19:05:39.156: RetroTK Map Server Started.
+
+2025-09-18 19:05:39.177: RetroTK Char Server Started.
+
+2025-09-18 19:05:50.624: RetroTK Char Server Started.
+
+2025-09-18 19:06:05.124: RetroTK Map Server Started.
+
+2025-09-18 19:06:05.281: RetroTK Char Server Started.
+
+2025-09-18 19:06:26.366: RetroTK Char Server Started.
+
+2025-09-18 19:06:56.682: RetroTK Map Server Started.
+
+2025-09-18 19:07:00.218: RetroTK Char Server Started.
+
+2025-09-18 19:07:57.087: RetroTK Map Server Started.
+
+2025-09-18 19:07:59.686: RetroTK Char Server Started.
+
+2025-09-18 19:09:01.469: RetroTK Map Server Started.
+
+2025-09-18 19:09:07.966: RetroTK Char Server Started.
+
+2025-09-18 19:10:05.789: RetroTK Map Server Started.
+
+2025-09-18 19:10:16.234: RetroTK Char Server Started.
+
+2025-09-18 19:11:10.133: RetroTK Map Server Started.
+
+2025-09-18 19:11:24.460: RetroTK Char Server Started.
+
+2025-09-18 19:12:14.452: RetroTK Map Server Started.
+
+2025-09-18 19:12:32.749: RetroTK Char Server Started.
+
+2025-09-18 19:13:18.764: RetroTK Map Server Started.
+
+2025-09-18 19:13:41.061: RetroTK Char Server Started.
+
+2025-09-18 19:14:23.148: RetroTK Map Server Started.
+
+2025-09-18 19:14:49.307: RetroTK Char Server Started.
+
+2025-09-18 19:16:02.977: RetroTK Login Server Started.
+2025-09-18 19:16:02.979: Server Ready! Listening at 2000.
+
+2025-09-18 19:16:26.578: RetroTK Char Server Started.
+2025-09-18 19:16:26.586: Server Ready! Listening at 2005.
+2025-09-18 19:16:27.596: Connection from Char Server accepted.
+2025-09-18 19:16:27.600: Connected to Login Server.
+
+2025-09-18 19:16:30.929: RetroTK Map Server Started.
+
+2025-09-18 19:17:04.206: RetroTK Map Server Started.
+
+2025-09-18 19:17:37.181: RetroTK Map Server Started.
+
+2025-09-18 19:18:09.483: RetroTK Map Server Started.
+
+2025-09-18 19:18:41.800: RetroTK Map Server Started.
+
+2025-09-18 19:19:14.776: RetroTK Map Server Started.
+
+2025-09-18 19:19:47.018: RetroTK Map Server Started.
+
+2025-09-18 19:20:19.589: RetroTK Map Server Started.
+
+2025-09-18 19:20:52.367: RetroTK Map Server Started.
+
+2025-09-18 19:21:24.701: RetroTK Map Server Started.
+
+2025-09-18 19:21:56.163: RetroTK Map Server Started.
+
+2025-09-18 19:22:29.163: RetroTK Map Server Started.
+
+2025-09-18 19:23:01.551: RetroTK Map Server Started.
+
+2025-09-18 19:23:34.790: RetroTK Map Server Started.
+
+2025-09-18 19:24:08.108: RetroTK Map Server Started.
+
+2025-09-18 19:24:41.277: RetroTK Map Server Started.
+
+2025-09-18 19:25:14.146: RetroTK Map Server Started.
+
+2025-09-18 19:25:47.442: RetroTK Map Server Started.
+
+2025-09-18 19:26:21.732: RetroTK Map Server Started.
+
+2025-09-18 19:26:55.416: RetroTK Map Server Started.
+
+2025-09-18 19:27:27.341: RetroTK Map Server Started.
+
+2025-09-18 19:28:00.082: RetroTK Map Server Started.
+
+2025-09-18 19:28:33.097: RetroTK Map Server Started.
+
+2025-09-18 19:29:06.067: RetroTK Map Server Started.
+
+2025-09-18 19:29:38.471: RetroTK Map Server Started.
+
+2025-09-18 19:30:11.421: RetroTK Map Server Started.
+
+2025-09-18 19:30:44.764: RetroTK Map Server Started.
+
+2025-09-18 19:31:17.092: RetroTK Map Server Started.
+
+2025-09-18 19:31:50.388: RetroTK Map Server Started.
+
+2025-09-18 19:32:22.549: RetroTK Map Server Started.
+
+2025-09-18 19:32:55.245: RetroTK Map Server Started.
+
+2025-09-18 19:33:27.151: RetroTK Map Server Started.
+
+2025-09-18 19:33:59.337: RetroTK Map Server Started.
+
+2025-09-18 19:34:31.300: RetroTK Map Server Started.
+
+2025-09-18 19:35:04.224: RetroTK Map Server Started.
+
+2025-09-18 19:35:36.590: RetroTK Map Server Started.
+
+2025-09-18 19:36:08.729: RetroTK Map Server Started.
+2025-09-18 19:36:24.654: Shutdown.
+2025-09-18 19:37:39.956: Shutdown.
+2025-09-18 19:37:40.068: Can't connect to Login Server.
+
+2025-09-18 19:37:40.725: RetroTK Login Server Started.
+2025-09-18 19:37:40.728: Server Ready! Listening at 2000.
+2025-09-18 19:37:47.588: Connection from Char Server accepted.
+2025-09-18 19:37:47.592: Connected to Login Server.
+2025-09-18 19:40:10.845: Shutdown.
+2025-09-18 19:40:10.845: Char Server connection lost.
+2025-09-18 19:40:11.293: Shutdown.
+
+2025-09-18 19:40:49.384: RetroTK Login Server Started.
+2025-09-18 19:40:49.387: Server Ready! Listening at 2000.
+2025-09-18 19:47:27.070: Shutdown.
+
+2025-09-18 19:48:15.609: RetroTK Login Server Started.
+2025-09-18 19:48:15.611: Server Ready! Listening at 2000.
+2025-09-18 20:02:43.194: Shutdown.
+
+2025-09-18 20:03:24.881: RetroTK Login Server Started.
+2025-09-18 20:03:24.884: Server Ready! Listening at 2000.
+2025-09-18 21:19:04.295: Shutdown.
+
+2025-09-18 21:22:55.162: RetroTK Login Server Started.
+2025-09-18 21:22:55.165: Server Ready! Listening at 2000.
+2025-09-18 21:32:07.720: Shutdown.
+
+2025-09-18 21:32:10.458: RetroTK Map Server Started.
+
+2025-09-18 21:32:13.470: RetroTK Login Server Started.
+2025-09-18 21:32:13.473: Server Ready! Listening at 2000.
+
+2025-09-18 21:32:14.171: RetroTK Char Server Started.
+2025-09-18 21:32:14.182: Server Ready! Listening at 2005.
+2025-09-18 21:32:15.188: Connection from Char Server accepted.
+2025-09-18 21:32:15.192: Connected to Login Server.
+
+2025-09-18 21:32:42.613: RetroTK Map Server Started.
+
+2025-09-18 21:33:14.949: RetroTK Map Server Started.
+
+2025-09-18 21:33:47.455: RetroTK Map Server Started.
+
+2025-09-18 21:34:19.229: RetroTK Map Server Started.
+
+2025-09-18 21:34:51.158: RetroTK Map Server Started.
+
+2025-09-18 21:35:23.075: RetroTK Map Server Started.
+
+2025-09-18 21:35:55.059: RetroTK Map Server Started.
+
+2025-09-18 21:36:26.327: RetroTK Map Server Started.
+
+2025-09-18 21:36:57.959: RetroTK Map Server Started.
+
+2025-09-18 21:37:29.793: RetroTK Map Server Started.
+
+2025-09-18 21:38:02.857: RetroTK Map Server Started.
+
+2025-09-18 21:38:34.043: RetroTK Map Server Started.
+
+2025-09-18 21:39:05.955: RetroTK Map Server Started.
+
+2025-09-18 21:39:38.164: RetroTK Map Server Started.
+
+2025-09-18 21:40:09.886: RetroTK Map Server Started.
+
+2025-09-18 21:40:41.423: RetroTK Map Server Started.
+
+2025-09-18 21:41:12.932: RetroTK Map Server Started.
+
+2025-09-18 21:41:45.368: RetroTK Map Server Started.
+
+2025-09-18 21:42:18.278: RetroTK Map Server Started.
+
+2025-09-18 21:42:51.264: RetroTK Map Server Started.
+
+2025-09-18 21:43:24.395: RetroTK Map Server Started.
+
+2025-09-18 21:43:56.889: RetroTK Map Server Started.
+
+2025-09-18 21:44:28.825: RetroTK Map Server Started.
+
+2025-09-18 21:45:01.600: RetroTK Map Server Started.
+
+2025-09-18 21:45:33.725: RetroTK Map Server Started.
+
+2025-09-18 21:46:06.632: RetroTK Map Server Started.
+2025-09-18 21:46:32.313: Shutdown.
+
+2025-09-18 21:46:32.991: RetroTK Map Server Started.
+
+2025-09-18 21:47:06.562: RetroTK Map Server Started.
+
+2025-09-18 21:47:39.158: RetroTK Map Server Started.
+
+2025-09-18 21:48:11.268: RetroTK Map Server Started.
+
+2025-09-18 21:48:44.003: RetroTK Map Server Started.
+2025-09-18 21:49:16.096: Shutdown.
+2025-09-18 21:49:16.096: Char Server connection lost.
+2025-09-18 21:49:16.505: Shutdown.
+
+2025-09-18 21:50:30.662: RetroTK Map Server Started.
+
+2025-09-18 21:50:33.659: RetroTK Login Server Started.
+2025-09-18 21:50:33.662: Server Ready! Listening at 2000.
+
+2025-09-18 21:50:34.346: RetroTK Char Server Started.
+2025-09-18 21:50:34.358: Server Ready! Listening at 2005.
+2025-09-18 21:50:35.366: Connection from Char Server accepted.
+2025-09-18 21:50:35.370: Connected to Login Server.
+
+2025-09-18 21:51:02.879: RetroTK Map Server Started.
+
+2025-09-18 21:51:34.787: RetroTK Map Server Started.
+
+2025-09-18 21:52:07.092: RetroTK Map Server Started.
+
+2025-09-18 21:52:38.989: RetroTK Map Server Started.
+
+2025-09-18 21:53:11.079: RetroTK Map Server Started.
+
+2025-09-18 21:53:42.707: RetroTK Map Server Started.
+
+2025-09-18 21:54:15.036: RetroTK Map Server Started.
+
+2025-09-18 21:54:47.603: RetroTK Map Server Started.
+
+2025-09-18 21:55:20.151: RetroTK Map Server Started.
+
+2025-09-18 21:55:52.871: RetroTK Map Server Started.
+
+2025-09-18 21:56:26.175: RetroTK Map Server Started.
+
+2025-09-18 21:57:00.192: RetroTK Map Server Started.
+
+2025-09-18 21:57:32.858: RetroTK Map Server Started.
+
+2025-09-18 21:58:05.692: RetroTK Map Server Started.
+
+2025-09-18 21:58:38.353: RetroTK Map Server Started.
+
+2025-09-18 21:59:11.977: RetroTK Map Server Started.
+
+2025-09-18 21:59:45.769: RetroTK Map Server Started.
+
+2025-09-18 22:00:19.895: RetroTK Map Server Started.
+
+2025-09-18 22:00:52.587: RetroTK Map Server Started.
+
+2025-09-18 22:01:25.586: RetroTK Map Server Started.
+
+2025-09-18 22:01:58.055: RetroTK Map Server Started.
+
+2025-09-18 22:02:31.789: RetroTK Map Server Started.
+
+2025-09-18 22:03:04.306: RetroTK Map Server Started.
+
+2025-09-18 22:03:36.413: RetroTK Map Server Started.
+
+2025-09-18 22:04:09.378: RetroTK Map Server Started.
+
+2025-09-18 22:04:41.726: RetroTK Map Server Started.
+
+2025-09-18 22:05:14.803: RetroTK Map Server Started.
+
+2025-09-18 22:05:47.361: RetroTK Map Server Started.
+
+2025-09-18 22:06:19.808: RetroTK Map Server Started.
+
+2025-09-18 22:06:53.129: RetroTK Map Server Started.
+
+2025-09-18 22:07:26.144: RetroTK Map Server Started.
+
+2025-09-18 22:07:59.244: RetroTK Map Server Started.
+
+2025-09-18 22:08:32.380: RetroTK Map Server Started.
+
+2025-09-18 22:09:05.568: RetroTK Map Server Started.
+
+2025-09-18 22:09:38.868: RetroTK Map Server Started.
+
+2025-09-18 22:10:12.026: RetroTK Map Server Started.
+
+2025-09-18 22:10:44.756: RetroTK Map Server Started.
+
+2025-09-18 22:11:18.267: RetroTK Map Server Started.
+
+2025-09-18 22:11:51.310: RetroTK Map Server Started.
+
+2025-09-18 22:12:24.179: RetroTK Map Server Started.
+
+2025-09-18 22:12:56.695: RetroTK Map Server Started.
+
+2025-09-18 22:13:29.845: RetroTK Map Server Started.
+
+2025-09-18 22:14:01.868: RetroTK Map Server Started.
+
+2025-09-18 22:14:34.477: RetroTK Map Server Started.
+
+2025-09-18 22:15:06.724: RetroTK Map Server Started.
+
+2025-09-18 22:15:40.196: RetroTK Map Server Started.
+
+2025-09-18 22:16:13.077: RetroTK Map Server Started.
+
+2025-09-18 22:16:46.513: RetroTK Map Server Started.
+
+2025-09-18 22:17:18.003: RetroTK Map Server Started.
+
+2025-09-18 22:17:49.860: RetroTK Map Server Started.
+
+2025-09-18 22:18:21.795: RetroTK Map Server Started.
+
+2025-09-18 22:18:53.811: RetroTK Map Server Started.
+
+2025-09-18 22:19:25.930: RetroTK Map Server Started.
+
+2025-09-18 22:19:57.765: RetroTK Map Server Started.
+
+2025-09-18 22:20:29.635: RetroTK Map Server Started.
+
+2025-09-18 22:21:01.545: RetroTK Map Server Started.
+
+2025-09-18 22:21:34.005: RetroTK Map Server Started.
+
+2025-09-18 22:22:06.216: RetroTK Map Server Started.
+
+2025-09-18 22:22:39.215: RetroTK Map Server Started.
+
+2025-09-18 22:23:11.860: RetroTK Map Server Started.
+
+2025-09-18 22:23:44.872: RetroTK Map Server Started.
+2025-09-18 22:24:07.761: Shutdown.
+
+2025-09-18 22:24:08.435: RetroTK Map Server Started.
+
+2025-09-18 22:24:41.307: RetroTK Map Server Started.
+
+2025-09-18 22:25:15.041: RetroTK Map Server Started.
+
+2025-09-18 22:25:47.615: RetroTK Map Server Started.
+
+2025-09-18 22:26:20.323: RetroTK Map Server Started.
+
+2025-09-18 22:26:53.403: RetroTK Map Server Started.
+
+2025-09-18 22:27:26.086: RetroTK Map Server Started.
+
+2025-09-18 22:27:58.361: RetroTK Map Server Started.
+
+2025-09-18 22:28:32.140: RetroTK Map Server Started.
+
+2025-09-18 22:29:04.806: RetroTK Map Server Started.
+
+2025-09-18 22:29:37.299: RetroTK Map Server Started.
+
+2025-09-18 22:30:10.691: RetroTK Map Server Started.
+
+2025-09-18 22:30:43.255: RetroTK Map Server Started.
+
+2025-09-18 22:31:16.216: RetroTK Map Server Started.
+
+2025-09-18 22:31:49.459: RetroTK Map Server Started.
+
+2025-09-18 22:32:22.492: RetroTK Map Server Started.
+
+2025-09-18 22:32:55.558: RetroTK Map Server Started.
+
+2025-09-18 22:33:28.847: RetroTK Map Server Started.
+
+2025-09-18 22:34:01.709: RetroTK Map Server Started.
+
+2025-09-18 22:34:34.772: RetroTK Map Server Started.
+
+2025-09-18 22:35:07.407: RetroTK Map Server Started.
+
+2025-09-18 22:35:41.480: RetroTK Map Server Started.
+
+2025-09-18 22:36:14.429: RetroTK Map Server Started.
+
+2025-09-18 22:36:47.356: RetroTK Map Server Started.
+
+2025-09-18 22:37:20.282: RetroTK Map Server Started.
+
+2025-09-18 22:37:52.756: RetroTK Map Server Started.
+
+2025-09-18 22:38:25.529: RetroTK Map Server Started.
+
+2025-09-18 22:38:58.546: RetroTK Map Server Started.
+
+2025-09-18 22:39:31.433: RetroTK Map Server Started.
+
+2025-09-18 22:40:04.726: RetroTK Map Server Started.
+2025-09-18 22:40:06.511: Shutdown.
+
+2025-09-18 22:40:07.159: RetroTK Map Server Started.
+
+2025-09-18 22:40:40.380: RetroTK Map Server Started.
+
+2025-09-18 22:41:13.479: RetroTK Map Server Started.
+
+2025-09-18 22:41:45.918: RetroTK Map Server Started.
+
+2025-09-18 22:42:17.481: RetroTK Map Server Started.
+
+2025-09-18 22:42:50.293: RetroTK Map Server Started.
+
+2025-09-18 22:43:23.950: RetroTK Map Server Started.
+
+2025-09-18 22:43:56.538: RetroTK Map Server Started.
+
+2025-09-18 22:44:29.989: RetroTK Map Server Started.
+
+2025-09-18 22:45:03.856: RetroTK Map Server Started.
+
+2025-09-18 22:45:36.670: RetroTK Map Server Started.
+
+2025-09-18 22:46:10.261: RetroTK Map Server Started.
+
+2025-09-18 22:46:42.892: RetroTK Map Server Started.
+
+2025-09-18 22:47:15.199: RetroTK Map Server Started.
+
+2025-09-18 22:47:46.945: RetroTK Map Server Started.
+
+2025-09-18 22:48:19.113: RetroTK Map Server Started.
+
+2025-09-18 22:48:51.548: RetroTK Map Server Started.
+
+2025-09-18 22:49:24.552: RetroTK Map Server Started.
+
+2025-09-18 22:49:57.617: RetroTK Map Server Started.
+
+2025-09-18 22:50:29.964: RetroTK Map Server Started.
+
+2025-09-18 22:51:03.899: RetroTK Map Server Started.
+
+2025-09-18 22:51:37.414: RetroTK Map Server Started.
+
+2025-09-18 22:52:10.672: RetroTK Map Server Started.
+
+2025-09-18 22:52:42.424: RetroTK Map Server Started.
+2025-09-18 22:53:08.282: Shutdown.
+
+2025-09-18 22:53:36.856: RetroTK Map Server Started.
+
+2025-09-18 22:54:08.928: RetroTK Map Server Started.
+
+2025-09-18 22:54:41.420: RetroTK Map Server Started.
+
+2025-09-18 22:55:13.924: RetroTK Map Server Started.
+
+2025-09-18 22:55:46.145: RetroTK Map Server Started.
+
+2025-09-18 22:56:19.579: RetroTK Map Server Started.
+
+2025-09-18 22:56:53.001: RetroTK Map Server Started.
+2025-09-18 22:57:15.883: Shutdown.
+
+2025-09-18 22:58:18.828: RetroTK Map Server Started.
+
+2025-09-18 22:58:51.637: RetroTK Map Server Started.
+
+2025-09-18 22:59:24.897: RetroTK Map Server Started.
+
+2025-09-18 22:59:57.054: RetroTK Map Server Started.
+
+2025-09-18 23:00:28.993: RetroTK Map Server Started.
+
+2025-09-18 23:01:00.748: RetroTK Map Server Started.
+2025-09-18 23:01:17.682: Shutdown.
+
+2025-09-18 23:02:12.594: RetroTK Map Server Started.
+
+2025-09-18 23:02:45.618: RetroTK Map Server Started.
+
+2025-09-18 23:03:18.804: RetroTK Map Server Started.
+
+2025-09-18 23:03:50.833: RetroTK Map Server Started.
+
+2025-09-18 23:04:23.349: RetroTK Map Server Started.
+
+2025-09-18 23:04:55.910: RetroTK Map Server Started.
+
+2025-09-18 23:05:29.679: RetroTK Map Server Started.
+
+2025-09-18 23:06:01.788: RetroTK Map Server Started.
+
+2025-09-18 23:06:34.097: RetroTK Map Server Started.
+
+2025-09-18 23:07:05.737: RetroTK Map Server Started.
+
+2025-09-18 23:07:37.653: RetroTK Map Server Started.
+
+2025-09-18 23:08:09.475: RetroTK Map Server Started.
+
+2025-09-18 23:08:42.041: RetroTK Map Server Started.
+
+2025-09-18 23:09:13.877: RetroTK Map Server Started.
+
+2025-09-18 23:09:45.518: RetroTK Map Server Started.
+
+2025-09-18 23:10:18.034: RetroTK Map Server Started.
+
+2025-09-18 23:10:50.003: RetroTK Map Server Started.
+
+2025-09-18 23:11:21.994: RetroTK Map Server Started.
+
+2025-09-18 23:11:54.401: RetroTK Map Server Started.
+
+2025-09-18 23:12:26.712: RetroTK Map Server Started.
+
+2025-09-18 23:12:58.916: RetroTK Map Server Started.
+
+2025-09-18 23:13:30.843: RetroTK Map Server Started.
+
+2025-09-18 23:14:03.014: RetroTK Map Server Started.
+
+2025-09-18 23:14:34.894: RetroTK Map Server Started.
+
+2025-09-18 23:15:08.219: RetroTK Map Server Started.
+
+2025-09-18 23:15:39.775: RetroTK Map Server Started.
+
+2025-09-18 23:16:10.964: RetroTK Map Server Started.
+
+2025-09-18 23:16:42.249: RetroTK Map Server Started.
+
+2025-09-18 23:17:13.238: RetroTK Map Server Started.
+
+2025-09-18 23:17:44.962: RetroTK Map Server Started.
+
+2025-09-18 23:18:17.047: RetroTK Map Server Started.
+
+2025-09-18 23:18:48.914: RetroTK Map Server Started.
+
+2025-09-18 23:19:20.659: RetroTK Map Server Started.
+
+2025-09-18 23:19:52.225: RetroTK Map Server Started.
+
+2025-09-18 23:20:24.379: RetroTK Map Server Started.
+
+2025-09-18 23:20:56.157: RetroTK Map Server Started.
+
+2025-09-18 23:21:27.876: RetroTK Map Server Started.
+
+2025-09-18 23:21:59.628: RetroTK Map Server Started.
+
+2025-09-18 23:22:31.767: RetroTK Map Server Started.
+
+2025-09-18 23:23:03.538: RetroTK Map Server Started.
+
+2025-09-18 23:23:34.932: RetroTK Map Server Started.
+
+2025-09-18 23:24:06.200: RetroTK Map Server Started.
+
+2025-09-18 23:24:37.853: RetroTK Map Server Started.
+
+2025-09-18 23:25:09.993: RetroTK Map Server Started.
+
+2025-09-18 23:25:41.671: RetroTK Map Server Started.
+
+2025-09-18 23:26:13.535: RetroTK Map Server Started.
+
+2025-09-18 23:26:45.310: RetroTK Map Server Started.
+
+2025-09-18 23:27:17.136: RetroTK Map Server Started.
+
+2025-09-18 23:27:49.019: RetroTK Map Server Started.
+
+2025-09-18 23:28:20.666: RetroTK Map Server Started.
+
+2025-09-18 23:28:52.486: RetroTK Map Server Started.
+
+2025-09-18 23:29:24.091: RetroTK Map Server Started.
+
+2025-09-18 23:29:55.615: RetroTK Map Server Started.
+
+2025-09-18 23:30:27.405: RetroTK Map Server Started.
+
+2025-09-18 23:30:58.782: RetroTK Map Server Started.
+
+2025-09-18 23:31:30.105: RetroTK Map Server Started.
+
+2025-09-18 23:32:01.586: RetroTK Map Server Started.
+
+2025-09-18 23:32:33.219: RetroTK Map Server Started.
+
+2025-09-18 23:33:05.766: RetroTK Map Server Started.
+
+2025-09-18 23:33:38.175: RetroTK Map Server Started.
+
+2025-09-18 23:34:10.697: RetroTK Map Server Started.
+
+2025-09-18 23:34:42.349: RetroTK Map Server Started.
+
+2025-09-18 23:35:13.291: RetroTK Map Server Started.
+
+2025-09-18 23:35:44.004: RetroTK Map Server Started.
+
+2025-09-18 23:36:14.547: RetroTK Map Server Started.
+
+2025-09-18 23:36:44.784: RetroTK Map Server Started.
+
+2025-09-18 23:37:15.050: RetroTK Map Server Started.
+
+2025-09-18 23:37:45.503: RetroTK Map Server Started.
+
+2025-09-18 23:38:15.834: RetroTK Map Server Started.
+
+2025-09-18 23:38:46.294: RetroTK Map Server Started.
+
+2025-09-18 23:39:16.765: RetroTK Map Server Started.
+
+2025-09-18 23:39:47.003: RetroTK Map Server Started.
+
+2025-09-18 23:40:17.477: RetroTK Map Server Started.
+
+2025-09-18 23:40:47.641: RetroTK Map Server Started.
+
+2025-09-18 23:41:18.005: RetroTK Map Server Started.
+
+2025-09-18 23:41:48.298: RetroTK Map Server Started.
+
+2025-09-18 23:42:18.516: RetroTK Map Server Started.
+
+2025-09-18 23:42:48.648: RetroTK Map Server Started.
+
+2025-09-18 23:43:18.889: RetroTK Map Server Started.
+
+2025-09-18 23:43:49.347: RetroTK Map Server Started.
+
+2025-09-18 23:44:19.774: RetroTK Map Server Started.
+
+2025-09-18 23:44:50.025: RetroTK Map Server Started.
+
+2025-09-18 23:45:20.381: RetroTK Map Server Started.
+
+2025-09-18 23:45:50.596: RetroTK Map Server Started.
+
+2025-09-18 23:46:20.971: RetroTK Map Server Started.
+
+2025-09-18 23:46:51.128: RetroTK Map Server Started.
+
+2025-09-18 23:47:21.664: RetroTK Map Server Started.
+
+2025-09-18 23:47:52.029: RetroTK Map Server Started.
+
+2025-09-18 23:48:22.406: RetroTK Map Server Started.
+
+2025-09-18 23:48:52.680: RetroTK Map Server Started.
+
+2025-09-18 23:49:23.062: RetroTK Map Server Started.
+
+2025-09-18 23:49:53.497: RetroTK Map Server Started.
+
+2025-09-18 23:50:23.971: RetroTK Map Server Started.
+
+2025-09-18 23:50:54.157: RetroTK Map Server Started.
+
+2025-09-18 23:51:24.454: RetroTK Map Server Started.
+
+2025-09-18 23:51:54.631: RetroTK Map Server Started.
+
+2025-09-18 23:52:25.150: RetroTK Map Server Started.
+
+2025-09-18 23:52:55.531: RetroTK Map Server Started.
+
+2025-09-18 23:53:25.984: RetroTK Map Server Started.
+
+2025-09-18 23:53:56.144: RetroTK Map Server Started.
+
+2025-09-18 23:54:26.574: RetroTK Map Server Started.
+
+2025-09-18 23:54:57.077: RetroTK Map Server Started.
+
+2025-09-18 23:55:27.673: RetroTK Map Server Started.
+
+2025-09-18 23:55:58.006: RetroTK Map Server Started.
+
+2025-09-18 23:56:28.125: RetroTK Map Server Started.
+
+2025-09-18 23:56:58.370: RetroTK Map Server Started.
+
+2025-09-18 23:57:28.600: RetroTK Map Server Started.
+
+2025-09-18 23:57:58.764: RetroTK Map Server Started.
+
+2025-09-18 23:58:29.288: RetroTK Map Server Started.
+
+2025-09-18 23:58:59.603: RetroTK Map Server Started.
+
+2025-09-18 23:59:31.517: RetroTK Map Server Started.
+
+2025-09-19 00:00:04.902: RetroTK Map Server Started.
+
+2025-09-19 00:00:37.121: RetroTK Map Server Started.
+
+2025-09-19 00:01:09.394: RetroTK Map Server Started.
+
+2025-09-19 00:01:41.022: RetroTK Map Server Started.
+
+2025-09-19 00:02:12.679: RetroTK Map Server Started.
+
+2025-09-19 00:02:44.498: RetroTK Map Server Started.
+
+2025-09-19 00:03:15.277: RetroTK Map Server Started.
+
+2025-09-19 00:03:46.200: RetroTK Map Server Started.
+
+2025-09-19 00:04:16.625: RetroTK Map Server Started.
+
+2025-09-19 00:04:47.017: RetroTK Map Server Started.
+
+2025-09-19 00:05:17.672: RetroTK Map Server Started.
+
+2025-09-19 00:05:48.505: RetroTK Map Server Started.
+
+2025-09-19 00:06:19.597: RetroTK Map Server Started.
+
+2025-09-19 00:06:50.231: RetroTK Map Server Started.
+
+2025-09-19 00:07:20.846: RetroTK Map Server Started.
+
+2025-09-19 00:07:51.426: RetroTK Map Server Started.
+
+2025-09-19 00:08:22.439: RetroTK Map Server Started.
+
+2025-09-19 00:08:53.003: RetroTK Map Server Started.
+
+2025-09-19 00:09:23.843: RetroTK Map Server Started.
+
+2025-09-19 00:09:54.776: RetroTK Map Server Started.
+
+2025-09-19 00:10:25.899: RetroTK Map Server Started.
+
+2025-09-19 00:10:57.005: RetroTK Map Server Started.
+
+2025-09-19 00:11:27.921: RetroTK Map Server Started.
+
+2025-09-19 00:11:58.765: RetroTK Map Server Started.
+
+2025-09-19 00:12:29.479: RetroTK Map Server Started.
+
+2025-09-19 00:13:00.108: RetroTK Map Server Started.
+
+2025-09-19 00:13:30.753: RetroTK Map Server Started.
+
+2025-09-19 00:14:01.590: RetroTK Map Server Started.
+
+2025-09-19 00:14:32.379: RetroTK Map Server Started.
+
+2025-09-19 00:15:03.460: RetroTK Map Server Started.
+
+2025-09-19 00:15:34.501: RetroTK Map Server Started.
+
+2025-09-19 00:16:05.234: RetroTK Map Server Started.
+
+2025-09-19 00:16:36.278: RetroTK Map Server Started.
+
+2025-09-19 00:17:07.274: RetroTK Map Server Started.
+
+2025-09-19 00:17:37.969: RetroTK Map Server Started.
+
+2025-09-19 00:18:08.729: RetroTK Map Server Started.
+
+2025-09-19 00:18:39.385: RetroTK Map Server Started.
+
+2025-09-19 00:19:10.029: RetroTK Map Server Started.
+
+2025-09-19 00:19:40.705: RetroTK Map Server Started.
+
+2025-09-19 00:20:11.634: RetroTK Map Server Started.
+
+2025-09-19 00:20:42.349: RetroTK Map Server Started.
+
+2025-09-19 00:21:13.311: RetroTK Map Server Started.
+
+2025-09-19 00:21:44.103: RetroTK Map Server Started.
+
+2025-09-19 00:22:15.035: RetroTK Map Server Started.
+
+2025-09-19 00:22:46.047: RetroTK Map Server Started.
+
+2025-09-19 00:23:16.993: RetroTK Map Server Started.
+
+2025-09-19 00:23:47.863: RetroTK Map Server Started.
+
+2025-09-19 00:24:18.722: RetroTK Map Server Started.
+
+2025-09-19 00:24:49.605: RetroTK Map Server Started.
+
+2025-09-19 00:25:20.548: RetroTK Map Server Started.
+
+2025-09-19 00:25:51.355: RetroTK Map Server Started.
+
+2025-09-19 00:26:22.207: RetroTK Map Server Started.
+
+2025-09-19 00:26:53.074: RetroTK Map Server Started.
+
+2025-09-19 00:27:24.063: RetroTK Map Server Started.
+
+2025-09-19 00:27:55.023: RetroTK Map Server Started.
+
+2025-09-19 00:28:25.914: RetroTK Map Server Started.
+
+2025-09-19 00:28:56.790: RetroTK Map Server Started.
+
+2025-09-19 00:29:27.797: RetroTK Map Server Started.
+
+2025-09-19 00:29:58.970: RetroTK Map Server Started.
+
+2025-09-19 00:30:29.945: RetroTK Map Server Started.
+
+2025-09-19 00:31:00.909: RetroTK Map Server Started.
+
+2025-09-19 00:31:31.722: RetroTK Map Server Started.
+
+2025-09-19 00:32:02.770: RetroTK Map Server Started.
+
+2025-09-19 00:32:33.753: RetroTK Map Server Started.
+
+2025-09-19 00:33:04.839: RetroTK Map Server Started.
+
+2025-09-19 00:33:37.224: RetroTK Map Server Started.
+
+2025-09-19 00:34:10.356: RetroTK Map Server Started.
+
+2025-09-19 00:34:43.252: RetroTK Map Server Started.
+
+2025-09-19 00:35:17.445: RetroTK Map Server Started.
+
+2025-09-19 00:35:50.093: RetroTK Map Server Started.
+
+2025-09-19 00:36:22.661: RetroTK Map Server Started.
+
+2025-09-19 00:36:55.679: RetroTK Map Server Started.
+
+2025-09-19 00:37:28.458: RetroTK Map Server Started.
+
+2025-09-19 00:38:00.912: RetroTK Map Server Started.
+
+2025-09-19 00:38:33.072: RetroTK Map Server Started.
+
+2025-09-19 00:39:05.127: RetroTK Map Server Started.
+
+2025-09-19 00:39:37.402: RetroTK Map Server Started.
+
+2025-09-19 00:40:09.948: RetroTK Map Server Started.
+
+2025-09-19 00:40:42.103: RetroTK Map Server Started.
+
+2025-09-19 00:41:14.767: RetroTK Map Server Started.
+
+2025-09-19 00:41:46.834: RetroTK Map Server Started.
+
+2025-09-19 00:42:19.236: RetroTK Map Server Started.
+
+2025-09-19 00:42:51.889: RetroTK Map Server Started.
+
+2025-09-19 00:43:25.077: RetroTK Map Server Started.
+
+2025-09-19 00:43:58.508: RetroTK Map Server Started.
+
+2025-09-19 00:44:30.991: RetroTK Map Server Started.
+
+2025-09-19 00:45:03.841: RetroTK Map Server Started.
+
+2025-09-19 00:45:37.130: RetroTK Map Server Started.
+
+2025-09-19 00:46:10.514: RetroTK Map Server Started.
+
+2025-09-19 00:46:43.056: RetroTK Map Server Started.
+
+2025-09-19 00:47:15.113: RetroTK Map Server Started.
+
+2025-09-19 00:47:48.282: RetroTK Map Server Started.
+
+2025-09-19 00:48:21.980: RetroTK Map Server Started.
+
+2025-09-19 00:48:54.546: RetroTK Map Server Started.
+
+2025-09-19 00:49:26.942: RetroTK Map Server Started.
+
+2025-09-19 00:49:59.050: RetroTK Map Server Started.
+
+2025-09-19 00:50:31.944: RetroTK Map Server Started.
+
+2025-09-19 00:51:05.677: RetroTK Map Server Started.
+
+2025-09-19 00:51:38.743: RetroTK Map Server Started.
+
+2025-09-19 00:52:11.432: RetroTK Map Server Started.
+
+2025-09-19 00:52:45.175: RetroTK Map Server Started.
+
+2025-09-19 00:53:17.916: RetroTK Map Server Started.
+
+2025-09-19 00:53:49.840: RetroTK Map Server Started.
+
+2025-09-19 00:54:22.417: RetroTK Map Server Started.
+
+2025-09-19 00:54:56.060: RetroTK Map Server Started.
+
+2025-09-19 00:55:29.424: RetroTK Map Server Started.
+
+2025-09-19 00:56:02.603: RetroTK Map Server Started.
+
+2025-09-19 00:56:36.374: RetroTK Map Server Started.
+
+2025-09-19 00:57:09.162: RetroTK Map Server Started.
+
+2025-09-19 00:57:44.792: RetroTK Map Server Started.
+
+2025-09-19 00:58:18.170: RetroTK Map Server Started.
+
+2025-09-19 00:58:51.583: RetroTK Map Server Started.
+
+2025-09-19 00:59:25.143: RetroTK Map Server Started.
+
+2025-09-19 00:59:58.793: RetroTK Map Server Started.
+
+2025-09-19 01:00:32.340: RetroTK Map Server Started.
+
+2025-09-19 01:01:05.884: RetroTK Map Server Started.
+
+2025-09-19 01:01:40.612: RetroTK Map Server Started.
+
+2025-09-19 01:02:14.951: RetroTK Map Server Started.
+
+2025-09-19 01:02:48.577: RetroTK Map Server Started.
+
+2025-09-19 01:03:23.211: RetroTK Map Server Started.
+
+2025-09-19 01:03:58.178: RetroTK Map Server Started.
+
+2025-09-19 01:04:31.870: RetroTK Map Server Started.
+
+2025-09-19 01:05:05.420: RetroTK Map Server Started.
+
+2025-09-19 01:05:39.055: RetroTK Map Server Started.
+
+2025-09-19 01:06:13.592: RetroTK Map Server Started.
+
+2025-09-19 01:06:46.026: RetroTK Map Server Started.
+
+2025-09-19 01:07:18.705: RetroTK Map Server Started.
+
+2025-09-19 01:07:51.604: RetroTK Map Server Started.
+
+2025-09-19 01:08:24.471: RetroTK Map Server Started.
+
+2025-09-19 01:08:57.178: RetroTK Map Server Started.
+
+2025-09-19 01:09:29.669: RetroTK Map Server Started.
+
+2025-09-19 01:10:02.283: RetroTK Map Server Started.
+
+2025-09-19 01:10:34.766: RetroTK Map Server Started.
+
+2025-09-19 01:11:07.108: RetroTK Map Server Started.
+
+2025-09-19 01:11:39.430: RetroTK Map Server Started.
+
+2025-09-19 01:12:12.567: RetroTK Map Server Started.
+
+2025-09-19 01:12:45.165: RetroTK Map Server Started.
+
+2025-09-19 01:13:17.618: RetroTK Map Server Started.
+
+2025-09-19 01:13:50.189: RetroTK Map Server Started.
+
+2025-09-19 01:14:22.841: RetroTK Map Server Started.
+
+2025-09-19 01:14:55.170: RetroTK Map Server Started.
+
+2025-09-19 01:15:27.718: RetroTK Map Server Started.
+
+2025-09-19 01:16:00.038: RetroTK Map Server Started.
+
+2025-09-19 01:16:32.331: RetroTK Map Server Started.
+
+2025-09-19 01:17:04.912: RetroTK Map Server Started.
+
+2025-09-19 01:17:37.706: RetroTK Map Server Started.
+
+2025-09-19 01:18:10.183: RetroTK Map Server Started.
+
+2025-09-19 01:18:42.580: RetroTK Map Server Started.
+
+2025-09-19 01:19:14.870: RetroTK Map Server Started.
+
+2025-09-19 01:19:47.141: RetroTK Map Server Started.
+
+2025-09-19 01:20:19.349: RetroTK Map Server Started.
+
+2025-09-19 01:20:51.556: RetroTK Map Server Started.
+
+2025-09-19 01:21:23.859: RetroTK Map Server Started.
+
+2025-09-19 01:21:55.916: RetroTK Map Server Started.
+
+2025-09-19 01:22:28.093: RetroTK Map Server Started.
+
+2025-09-19 01:23:00.474: RetroTK Map Server Started.
+
+2025-09-19 01:23:32.784: RetroTK Map Server Started.
+
+2025-09-19 01:24:04.955: RetroTK Map Server Started.
+
+2025-09-19 01:24:37.199: RetroTK Map Server Started.
+
+2025-09-19 01:25:09.467: RetroTK Map Server Started.
+
+2025-09-19 01:25:41.803: RetroTK Map Server Started.
+
+2025-09-19 01:26:14.594: RetroTK Map Server Started.
+
+2025-09-19 01:26:47.375: RetroTK Map Server Started.
+
+2025-09-19 01:27:19.993: RetroTK Map Server Started.
+
+2025-09-19 01:27:52.827: RetroTK Map Server Started.
+
+2025-09-19 01:28:25.243: RetroTK Map Server Started.
+2025-09-19 01:28:37.519: Shutdown.
+
+2025-09-19 01:28:39.358: RetroTK Map Server Started.
+2025-09-19 01:29:07.754: Server Ready! Listening at 2001.
+2025-09-19 01:29:08.757: Map Server #0 connected(73.175.204.58:2001).
+2025-09-19 01:29:08.761: Connected to Char Server.
+2025-09-19 01:29:08.769: Map Server #0 send 9850 map.
+2025-09-19 01:35:52.814: Shutdown.
+2025-09-19 01:35:52.972: Can't connect to Login Server.
+2025-09-19 01:35:53.674: Can't connect to Char Server.
+2025-09-19 01:35:53.756: Can't connect to Char Server.
+2025-09-19 01:35:54.494: Shutdown.

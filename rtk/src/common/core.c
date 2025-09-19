@@ -90,6 +90,9 @@ int main(int argc, char** argv)
 		//packet thread
 		pthread_create(&thread_id_packet, NULL, do_parsepacket, NULL);
 		pthread_join(thread_id_packet, NULL);
+
+		// Idle yield to reduce CPU burn when no work is pending
+		usleep(2000); // 2 ms
 	}
 
 	return 0;
