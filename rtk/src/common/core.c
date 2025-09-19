@@ -34,9 +34,11 @@ pthread_t thread_dotimer;
 //----------------------------
 int main(int argc, char** argv)
 {
+	printf("DEBUG: Starting main function\n");
 	Last_Eof = 0;
 
 	gettimeofday(&start, NULL);
+	printf("DEBUG: Got time of day\n");
 
 	int next;
 	int tick;
@@ -46,16 +48,31 @@ int main(int argc, char** argv)
 	//memset(str,0,65536);
 	server_shutdown = 0;
 
+	printf("DEBUG: About to call do_socket()\n");
 	do_socket();
+	printf("DEBUG: do_socket() completed\n");
 
+	printf("DEBUG: Setting up signal handlers\n");
 	signal(SIGPIPE, sig_proc);
 	signal(SIGTERM, sig_proc);
 	signal(SIGINT, sig_proc);
-	db_init();
-	display_title();
-	timer_init();
+	printf("DEBUG: Signal handlers set\n");
 
+	printf("DEBUG: About to call db_init()\n");
+	db_init();
+	printf("DEBUG: db_init() completed\n");
+
+	printf("DEBUG: About to call display_title()\n");
+	display_title();
+	printf("DEBUG: display_title() completed\n");
+
+	printf("DEBUG: About to call timer_init()\n");
+	timer_init();
+	printf("DEBUG: timer_init() completed\n");
+
+	printf("DEBUG: About to call do_init()\n");
 	do_init(argc, argv);
+	printf("DEBUG: do_init() completed\n");
 	//initscr();
 	//timeout(0);
 
@@ -73,6 +90,9 @@ int main(int argc, char** argv)
 		//packet thread
 		pthread_create(&thread_id_packet, NULL, do_parsepacket, NULL);
 		pthread_join(thread_id_packet, NULL);
+
+		// Idle yield to reduce CPU burn when no work is pending
+		usleep(2000); // 2 ms
 	}
 
 	return 0;

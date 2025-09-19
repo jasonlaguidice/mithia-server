@@ -149,3 +149,24 @@ TODO.md
 
 # Docker persistent data
 /data/
+
+# Database data (should be handled via volumes)
+mithia-data/data/mysql/
+# SSL certificates and keys (generated at runtime)
+*.pem
+*.key
+# MySQL temporary and log files
+*.tmp
+*.ibd
+*.CSM
+*.CSV
+*.sdi
+binlog.*
+auto.cnf
+ib_*
+undo_*
+
+# Markdown files (except specific ones)
+*.md
+!LEGACY_SETUP.md
+!README.md

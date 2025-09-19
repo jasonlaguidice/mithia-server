@@ -51,9 +51,9 @@ fi
 echo "  Public Login IP: $PUBLIC_LOGIN_IP"
 
 # Set default database credentials if not provided
-DB_USER=${DB_USER:-${MYSQL_USER:-rtk}}
-DB_PASSWORD=${DB_PASSWORD:-${MYSQL_PASSWORD:-changeme}}
-DB_NAME=${DB_NAME:-${MYSQL_DATABASE:-RTK}}
+DB_USER=${DB_USER:-rtk}
+DB_PASSWORD=${DB_PASSWORD:-changeme}
+DB_NAME=${DB_NAME:-RTK}
 DB_PORT=${DB_PORT:-3306}
 
 # Set default server ports (fixed, not configurable)
@@ -78,42 +78,20 @@ export START_MONEY START_POINT XP_RATE DROP_RATE SERVER_ID
 echo ""
 echo "=== Generating Configuration Files ==="
 
-# Debug: List available template files
-echo "Available template files:"
-ls -la /home/RTK/rtk/conf/*.template 2>/dev/null || echo "  No template files found"
-
 # Generate configuration files from templates
 if [ -f /home/RTK/rtk/conf/inter.conf.template ]; then
     envsubst < /home/RTK/rtk/conf/inter.conf.template > /home/RTK/rtk/conf/inter.conf
     echo "  Generated inter.conf"
-else
-    echo "  inter.conf.template not found"
 fi
 
 if [ -f /home/RTK/rtk/conf/char.conf.template ]; then
     envsubst < /home/RTK/rtk/conf/char.conf.template > /home/RTK/rtk/conf/char.conf
     echo "  Generated char.conf"
-    echo "  DB_IP resolved to: $DB_IP"
-else
-    echo "  char.conf.template not found"
 fi
 
 if [ -f /home/RTK/rtk/conf/map.conf.template ]; then
     envsubst < /home/RTK/rtk/conf/map.conf.template > /home/RTK/rtk/conf/map.conf
     echo "  Generated map.conf"
-else
-    echo "  map.conf.template not found"
-fi
-
-# Debug: Show final char.conf database config
-if [ -f /home/RTK/rtk/conf/char.conf ]; then
-    echo "Final char.conf database config:"
-    grep -A5 "sql_ip:" /home/RTK/rtk/conf/char.conf || echo "  No sql_ip found in char.conf"
-fi
-
-if [ -f /home/RTK/rtk/conf/login.conf.template ]; then
-    envsubst < /home/RTK/rtk/conf/login.conf.template > /home/RTK/rtk/conf/login.conf
-    echo "  Generated login.conf"
 fi
 
 echo ""
@@ -128,36 +106,25 @@ echo "    Map: $PUBLIC_MAP_IP:$MAP_SERVER_PORT"
 echo "    Login: $PUBLIC_LOGIN_IP:$LOGIN_SERVER_PORT"
 echo ""
 
-echo "=== Starting Server ==="
+echo "=== DEBUG: Checking binary ==="
+ls -la "$@"
+echo "=== DEBUG: Starting Server ==="
+echo "Command: $@"
+echo "Working dir: $(pwd)"
 
-# Debug: Show executable information
-echo "DEBUG: Executable path: $1"
-echo "DEBUG: File exists: $(ls -la "$1" 2>/dev/null || echo "FILE NOT FOUND")"
-echo "DEBUG: File permissions: $(stat -c '%A' "$1" 2>/dev/null || echo "STAT FAILED")"
+# Execute the server with error handling
+"$@" 2>&1 &
+SERVER_PID=$!
+echo "Server started with PID: $SERVER_PID"
 
-# Debug: Check library dependencies
-echo "DEBUG: Library dependencies:"
-ldd "$1" 2>/dev/null || echo "LDD failed - not a dynamic executable or missing libraries"
+# Wait for the server and capture exit code
+wait $SERVER_PID
+EXIT_CODE=$?
+echo "Server exited with code: $EXIT_CODE"
 
-echo "DEBUG: Installed MySQL client libraries:"
-find /usr/lib* -name "*mysql*" 2>/dev/null | head -10
-
-echo "DEBUG: Installed Lua libraries:"
-find /usr/lib* -name "*lua*" 2>/dev/null | head -10
-
-echo "DEBUG: Architecture information:"
-echo "  Container arch: $(uname -m)"
-echo "  Executable arch: $(file "$1" 2>/dev/null || echo "FILE command failed")"
-
-# Test if the executable can run at all
-echo "DEBUG: Testing if executable starts..."
-echo "DEBUG: About to exec (line-buffered): $@"
-
-# Execute the server with line-buffered stdout/stderr so Docker logs capture prints immediately
-# Also mirror output into logs/console.log so you can compare with bare metal logs on the host
-mkdir -p logs
-if command -v stdbuf >/dev/null 2>&1; then
-  stdbuf -oL -eL "$@" 2>&1 | tee -a logs/console.log
-else
-  "$@" 2>&1 | tee -a logs/console.log
+if [ $EXIT_CODE -ne 0 ]; then
+    echo "Server crashed! Exit code: $EXIT_CODE"
+    sleep 5  # Keep container alive for debugging
 fi
+
+exit $EXIT_CODE

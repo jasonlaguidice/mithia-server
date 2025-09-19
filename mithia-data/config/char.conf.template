@@ -4,8 +4,8 @@
 //sql server configuration - IP resolved at runtime
 sql_ip: ${DB_IP}
 sql_port: ${DB_PORT}
-sql_id: rtk
-sql_pw: 50LM8U8Poq5uX2AZJVKs
+sql_id: ${DB_USER}
+sql_pw: ${DB_PASSWORD}
 sql_db: ${DB_NAME}
 
 //logfile

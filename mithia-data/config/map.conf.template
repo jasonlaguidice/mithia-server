@@ -3,10 +3,10 @@
 
 // Public IP addresses for client connections
 // These IPs are sent to clients, so they must be externally accessible
-map_ip: 73.175.204.58
+map_ip: ${PUBLIC_MAP_IP}
 map_port: 2001
 
-loginip: 73.175.204.58
+loginip: ${PUBLIC_LOGIN_IP}
 loginport: 2000
 
 //logfile
@@ -22,9 +22,9 @@ dump_log: logs/map_dump.log
 dump_save: 1
 
 //experience rate.
-xprate: 1
+xprate: ${XP_RATE:-1}
 //drop rate(for all items)
-droprate: 1
+droprate: ${DROP_RATE:-1}
 
 town: Neutral
 town: Koguryo
@@ -34,7 +34,7 @@ town: Gogoon
 town: Vortex
 
 // Map server instance ID (for multiple map servers handling different towns)
-ServerId: 0
+ServerId: ${SERVER_ID:-0}
 
 meta: RidableAnimals
 meta: CharicInfo0
@@ -48,4 +48,4 @@ meta: ItemInfo1
 
 //npc load
 //import: warp/warp_main.conf
-import: map/map_load.conf
+//import: map/map_load.conf
