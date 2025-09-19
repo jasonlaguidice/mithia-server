@@ -43,6 +43,8 @@ COPY --chown=RTK:RTK rtkmaps/ rtkmaps/
 # Copy configuration templates and startup script
 COPY --chown=RTK:RTK rtk/conf/*.template rtk/conf/
 COPY --chown=RTK:RTK rtk/conf/*.conf rtk/conf/
+# Backup templates to a separate location for post-mount restoration
+COPY --chown=RTK:RTK rtk/conf/*.template rtk/conf-templates/
 COPY --chown=RTK:RTK docker/startup.sh /startup.sh
 RUN chmod +x /startup.sh && sed -i 's/\r$//' /startup.sh
 

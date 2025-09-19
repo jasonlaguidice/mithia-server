@@ -78,6 +78,14 @@ export START_MONEY START_POINT XP_RATE DROP_RATE SERVER_ID
 echo ""
 echo "=== Generating Configuration Files ==="
 
+# Restore template files from backup if they don't exist (due to volume mount override)
+echo "Checking for template files..."
+if [ ! -f /home/RTK/rtk/conf/char.conf.template ] && [ -d /home/RTK/rtk/conf-templates ]; then
+    echo "  Templates missing from mounted volume, restoring from backup..."
+    cp /home/RTK/rtk/conf-templates/*.template /home/RTK/rtk/conf/
+    echo "  Templates restored"
+fi
+
 # Debug: List available template files
 echo "Available template files:"
 ls -la /home/RTK/rtk/conf/*.template 2>/dev/null || echo "  No template files found"
