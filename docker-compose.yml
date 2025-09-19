@@ -2,48 +2,32 @@ version: '3.8'
 services:
   # Login Server - Handles user authentication
   mithia-login:
-    build:
-      context: .
-      dockerfile: services/login-server/Dockerfile
-    image: mithia-login-server:latest
+    image: ghcr.io/jasonlaguidice/mithia-server/mithia-login-server:latest
     restart: unless-stopped
-    cpus: 1.0
-    cpuset: "0"
-    mem_limit: 4g
     networks:
-      mithia_network:
+      - mithia_network
     ports:
       - "2000:2000"
     environment:
       - LOGIN_SERVER_HOST=mithia-login
-      - CHAR_SERVER_HOST=mithia-char
-      - CHAR_SERVER_PORT=2005
+      - LOGIN_SERVER_PORT=2000
+      - MAP_SERVER_HOST=mithia-map
+      - MAP_SERVER_PORT=2001
       - DB_HOST=mithia-db
       - DB_PORT=3306
     volumes:
-      - "./rtk/conf:/home/RTK/rtk/conf"
-      - "./rtk/logs/login:/home/RTK/rtk/logs"
+      - "./mithia/config:/home/RTK/rtk/conf"
+      - "./mithia/data/logs:/home/RTK/rtk/logs"
     depends_on:
       mithia-db:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "2000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   # Character Server - Manages character data and bridges login/map
   mithia-char:
-    build:
-      context: .
-      dockerfile: services/char-server/Dockerfile
-    image: mithia-char-server:latest
+    image: ghcr.io/jasonlaguidice/mithia-server/mithia-char-server:latest
     restart: unless-stopped
-    cpus: 1.0
-    cpuset: "1"
-    mem_limit: 4g
     networks:
-      mithia_network:
+      - mithia_network
     ports:
       - "2005:2005"
     environment:
@@ -54,31 +38,18 @@ services:
       - DB_HOST=mithia-db
       - DB_PORT=3306
     volumes:
-      - "./rtk/conf:/home/RTK/rtk/conf"
-      - "./rtk/logs/char:/home/RTK/rtk/logs"
+      - "./mithia/config:/home/RTK/rtk/conf"
+      - "./mithia/data/logs:/home/RTK/rtk/logs"
     depends_on:
       mithia-db:
         condition: service_healthy
-      mithia-login:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "2005"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   # Map Server - Game world simulation (scalable)
   mithia-map:
-    build:
-      context: .
-      dockerfile: services/map-server/Dockerfile
-    image: mithia-map-server:latest
+    image: ghcr.io/jasonlaguidice/mithia-server/mithia-map-server:latest
     restart: unless-stopped
-    cpus: 1.0
-    cpuset: "2"
-    mem_limit: 4g
     networks:
-      mithia_network:
+      - mithia_network
     ports:
       - "2001:2001"
     environment:
@@ -88,35 +59,31 @@ services:
       - CHAR_SERVER_PORT=2005
       - DB_HOST=mithia-db
       - DB_PORT=3306
-    env_file:
-      - stack.env
     volumes:
-      - "./rtk/conf:/home/RTK/rtk/conf"
-      - "./rtk/logs/map:/home/RTK/rtk/logs"
-      - "./rtk/SObj.tbl:/home/RTK/rtk/SObj.tbl:ro"
+      - "./mithia/config:/home/RTK/rtk/conf"
+      - "./mithia/data/logs:/home/RTK/rtk/logs"
+      - "./mithia/data/SObj.tbl:/home/RTK/rtk/SObj.tbl:ro"
     depends_on:
-      mithia-char:
+      mithia-db:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "2001"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   # Database Server - MySQL
   mithia-db:
     image: mysql/mysql-server:8.0
     restart: unless-stopped
     networks:
-      mithia_network:
+      - mithia_network
     ports:
       - "3306:3306"
-    env_file:
-      - stack.env
+    environment:
+      - MYSQL_ROOT_PASSWORD=changeMe
+      - MYSQL_DATABASE=RTK
+      - MYSQL_USER=mithia
+      - MYSQL_PASSWORD=mithia_password
     volumes:
-      - "./mithia-data/database/scripts:/docker-entrypoint-initdb.d"
-      - "mysql_data:/var/lib/mysql"
-      - "./mithia-data/data/backups:/backups"
+      - "./mithia/database/scripts:/docker-entrypoint-initdb.d"
+      - "./mithia/data/mysql:/var/lib/mysql"
+      - "./mithia/data/backups:/backups"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 30s
@@ -126,18 +93,3 @@ services:
 networks:
   mithia_network:
     driver: bridge
-
-volumes:
-  mysql_data:
-    driver: local
-
-# Usage Examples:
-#
-# Production deployment (uses pre-built images):
-#   docker-compose -f docker-compose.production.yml up
-#
-# Development with local builds:
-#   docker-compose -f docker-compose.microservices.yml up --build
-#
-# Scale map servers:
-#   docker-compose -f docker-compose.production.yml up --scale mithia-map=3
