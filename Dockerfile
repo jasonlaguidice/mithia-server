@@ -1,6 +1,6 @@
 # Use i386 Ubuntu for 32-bit compatibility
 # QEMU will automatically emulate this on ARM64
-FROM i386/ubuntu:latest
+FROM i386/ubuntu:16.04
 
 # Set up timezone configuration to avoid interactive prompts
 RUN echo tzdata tzdata/Zones/Europe select London | debconf-set-selections && \

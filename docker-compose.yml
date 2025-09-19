@@ -27,11 +27,11 @@ services:
     depends_on:
       mithia-db:
         condition: service_healthy
-    # healthcheck:
-    #   test: ["CMD", "nc", "-z", "localhost", "2000"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # Character Server - Manages character data and bridges login/map
   mithia-char:
@@ -62,12 +62,12 @@ services:
       mithia-db:
         condition: service_healthy
       mithia-login:
-        condition: service_started
-    # healthcheck:
-    #   test: ["CMD", "nc", "-z", "localhost", "2005"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2005"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # Map Server - Game world simulation (scalable)
   mithia-map:
@@ -99,12 +99,12 @@ services:
       - "./rtk/SObj.tbl:/home/RTK/rtk/SObj.tbl:ro"
     depends_on:
       mithia-char:
-        condition: service_started
-    # healthcheck:
-    #   test: ["CMD", "nc", "-z", "localhost", "2001"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2001"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # Database Server - MySQL
   mithia-db:

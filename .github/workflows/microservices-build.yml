@@ -78,25 +78,127 @@ jobs:
         build-args: |
           BUILDKIT_INLINE_CACHE=1
 
-  # Optional: Create a summary job that lists all built images
-  summary:
+  # Integration Tests
+  test-microservices:
     runs-on: ubuntu-latest
     needs: build
+    timeout-minutes: 20
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Install test dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y netcat-openbsd
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Pull latest images from registry
+      run: |
+        echo "Pulling latest images from registry for testing..."
+        docker compose pull
+
+    - name: Show Docker images
+      run: |
+        echo "Images to be tested:"
+        docker images | grep mithia
+
+    - name: Run integration tests
+      run: |
+        echo "Starting integration test suite..."
+        chmod +x docker/test-integration.sh
+        ./docker/test-integration.sh
+
+    - name: Collect service logs on failure
+      if: failure()
+      run: |
+        echo "=================================="
+        echo "   COLLECTING FAILURE DIAGNOSTICS"
+        echo "=================================="
+
+        echo ""
+        echo "=== Docker Compose Status ==="
+        docker compose ps || true
+
+        echo ""
+        echo "=== Container Logs ==="
+        docker compose logs --tail=50 || true
+
+        echo ""
+        echo "=== Login Server Logs ==="
+        docker compose logs mithia-login || true
+
+        echo ""
+        echo "=== Character Server Logs ==="
+        docker compose logs mithia-char || true
+
+        echo ""
+        echo "=== Map Server Logs ==="
+        docker compose logs mithia-map || true
+
+        echo ""
+        echo "=== Database Logs ==="
+        docker compose logs mithia-db || true
+
+        echo ""
+        echo "=== Network Information ==="
+        docker network ls || true
+        docker compose exec -T mithia-char ip addr show || true
+
+    - name: Cleanup test environment
+      if: always()
+      run: |
+        echo "Cleaning up test environment..."
+        docker compose down -v --remove-orphans || true
+        docker system prune -f || true
+
+  # Summary job that depends on both build and test completion
+  summary:
+    runs-on: ubuntu-latest
+    needs: [build, test-microservices]
     if: always()
     steps:
-    - name: Summary
+    - name: Build and Test Summary
       run: |
-        echo "## Microservices Build Summary" >> $GITHUB_STEP_SUMMARY
-        echo "The following Mithia server containers were built:" >> $GITHUB_STEP_SUMMARY
-        echo "- **Login Server**: \`ghcr.io/${{ github.repository }}/mithia-login-server:latest\`" >> $GITHUB_STEP_SUMMARY
-        echo "- **Character Server**: \`ghcr.io/${{ github.repository }}/mithia-char-server:latest\`" >> $GITHUB_STEP_SUMMARY
-        echo "- **Map Server**: \`ghcr.io/${{ github.repository }}/mithia-map-server:latest\`" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### Usage:" >> $GITHUB_STEP_SUMMARY
-        echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-        echo "# Deploy with microservices compose" >> $GITHUB_STEP_SUMMARY
-        echo "docker-compose -f docker-compose.microservices.yml up" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "# Scale map servers" >> $GITHUB_STEP_SUMMARY
-        echo "docker-compose -f docker-compose.microservices.yml up --scale mithia-map=3" >> $GITHUB_STEP_SUMMARY
-        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ needs.build.result }}" == "success" ] && [ "${{ needs.test-microservices.result }}" == "success" ]; then
+          echo "## ✅ Build and Tests Passed" >> $GITHUB_STEP_SUMMARY
+          echo "The following Mithia server containers were built and tested:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Login Server**: \`ghcr.io/${{ github.repository }}/mithia-login-server:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Character Server**: \`ghcr.io/${{ github.repository }}/mithia-char-server:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Map Server**: \`ghcr.io/${{ github.repository }}/mithia-map-server:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Integration Test Results:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ All microservices are working correctly" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Service discovery and networking functional" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Database connectivity verified" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Configuration generation working" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🚀 **Ready for deployment!**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Usage:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "# Deploy with microservices compose" >> $GITHUB_STEP_SUMMARY
+          echo "docker compose -f docker-compose.microservices.yml up" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Scale map servers" >> $GITHUB_STEP_SUMMARY
+          echo "docker compose -f docker-compose.microservices.yml up --scale mithia-map=3" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        elif [ "${{ needs.build.result }}" == "success" ]; then
+          echo "## ⚠️ Build Passed, Tests Failed" >> $GITHUB_STEP_SUMMARY
+          echo "Container images were built successfully but integration tests failed." >> $GITHUB_STEP_SUMMARY
+          echo "Please check the test logs for details." >> $GITHUB_STEP_SUMMARY
+        else
+          echo "## ❌ Build Failed" >> $GITHUB_STEP_SUMMARY
+          echo "Container build failed. Please check the build logs." >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
