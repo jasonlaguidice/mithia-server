@@ -17,7 +17,8 @@ services:
       - "./rtk/conf:/home/RTK/rtk/conf"
       - "/opt/mithia/data/logs:/home/RTK/rtk/logs"
     depends_on:
-      - mithia-db
+      mithia-db:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "2000"]
       interval: 30s
@@ -43,8 +44,10 @@ services:
       - "./rtk/conf:/home/RTK/rtk/conf"
       - "/opt/mithia/data/logs:/home/RTK/rtk/logs"
     depends_on:
-      - mithia-db
-      - mithia-login
+      mithia-db:
+        condition: service_healthy
+      mithia-login:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "2005"]
       interval: 30s
@@ -70,7 +73,8 @@ services:
       - "./rtkmaps:/home/RTK/rtkmaps"
       - "/opt/mithia/data/logs:/home/RTK/rtk/logs"
     depends_on:
-      - mithia-char
+      mithia-char:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "2001"]
       interval: 30s
