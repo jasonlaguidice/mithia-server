@@ -37,6 +37,7 @@ RUN apt-get update && apt-get install -y gettext-base dnsutils curl && rm -rf /v
 COPY --chown=RTK:RTK rtk/src/ rtk/src/
 COPY --chown=RTK:RTK rtk/Makefile rtk/Makefile
 COPY --chown=RTK:RTK rtk/db/ rtk/db/
+COPY --chown=RTK:RTK rtk/SObj.tbl rtk/SObj.tbl
 COPY --chown=RTK:RTK rtklua/ rtklua/
 COPY --chown=RTK:RTK rtkmaps/ rtkmaps/
 
@@ -52,6 +53,9 @@ RUN chmod +x /startup.sh && sed -i 's/\r$//' /startup.sh
 USER RTK
 RUN mkdir -p rtk/log rtk/logs
 RUN cd rtk && make map
+
+# Create backup of SObj.tbl for startup script restoration
+RUN cp rtk/SObj.tbl rtk/SObj.tbl.backup
 
 # Make server executable
 RUN chmod +x rtk/map-server
