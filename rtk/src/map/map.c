@@ -1849,11 +1849,17 @@ int do_init(int argc, char** argv) {
 	classdb_init();
 	clandb_init();
 	boarddb_init();
+	printf("DEBUG: boarddb_init() completed\n");
 	intif_init();
+	printf("DEBUG: intif_init() completed\n");
 	createdb_init();
+	printf("DEBUG: createdb_init() completed\n");
 	object_flag_init();
+	printf("DEBUG: object_flag_init() completed\n");
 	sl_init();
+	printf("DEBUG: sl_init() completed\n");
 	map_loadgameregistry();
+	printf("DEBUG: map_loadgameregistry() completed\n");
 	//set_defaultaccept(clif_accept);
 	set_defaultparse(clif_parse);
 	set_defaulttimeout(clif_timeout);
