@@ -90,6 +90,18 @@ fi
 echo "Available template files:"
 ls -la /home/RTK/rtk/conf/*.template 2>/dev/null || echo "  No template files found"
 
+# Restore SObj.tbl from backup if it doesn't exist (due to volume mount override)
+echo "Checking for SObj.tbl..."
+if [ ! -f /home/RTK/rtk/SObj.tbl ] && [ -f /home/RTK/rtk/SObj.tbl.backup ]; then
+    echo "  SObj.tbl missing, restoring from built-in backup..."
+    cp /home/RTK/rtk/SObj.tbl.backup /home/RTK/rtk/SObj.tbl
+    echo "  SObj.tbl restored"
+elif [ -f /home/RTK/rtk/SObj.tbl ]; then
+    echo "  SObj.tbl found (using mounted or existing version)"
+else
+    echo "  ERROR: SObj.tbl not found and no backup available!"
+fi
+
 # Generate configuration files from templates
 if [ -f /home/RTK/rtk/conf/inter.conf.template ]; then
     envsubst < /home/RTK/rtk/conf/inter.conf.template > /home/RTK/rtk/conf/inter.conf

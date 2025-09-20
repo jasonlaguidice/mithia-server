@@ -62,6 +62,7 @@ services:
     volumes:
       - "./mithia/config:/home/RTK/rtk/conf"
       - "./mithia/data/logs:/home/RTK/rtk/logs"
+      - "./mithia/data/SObj.tbl:/home/RTK/rtk/SObj.tbl"
     depends_on:
       mithia-db:
         condition: service_healthy

@@ -36,6 +36,9 @@ COPY --chown=RTK:RTK . .
 USER RTK
 RUN cd rtk && make clean && make
 
+# Create backup of SObj.tbl for startup script restoration
+RUN cp rtk/SObj.tbl rtk/SObj.tbl.backup
+
 # Make server management scripts executable
 RUN chmod +x rtk/*-server* rtk/check-mithia-server-state
 
