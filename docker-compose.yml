@@ -10,6 +10,8 @@ services:
     environment:
       - LOGIN_SERVER_HOST=mithia-login
       - LOGIN_SERVER_PORT=2000
+      - CHAR_SERVER_HOST=mithia-char
+      - CHAR_SERVER_PORT=2005
       - MAP_SERVER_HOST=mithia-map
       - MAP_SERVER_PORT=2001
       - DB_HOST=mithia-db
@@ -35,6 +37,8 @@ services:
     environment:
       - LOGIN_SERVER_HOST=mithia-login
       - LOGIN_SERVER_PORT=2000
+      - CHAR_SERVER_HOST=mithia-char
+      - CHAR_SERVER_PORT=2005
       - MAP_SERVER_HOST=mithia-map
       - MAP_SERVER_PORT=2001
       - DB_HOST=mithia-db
