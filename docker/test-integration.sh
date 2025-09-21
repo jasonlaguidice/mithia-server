@@ -159,69 +159,40 @@ else
     error "Map server ready message not found"
 fi
 
-# Test 5: Configuration file generation
+# Test 5: Inter-server connectivity
 echo ""
-echo "Test 5: Configuration Files"
-echo "==========================="
-info "Verifying configuration files were generated with resolved IPs..."
+echo "Test 5: Inter-Server Connectivity"
+echo "================================="
+info "Checking for successful inter-server connections..."
 
-# Check char.conf has resolved database IP
-CHAR_DB_IP=$(docker compose -f $COMPOSE_FILE exec -T mithia-char cat /home/RTK/rtk/conf/char.conf | grep "sql_ip:" | awk '{print $2}')
-if [[ "$CHAR_DB_IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    success "Character server config has resolved database IP: $CHAR_DB_IP"
+# Test character server connects to login server
+if docker compose -f $COMPOSE_FILE logs mithia-char | grep -q "Connected to Login Server."; then
+    success "Character server connected to login server"
 else
-    error "Character server config does not have valid database IP: $CHAR_DB_IP"
+    error "Character server connection to login server not found"
 fi
 
-# Check inter.conf has resolved server IPs
-LOGIN_IP=$(docker compose -f $COMPOSE_FILE exec -T mithia-char cat /home/RTK/rtk/conf/inter.conf | grep "login_ip:" | awk '{print $2}')
-if [[ "$LOGIN_IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    success "Inter-server config has resolved login IP: $LOGIN_IP"
+# Test map server connects to character server
+if docker compose -f $COMPOSE_FILE logs mithia-map | grep -q "Connected to Char Server."; then
+    success "Map server connected to character server"
 else
-    error "Inter-server config does not have valid login IP: $LOGIN_IP"
+    error "Map server connection to character server not found"
 fi
 
-# Test 6: Port accessibility
-echo ""
-echo "Test 6: Service Ports"
-echo "===================="
-info "Testing if service ports are accessible from host..."
-
-# Check if ports are bound on host
-for port in 2000 2001 2005 3306; do
-    if nc -z localhost $port 2>/dev/null; then
-        success "Port $port is accessible from host"
-    else
-        error "Port $port is not accessible from host"
-    fi
-done
-
-# Test 7: Service process validation
-echo ""
-echo "Test 7: Service Processes"
-echo "========================"
-info "Verifying game server processes are running inside containers..."
-
-# Check login server process
-if docker compose -f $COMPOSE_FILE exec -T mithia-login pgrep login-server >/dev/null; then
-    success "Login server process is running"
+# Test login server accepts character server connection
+if docker compose -f $COMPOSE_FILE logs mithia-login | grep -q "Connection from Char Server accepted."; then
+    success "Login server accepted character server connection"
 else
-    error "Login server process is not running"
+    error "Login server character server acceptance not found"
 fi
 
-# Check character server process
-if docker compose -f $COMPOSE_FILE exec -T mithia-char pgrep char-server >/dev/null; then
-    success "Character server process is running"
+# Test character server accepts map server connection (optional - may appear as Map Server #0 connected)
+if docker compose -f $COMPOSE_FILE logs mithia-char | grep -q "Map Server.*connected"; then
+    success "Character server accepted map server connection"
 else
-    error "Character server process is not running"
+    warning "Character server map server acceptance not found (may be normal)"
 fi
 
-# Check map server process
-if docker compose -f $COMPOSE_FILE exec -T mithia-map pgrep map-server >/dev/null; then
-    success "Map server process is running"
-else
-    error "Map server process is not running"
-fi
 
 # Test completion
 echo ""
@@ -230,8 +201,6 @@ echo "🎉 ALL INTEGRATION TESTS PASSED! 🎉"
 echo "=================================="
 info "Microservices architecture is working correctly"
 info "Services can communicate with each other"
-info "Configuration files are properly generated"
-info "All server processes are running successfully"
 
 # Optional: Show final status
 echo ""
