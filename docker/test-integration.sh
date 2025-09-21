@@ -55,6 +55,11 @@ info "Creating required directories for Docker volume mounts..."
 mkdir -p data/{logs,mysql,backups}
 info "  Created data/logs, data/mysql, data/backups"
 
+# Ensure config directory has write permissions for container users
+info "Setting config directory permissions for container access..."
+chmod -R 777 rtk/conf
+info "  Set rtk/conf permissions to 777 (read/write for all users)"
+
 # Test 1: Start services
 echo ""
 echo "Test 1: Starting Services"
