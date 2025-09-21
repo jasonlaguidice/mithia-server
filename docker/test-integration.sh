@@ -138,22 +138,22 @@ echo "Test 4: Service Readiness"
 echo "========================"
 info "Checking for service ready messages in logs..."
 
-# Test login server readiness
-if docker compose -f $COMPOSE_FILE logs mithia-login | grep -q "RetroTK Login Server is ready! Listening at 2000."; then
+# Test login server readiness (strip ANSI color codes with sed)
+if docker compose -f $COMPOSE_FILE logs mithia-login | sed 's/\x1b\[[0-9;]*m//g' | grep -q "RetroTK Login Server is ready! Listening at 2000."; then
     success "Login server is ready and listening at 2000"
 else
     error "Login server ready message not found"
 fi
 
-# Test character server readiness
-if docker compose -f $COMPOSE_FILE logs mithia-char | grep -q "RetroTK Char Server is ready! Listening at 2005."; then
+# Test character server readiness (strip ANSI color codes with sed)
+if docker compose -f $COMPOSE_FILE logs mithia-char | sed 's/\x1b\[[0-9;]*m//g' | grep -q "RetroTK Char Server is ready! Listening at 2005."; then
     success "Character server is ready and listening at 2005"
 else
     error "Character server ready message not found"
 fi
 
-# Test map server readiness
-if docker compose -f $COMPOSE_FILE logs mithia-map | grep -q "RetroTK Map Server is ready! Listening at 2001."; then
+# Test map server readiness (strip ANSI color codes with sed)
+if docker compose -f $COMPOSE_FILE logs mithia-map | sed 's/\x1b\[[0-9;]*m//g' | grep -q "RetroTK Map Server is ready! Listening at 2001."; then
     success "Map server is ready and listening at 2001"
 else
     error "Map server ready message not found"
