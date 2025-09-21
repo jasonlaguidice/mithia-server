@@ -22,6 +22,7 @@ success() {
 
 error() {
     echo -e "${RED}❌ $1${NC}"
+    cleanup_on_failure
     exit 1
 }
 
@@ -33,15 +34,18 @@ info() {
     echo -e "ℹ️  $1"
 }
 
-# Cleanup function
-cleanup() {
+# Cleanup function - only on success to preserve diagnostics
+cleanup_on_success() {
     info "Cleaning up test environment..."
     docker compose -f $COMPOSE_FILE down -v --remove-orphans 2>/dev/null || true
     docker system prune -f 2>/dev/null || true
 }
 
-# Set trap for cleanup on exit
-trap cleanup EXIT
+# Cleanup function for failures - preserve containers for diagnostics
+cleanup_on_failure() {
+    warning "Test failed - preserving containers for diagnostics"
+    warning "GitHub Actions will collect logs from running containers"
+}
 
 info "Starting microservices integration test..."
 info "Using compose file: $COMPOSE_FILE"
@@ -58,8 +62,35 @@ echo "=========================="
 info "Starting all services with docker compose..."
 docker compose -f $COMPOSE_FILE up -d
 
+# Immediate status check after startup
+info "Checking immediate container status..."
+docker compose -f $COMPOSE_FILE ps --format "table"
+
+# Check for any immediate failures
+info "Checking for immediate container logs..."
+for service in mithia-login mithia-char mithia-map mithia-db; do
+    echo "=== $service startup logs ==="
+    docker compose -f $COMPOSE_FILE logs $service --tail=20 || echo "No logs available for $service"
+done
+
 info "Waiting $TIMEOUT_SERVICES seconds for services to initialize..."
-sleep $TIMEOUT_SERVICES
+# Check status every 15 seconds during wait
+for i in $(seq 1 4); do
+    sleep 15
+    info "Status check $i/4 (${i}5s elapsed):"
+    docker compose -f $COMPOSE_FILE ps --format "table"
+
+    # Check for any crashed containers
+    CRASHED=$(docker compose -f $COMPOSE_FILE ps --filter "status=exited" --format "{{.Service}}" | wc -l)
+    if [ "$CRASHED" -gt 0 ]; then
+        warning "Found $CRASHED crashed containers, collecting logs..."
+        for service in mithia-login mithia-char mithia-map mithia-db; do
+            echo "=== $service crash logs ==="
+            docker compose -f $COMPOSE_FILE logs $service --tail=50 || echo "No logs for $service"
+        done
+        break
+    fi
+done
 
 # Test 2: Check container status
 echo ""
@@ -202,3 +233,6 @@ echo ""
 echo "Final Service Status:"
 echo "===================="
 docker compose -f $COMPOSE_FILE ps
+
+# Cleanup on successful completion
+cleanup_on_success

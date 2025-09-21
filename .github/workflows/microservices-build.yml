@@ -131,8 +131,12 @@ jobs:
         docker compose ps || true
 
         echo ""
-        echo "=== Container Logs ==="
-        docker compose logs --tail=50 || true
+        echo "=== All Container Logs (last 100 lines) ==="
+        docker compose logs --tail=100 || true
+
+        echo ""
+        echo "=== Container Exit Codes ==="
+        docker compose ps --format "table {{.Service}}\t{{.State}}\t{{.Status}}" || true
 
         echo ""
         echo "=== Login Server Logs ==="
