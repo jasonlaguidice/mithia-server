@@ -16,8 +16,8 @@ services:
       - DB_HOST=mithia-db
       - DB_PORT=3306
     volumes:
-      - "./mithia/config:/home/RTK/rtk/conf"
-      - "./mithia/data/logs:/home/RTK/rtk/logs"
+      - "./rtk/conf:/home/RTK/rtk/conf"
+      - "./data/logs:/home/RTK/rtk/logs"
     depends_on:
       mithia-db:
         condition: service_healthy
@@ -38,8 +38,8 @@ services:
       - DB_HOST=mithia-db
       - DB_PORT=3306
     volumes:
-      - "./mithia/config:/home/RTK/rtk/conf"
-      - "./mithia/data/logs:/home/RTK/rtk/logs"
+      - "./rtk/conf:/home/RTK/rtk/conf"
+      - "./data/logs:/home/RTK/rtk/logs"
     depends_on:
       mithia-db:
         condition: service_healthy
@@ -60,8 +60,8 @@ services:
       - DB_HOST=mithia-db
       - DB_PORT=3306
     volumes:
-      - "./mithia/config:/home/RTK/rtk/conf"
-      - "./mithia/data/logs:/home/RTK/rtk/logs"
+      - "./rtk/conf:/home/RTK/rtk/conf"
+      - "./data/logs:/home/RTK/rtk/logs"
     depends_on:
       mithia-db:
         condition: service_healthy
@@ -80,9 +80,9 @@ services:
       - MYSQL_USER=mithia
       - MYSQL_PASSWORD=mithia_password
     volumes:
-      - "./mithia/database/scripts:/docker-entrypoint-initdb.d"
-      - "./mithia/data/mysql:/var/lib/mysql"
-      - "./mithia/data/backups:/backups"
+      - "./database/scripts:/docker-entrypoint-initdb.d"
+      - "./data/mysql:/var/lib/mysql"
+      - "./data/backups:/backups"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 30s

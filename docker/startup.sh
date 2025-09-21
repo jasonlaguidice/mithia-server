@@ -136,6 +136,11 @@ if [ -f /home/RTK/rtk/conf/login.conf.template ]; then
     echo "  Generated login.conf"
 fi
 
+if [ -f /home/RTK/rtk/conf/save.conf.template ]; then
+    envsubst < /home/RTK/rtk/conf/save.conf.template > /home/RTK/rtk/conf/save.conf
+    echo "  Generated save.conf"
+fi
+
 echo ""
 echo "=== Configuration Summary ==="
 echo "  Internal IPs (Docker network):"
