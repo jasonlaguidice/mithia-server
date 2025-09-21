@@ -46,6 +46,11 @@ trap cleanup EXIT
 info "Starting microservices integration test..."
 info "Using compose file: $COMPOSE_FILE"
 
+# Ensure required directories exist for volume mounts
+info "Creating required directories for Docker volume mounts..."
+mkdir -p data/{logs,mysql,backups}
+info "  Created data/logs, data/mysql, data/backups"
+
 # Test 1: Start services
 echo ""
 echo "Test 1: Starting Services"
