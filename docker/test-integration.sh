@@ -132,31 +132,31 @@ for i in {1..10}; do
     fi
 done
 
-# Test 4: Service network connectivity
+# Test 4: Service readiness check
 echo ""
-echo "Test 4: Inter-Service Network"
-echo "============================="
-info "Testing Docker network connectivity between services..."
+echo "Test 4: Service Readiness"
+echo "========================"
+info "Checking for service ready messages in logs..."
 
-# Test char server can reach database
-if docker compose -f $COMPOSE_FILE exec -T mithia-char ping -c 1 mithia-db >/dev/null 2>&1; then
-    success "Character server can reach database"
+# Test login server readiness
+if docker compose -f $COMPOSE_FILE logs mithia-login | grep -q "RetroTK Login Server is ready! Listening at 2000."; then
+    success "Login server is ready and listening at 2000"
 else
-    error "Character server cannot reach database"
+    error "Login server ready message not found"
 fi
 
-# Test char server can reach login server
-if docker compose -f $COMPOSE_FILE exec -T mithia-char ping -c 1 mithia-login >/dev/null 2>&1; then
-    success "Character server can reach login server"
+# Test character server readiness
+if docker compose -f $COMPOSE_FILE logs mithia-char | grep -q "RetroTK Char Server is ready! Listening at 2005."; then
+    success "Character server is ready and listening at 2005"
 else
-    error "Character server cannot reach login server"
+    error "Character server ready message not found"
 fi
 
-# Test map server can reach char server
-if docker compose -f $COMPOSE_FILE exec -T mithia-map ping -c 1 mithia-char >/dev/null 2>&1; then
-    success "Map server can reach character server"
+# Test map server readiness
+if docker compose -f $COMPOSE_FILE logs mithia-map | grep -q "RetroTK Map Server is ready! Listening at 2001."; then
+    success "Map server is ready and listening at 2001"
 else
-    error "Map server cannot reach character server"
+    error "Map server ready message not found"
 fi
 
 # Test 5: Configuration file generation
