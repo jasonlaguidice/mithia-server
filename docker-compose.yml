@@ -64,6 +64,9 @@ services:
       - CHAR_SERVER_PORT=2005
       - DB_HOST=mithia-db
       - DB_PORT=3306
+      - MYSQL_USER=mithia
+      - MYSQL_PASSWORD=mithia_password
+      - MYSQL_DATABASE=RTK
     volumes:
       - "./rtk/conf:/home/RTK/rtk/conf"
       - "./data/logs:/home/RTK/rtk/logs"
