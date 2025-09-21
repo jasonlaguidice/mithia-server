@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   # Login Server - Handles user authentication
   mithia-login:
