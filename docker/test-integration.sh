@@ -139,23 +139,39 @@ echo "Test 4: Service Readiness"
 echo "========================"
 info "Checking for service ready messages in logs..."
 
+# Show full logs leading up to readiness check
+info "Current server logs:"
+for service in mithia-login mithia-char mithia-map; do
+    echo "=== $service current logs ==="
+    docker compose -f $COMPOSE_FILE logs $service --tail=30 || echo "No logs available for $service"
+done
+
+echo ""
+info "Verifying ready messages..."
+
 # Test login server readiness (strip ANSI color codes with sed)
-if docker compose -f $COMPOSE_FILE logs mithia-login | sed 's/\x1b\[[0-9;]*m//g' | grep -q "RetroTK Login Server is ready! Listening at 2000."; then
+LOGIN_READY=$(docker compose -f $COMPOSE_FILE logs mithia-login | sed 's/\x1b\[[0-9;]*m//g' | grep "RetroTK Login Server is ready! Listening at 2000." || true)
+if [ -n "$LOGIN_READY" ]; then
     success "Login server is ready and listening at 2000"
+    echo "  Found: $LOGIN_READY"
 else
     error "Login server ready message not found"
 fi
 
 # Test character server readiness (strip ANSI color codes with sed)
-if docker compose -f $COMPOSE_FILE logs mithia-char | sed 's/\x1b\[[0-9;]*m//g' | grep -q "RetroTK Char Server is ready! Listening at 2005."; then
+CHAR_READY=$(docker compose -f $COMPOSE_FILE logs mithia-char | sed 's/\x1b\[[0-9;]*m//g' | grep "RetroTK Char Server is ready! Listening at 2005." || true)
+if [ -n "$CHAR_READY" ]; then
     success "Character server is ready and listening at 2005"
+    echo "  Found: $CHAR_READY"
 else
     error "Character server ready message not found"
 fi
 
 # Test map server readiness (strip ANSI color codes with sed)
-if docker compose -f $COMPOSE_FILE logs mithia-map | sed 's/\x1b\[[0-9;]*m//g' | grep -q "RetroTK Map Server is ready! Listening at 2001."; then
+MAP_READY=$(docker compose -f $COMPOSE_FILE logs mithia-map | sed 's/\x1b\[[0-9;]*m//g' | grep "RetroTK Map Server is ready! Listening at 2001." || true)
+if [ -n "$MAP_READY" ]; then
     success "Map server is ready and listening at 2001"
+    echo "  Found: $MAP_READY"
 else
     error "Map server ready message not found"
 fi
