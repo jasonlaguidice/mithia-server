@@ -7,6 +7,18 @@ echo "=================================="
 
 # Configuration
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.yml}"
+# Parse compose files for docker compose command
+if [[ "$COMPOSE_FILE" == *":"* ]]; then
+    # Multiple files separated by colon
+    IFS=':' read -ra COMPOSE_FILES <<< "$COMPOSE_FILE"
+    COMPOSE_CMD="docker compose"
+    for file in "${COMPOSE_FILES[@]}"; do
+        COMPOSE_CMD="$COMPOSE_CMD -f $file"
+    done
+else
+    # Single file
+    COMPOSE_CMD="$COMPOSE_CMD"
+fi
 TIMEOUT_SERVICES=60
 TIMEOUT_HEALTH=30
 
@@ -37,7 +49,7 @@ info() {
 # Cleanup function - only on success to preserve diagnostics
 cleanup_on_success() {
     info "Cleaning up test environment..."
-    docker compose -f $COMPOSE_FILE down -v --remove-orphans 2>/dev/null || true
+    $COMPOSE_CMD down -v --remove-orphans 2>/dev/null || true
     docker system prune -f 2>/dev/null || true
 }
 
@@ -65,17 +77,17 @@ echo ""
 echo "Test 1: Starting Services"
 echo "=========================="
 info "Starting all services with docker compose..."
-docker compose -f $COMPOSE_FILE up -d
+$COMPOSE_CMD up -d
 
 # Immediate status check after startup
 info "Checking immediate container status..."
-docker compose -f $COMPOSE_FILE ps --format "table"
+$COMPOSE_CMD ps --format "table"
 
 # Check for any immediate failures
 info "Checking for immediate container logs..."
 for service in mithia-login mithia-char mithia-map mithia-db; do
     echo "=== $service startup logs ==="
-    docker compose -f $COMPOSE_FILE logs $service --tail=20 || echo "No logs available for $service"
+    $COMPOSE_CMD logs $service --tail=20 || echo "No logs available for $service"
 done
 
 info "Waiting $TIMEOUT_SERVICES seconds for services to initialize..."
@@ -83,15 +95,15 @@ info "Waiting $TIMEOUT_SERVICES seconds for services to initialize..."
 for i in $(seq 1 4); do
     sleep 15
     info "Status check $i/4 (${i}5s elapsed):"
-    docker compose -f $COMPOSE_FILE ps --format "table"
+    $COMPOSE_CMD ps --format "table"
 
     # Check for any crashed containers
-    CRASHED=$(docker compose -f $COMPOSE_FILE ps --filter "status=exited" --format "{{.Service}}" | wc -l)
+    CRASHED=$($COMPOSE_CMD ps --filter "status=exited" --format "{{.Service}}" | wc -l)
     if [ "$CRASHED" -gt 0 ]; then
         warning "Found $CRASHED crashed containers, collecting logs..."
         for service in mithia-login mithia-char mithia-map mithia-db; do
             echo "=== $service crash logs ==="
-            docker compose -f $COMPOSE_FILE logs $service --tail=50 || echo "No logs for $service"
+            $COMPOSE_CMD logs $service --tail=50 || echo "No logs for $service"
         done
         break
     fi
@@ -102,7 +114,7 @@ echo ""
 echo "Test 2: Container Status"
 echo "========================"
 EXPECTED_SERVICES=4  # login, char, map, db
-RUNNING_SERVICES=$(docker compose -f $COMPOSE_FILE ps --services --filter "status=running" | wc -l)
+RUNNING_SERVICES=$($COMPOSE_CMD ps --services --filter "status=running" | wc -l)
 
 if [ "$RUNNING_SERVICES" -eq "$EXPECTED_SERVICES" ]; then
     success "All $EXPECTED_SERVICES services are running"
@@ -112,7 +124,7 @@ fi
 
 # List running services
 info "Running services:"
-docker compose -f $COMPOSE_FILE ps --format "table"
+$COMPOSE_CMD ps --format "table"
 
 # Test 3: Database health check
 echo ""
@@ -121,7 +133,7 @@ echo "======================"
 info "Testing database connectivity and initialization..."
 info "Note: Database initialization includes 21 SQL migration scripts (~2.5MB)"
 for i in {1..20}; do
-    if docker compose -f $COMPOSE_FILE exec -T mithia-db mysqladmin ping -h localhost --silent 2>/dev/null; then
+    if $COMPOSE_CMD exec -T mithia-db mysqladmin ping -h localhost --silent 2>/dev/null; then
         success "Database is responsive (attempt $i)"
         break
     else
@@ -143,14 +155,14 @@ info "Checking for service ready messages in logs..."
 info "Current server logs:"
 for service in mithia-login mithia-char mithia-map; do
     echo "=== $service current logs ==="
-    docker compose -f $COMPOSE_FILE logs $service --tail=30 || echo "No logs available for $service"
+    $COMPOSE_CMD logs $service --tail=30 || echo "No logs available for $service"
 done
 
 echo ""
 info "Verifying ready messages..."
 
 # Test login server readiness (strip ANSI color codes with sed)
-LOGIN_READY=$(docker compose -f $COMPOSE_FILE logs mithia-login | sed 's/\x1b\[[0-9;]*m//g' | grep "RetroTK Login Server is ready! Listening at 2000." || true)
+LOGIN_READY=$($COMPOSE_CMD logs mithia-login | sed 's/\x1b\[[0-9;]*m//g' | grep "RetroTK Login Server is ready! Listening at 2000." || true)
 if [ -n "$LOGIN_READY" ]; then
     success "Login server is ready and listening at 2000"
     echo "  Found: $LOGIN_READY"
@@ -159,7 +171,7 @@ else
 fi
 
 # Test character server readiness (strip ANSI color codes with sed)
-CHAR_READY=$(docker compose -f $COMPOSE_FILE logs mithia-char | sed 's/\x1b\[[0-9;]*m//g' | grep "RetroTK Char Server is ready! Listening at 2005." || true)
+CHAR_READY=$($COMPOSE_CMD logs mithia-char | sed 's/\x1b\[[0-9;]*m//g' | grep "RetroTK Char Server is ready! Listening at 2005." || true)
 if [ -n "$CHAR_READY" ]; then
     success "Character server is ready and listening at 2005"
     echo "  Found: $CHAR_READY"
@@ -168,7 +180,7 @@ else
 fi
 
 # Test map server readiness (strip ANSI color codes with sed)
-MAP_READY=$(docker compose -f $COMPOSE_FILE logs mithia-map | sed 's/\x1b\[[0-9;]*m//g' | grep "RetroTK Map Server is ready! Listening at 2001." || true)
+MAP_READY=$($COMPOSE_CMD logs mithia-map | sed 's/\x1b\[[0-9;]*m//g' | grep "RetroTK Map Server is ready! Listening at 2001." || true)
 if [ -n "$MAP_READY" ]; then
     success "Map server is ready and listening at 2001"
     echo "  Found: $MAP_READY"
@@ -183,28 +195,28 @@ echo "================================="
 info "Checking for successful inter-server connections..."
 
 # Test character server connects to login server
-if docker compose -f $COMPOSE_FILE logs mithia-char | grep -q "Connected to Login Server."; then
+if $COMPOSE_CMD logs mithia-char | grep -q "Connected to Login Server."; then
     success "Character server connected to login server"
 else
     error "Character server connection to login server not found"
 fi
 
 # Test map server connects to character server
-if docker compose -f $COMPOSE_FILE logs mithia-map | grep -q "Connected to Char Server."; then
+if $COMPOSE_CMD logs mithia-map | grep -q "Connected to Char Server."; then
     success "Map server connected to character server"
 else
     error "Map server connection to character server not found"
 fi
 
 # Test login server accepts character server connection
-if docker compose -f $COMPOSE_FILE logs mithia-login | grep -q "Connection from Char Server accepted."; then
+if $COMPOSE_CMD logs mithia-login | grep -q "Connection from Char Server accepted."; then
     success "Login server accepted character server connection"
 else
     error "Login server character server acceptance not found"
 fi
 
 # Test character server accepts map server connection (optional - may appear as Map Server #0 connected)
-if docker compose -f $COMPOSE_FILE logs mithia-char | grep -q "Map Server.*connected"; then
+if $COMPOSE_CMD logs mithia-char | grep -q "Map Server.*connected"; then
     success "Character server accepted map server connection"
 else
     warning "Character server map server acceptance not found (may be normal)"
@@ -223,7 +235,7 @@ info "Services can communicate with each other"
 echo ""
 echo "Final Service Status:"
 echo "===================="
-docker compose -f $COMPOSE_FILE ps
+$COMPOSE_CMD ps
 
 # Cleanup on successful completion
 cleanup_on_success
