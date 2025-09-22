@@ -125,9 +125,17 @@ jobs:
               - test_conf:/home/RTK/rtk/conf
               - test_logs:/home/RTK/rtk/logs
 
+          mithia-db:
+            volumes:
+              - "./database/scripts:/docker-entrypoint-initdb.d"
+              - test_mysql_data:/var/lib/mysql
+              - test_backups:/backups
+
         volumes:
           test_conf:
           test_logs:
+          test_mysql_data:
+          test_backups:
         EOF
 
         echo "Generated docker-compose.test-override.yml:"
@@ -252,9 +260,17 @@ jobs:
               - test_conf:/home/RTK/rtk/conf
               - test_logs:/home/RTK/rtk/logs
 
+          mithia-db:
+            volumes:
+              - "./database/scripts:/docker-entrypoint-initdb.d"
+              - test_mysql_data:/var/lib/mysql
+              - test_backups:/backups
+
         volumes:
           test_conf:
           test_logs:
+          test_mysql_data:
+          test_backups:
         EOF
 
         echo "Generated docker-compose.test-override.yml:"
