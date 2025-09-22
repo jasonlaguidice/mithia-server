@@ -111,10 +111,23 @@ jobs:
         services:
           mithia-login:
             image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-login-server:${TAG_NAME}
+            volumes:
+              - test_conf:/home/RTK/rtk/conf
+              - test_logs:/home/RTK/rtk/logs
           mithia-char:
             image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-char-server:${TAG_NAME}
+            volumes:
+              - test_conf:/home/RTK/rtk/conf
+              - test_logs:/home/RTK/rtk/logs
           mithia-map:
             image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-map-server:${TAG_NAME}
+            volumes:
+              - test_conf:/home/RTK/rtk/conf
+              - test_logs:/home/RTK/rtk/logs
+
+        volumes:
+          test_conf:
+          test_logs:
         EOF
 
         echo "Generated docker-compose.test-override.yml:"
@@ -225,10 +238,23 @@ jobs:
         services:
           mithia-login:
             image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-login-server:${TAG_NAME}
+            volumes:
+              - test_conf:/home/RTK/rtk/conf
+              - test_logs:/home/RTK/rtk/logs
           mithia-char:
             image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-char-server:${TAG_NAME}
+            volumes:
+              - test_conf:/home/RTK/rtk/conf
+              - test_logs:/home/RTK/rtk/logs
           mithia-map:
             image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-map-server:${TAG_NAME}
+            volumes:
+              - test_conf:/home/RTK/rtk/conf
+              - test_logs:/home/RTK/rtk/logs
+
+        volumes:
+          test_conf:
+          test_logs:
         EOF
 
         echo "Generated docker-compose.test-override.yml:"
