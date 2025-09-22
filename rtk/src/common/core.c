@@ -16,6 +16,10 @@
 #include "version.h"
 #define ISDIGIT(c) (isdigit((unsigned char)(c)))
 
+// Global variable definitions
+unsigned long Last_Eof = 0;
+int server_shutdown = 0;
+
 int (*func_parse_it)(char*) = default_parse_input;
 static void (*term_func)(void) = NULL;
 char dmp_filename[128];
@@ -35,7 +39,6 @@ pthread_t thread_dotimer;
 int main(int argc, char** argv)
 {
 	printf("DEBUG: Starting main function\n");
-	Last_Eof = 0;
 
 	gettimeofday(&start, NULL);
 	printf("DEBUG: Got time of day\n");
@@ -46,7 +49,6 @@ int main(int argc, char** argv)
 	int run = 1;
 	//char str[65536];
 	//memset(str,0,65536);
-	server_shutdown = 0;
 
 	printf("DEBUG: About to call do_socket()\n");
 	do_socket();

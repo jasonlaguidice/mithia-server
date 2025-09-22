@@ -29,7 +29,7 @@ int isKey(int fd) {
 int encrypt(int fd, char* name, char* EncHash) {
 	char key[16];
 	set_packet_indexes(WFIFOP(fd, 0));
-	crypt(WFIFOP(fd, 0));
+	mithia_crypt(WFIFOP(fd, 0));
 	return (int)SWAP16(*(unsigned short*)WFIFOP(fd, 1)) + 3;
 }
 
@@ -146,7 +146,7 @@ int clif_message(int fd, char code, char* buff) {
 	strcpy(WFIFOP(fd, 7), buff);
 	WFIFOW(fd, packet_len + 8) = 0x00;
 	set_packet_indexes(WFIFOP(fd, 0));
-	crypt(WFIFOP(fd, 0));
+	mithia_crypt(WFIFOP(fd, 0));
 	WFIFOSET(fd, packet_len + 6);
 
 	return 0;
@@ -165,7 +165,7 @@ int clif_sendurl(int fd, int type, char* url)
 	memcpy(WFIFOP(fd, 8), url, strlen(url));
 	WFIFOW(fd, 1) = SWAP16(strlen(url) + 8);
 	set_packet_indexes(WFIFOP(fd, 0));
-	crypt(WFIFOP(fd, 0));
+	mithia_crypt(WFIFOP(fd, 0));
 	WFIFOSET(fd, strlen(url) + 8);
 
 	return 0;
@@ -391,12 +391,12 @@ int clif_parse(int fd) {
 	if (RFIFOREST(fd) < len)
 		return 0;
 
-	crypt(RFIFOP(fd, 0));
+	mithia_crypt(RFIFOP(fd, 0));
 
 	switch (RFIFOB(fd, 3)) {
 	case 0x00:
 
-		crypt(RFIFOP(fd, 0)); //reverse the encryption
+		mithia_crypt(RFIFOP(fd, 0)); //reverse the encryption
 		ver = SWAP16(RFIFOW(fd, 4));
 		deep = SWAP16(RFIFOW(fd, 7));
 		//printf("got this far\n");
@@ -561,7 +561,7 @@ int clif_parse(int fd) {
 		}
 		break;
 	case 0x10:
-		/*crypt(RFIFOP(fd,0)); //reverse the encryption
+		/*mithia_crypt(RFIFOP(fd,0)); //reverse the encryption
 		printf("Testing Packet ID: %2X Packet content:\n", RFIFOB(fd, 3));
 		clif_debug(RFIFOP(fd, 5), SWAP16(RFIFOW(fd, 1)) - 5);
 		memset(name, 0, 31);
@@ -635,7 +635,7 @@ int clif_parse(int fd) {
 		WFIFOB(fd, 9) = 230;//((rand()%255)+1);
 		WFIFOB(fd, 10) = 0;
 		set_packet_indexes(WFIFOP(fd, 0));
-		crypt(WFIFOP(fd,0));
+		mithia_crypt(WFIFOP(fd,0));
 		WFIFOSET(fd,11 + 3);
 
 		lenn=10;
@@ -683,7 +683,7 @@ int clif_parse(int fd) {
 		intif_auth(fd);
 		break;
 	default:
-		//crypt(RFIFOP(fd,0)); //reverse the encryption
+		//mithia_crypt(RFIFOP(fd,0)); //reverse the encryption
 		printf("[LOGIN] Unknown Packet ID: %02X Packet from %s:\n", RFIFOB(fd, 3), (char*)inet_ntoa(session[fd]->client_addr.sin_addr.s_addr));
 		clif_debug(RFIFOP(fd, 0), SWAP16(RFIFOW(fd, 1)));
 		break;
@@ -761,7 +761,7 @@ int send_metafile(int fd, char* file) {
 	//printf("%s\n",file);
 	WFIFOW(fd, 1) = SWAP16(len + 3);
 	set_packet_indexes(WFIFOP(fd, 0));
-	crypt(WFIFOP(fd, 0));
+	mithia_crypt(WFIFOP(fd, 0));
 	WFIFOSET(fd, len + 6 + 3);
 
 	free(cbuf);
@@ -804,7 +804,7 @@ int send_metalist(int fd) {
 
 	WFIFOW(fd, 1) = SWAP16(len + 4);
 	set_packet_indexes(WFIFOP(fd, 0));
-	crypt(WFIFOP(fd, 0));
+	mithia_crypt(WFIFOP(fd, 0));
 	WFIFOSET(fd, len + 7 + 3);
 
 	return 0;

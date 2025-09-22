@@ -23,7 +23,6 @@
 #include "socket.h"
 #include "mob.h"
 
-struct timeval start;
 
 //New function used for evaluating how many miliseconds the server program
 //has been running for.

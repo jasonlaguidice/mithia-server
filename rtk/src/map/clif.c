@@ -33,8 +33,11 @@
 #include "../common/db_mysql.h"
 ///testcxv
 unsigned int groups[MAX_GROUPS][MAX_GROUP_MEMBERS];
-unsigned int log_ip;
-unsigned int log_port;
+
+// Core game data variables (moved from clif.h to resolve multiple definition errors)
+int val[32] = {0};
+char meta_file[META_MAX][256] = {{0}};
+int metamax = 0;
 int flags[16] = { 1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16386,32768,0 };
 const unsigned char clkey2[] = { 6,8,9,10,15,19,23,26,28,41,45,46,50,57 };
 const unsigned char svkey2[] = { 4,7,8,11,12,19,23,24,51,54,57,64,99 };//added 125(7D)
@@ -148,11 +151,11 @@ int getclifslotfromequiptype(int equipType) {
 
 	if(isKey(WFIFOB(fd,3)))
 
-	{	//crypt2(WFIFOP(fd,0),sd->status.EncKey);
-		crypt2(WFIFOP(fd,0),&(sd->status.EncKey));
+	{	//mithia_crypt2(WFIFOP(fd,0),sd->status.EncKey);
+		mithia_crypt2(WFIFOP(fd,0),&(sd->status.EncKey));
 	//printf("Key %s (%d) (%s)\n",sd->status.name,WFIFOB(fd,3),sd->status.EncKey);
 	} else {
-		crypt(WFIFOP(fd,0));
+		mithia_crypt(WFIFOP(fd,0));
 	}
 
 	return (int) SWAP16(*(unsigned short*)WFIFOP(fd, 1)) + 3;
@@ -164,9 +167,9 @@ int decrypt(int fd)
 
 	if(isKey2(RFIFOB(fd,3)))
 	{
-		crypt2(RFIFOP(fd,0),&(sd->status.EncKey));
+		mithia_crypt2(RFIFOP(fd,0),&(sd->status.EncKey));
 	} else {
-		crypt(RFIFOP(fd, 0));
+		mithia_crypt(RFIFOP(fd, 0));
 	}
 }*/
 int encrypt(int fd)
@@ -184,10 +187,10 @@ int encrypt(int fd)
 	if (isKey(WFIFOB(fd, 3)))
 	{
 		generate_key2(WFIFOP(fd, 0), &(sd->EncHash), &(key), 0);
-		crypt2(WFIFOP(fd, 0), &(key));
+		mithia_crypt2(WFIFOP(fd, 0), &(key));
 	}
 	else {
-		crypt(WFIFOP(fd, 0));
+		mithia_crypt(WFIFOP(fd, 0));
 	}
 	return (int)SWAP16(*(unsigned short*)WFIFOP(fd, 1)) + 3;
 }
@@ -201,10 +204,10 @@ int decrypt(int fd)
 	if (isKey2(RFIFOB(fd, 3)))
 	{
 		generate_key2(RFIFOP(fd, 0), &(sd->EncHash), &(key), 1);
-		crypt2(RFIFOP(fd, 0), &(key));
+		mithia_crypt2(RFIFOP(fd, 0), &(key));
 	}
 	else {
-		crypt(RFIFOP(fd, 0));
+		mithia_crypt(RFIFOP(fd, 0));
 	}
 }
 
@@ -3114,7 +3117,7 @@ int clif_lookgone(struct block_list* bl) {
 		WBUFB(buf, 3) = 0x0E;
 		WBUFB(buf, 4) = 0x03;
 		WBUFL(buf, 5) = SWAP32(bl->id);
-		//crypt(WBUFP(buf, 0));
+		//mithia_crypt(WBUFP(buf, 0));
 		clif_send(buf, 16, bl, AREA_WOS);
 	}
 	else
@@ -3124,7 +3127,7 @@ int clif_lookgone(struct block_list* bl) {
 		WBUFB(buf, 3) = 0x5F;
 		WBUFB(buf, 4) = 0x03;
 		WBUFL(buf, 5) = SWAP32(bl->id);
-		//crypt(WBUFP(buf, 0));
+		//mithia_crypt(WBUFP(buf, 0));
 		clif_send(buf, 16, bl, AREA_WOS);
 	}
 	return 0;
@@ -5111,7 +5114,7 @@ int clif_parsewalk(USER* sd) {
 	WBUFW(buf, 11) = SWAP16(yold);
 	WBUFB(buf, 13) = direction;
 	WBUFB(buf, 14) = 0x00;
-	//crypt(WBUFP(buf, 0));
+	//mithia_crypt(WBUFP(buf, 0));
 	if (sd->optFlags & optFlag_stealth) {
 		clif_sendtogm(buf, 32, &sd->bl, AREA_WOS);
 	}
@@ -6449,7 +6452,7 @@ int clif_sendmob_side(MOB* mob) {
 	WBUFB(buf, 4) = 0x03;
 	WBUFL(buf, 5) = SWAP32(mob->bl.id);
 	WBUFB(buf, 9) = mob->side;
-	//crypt(WBUFP(buf, 0));
+	//mithia_crypt(WBUFP(buf, 0));
 	clif_send(buf, 16, &mob->bl, AREA_WOS);
 	return 0;
 }
@@ -7946,7 +7949,7 @@ int clif_sendscriptsay(USER* sd, char* msg, int msglen, int type) {
 		WBUFB(buf, 11 + namelen) = ':';
 		WBUFB(buf, 12 + namelen) = ' ';
 		memcpy(WBUFP(buf, 13 + namelen), msg, msglen);
-		//crypt(WBUFP(buf, 0));
+		//mithia_crypt(WBUFP(buf, 0));
 		clif_send(buf, 16 + namelen + msglen, &sd->bl, SAMEAREA);
 	}
 	else {
@@ -7972,7 +7975,7 @@ int clif_sendscriptsay(USER* sd, char* msg, int msglen, int type) {
 			WBUFB(buf, 11 + namelen) = ':';
 		WBUFB(buf, 12 + namelen) = ' ';
 		memcpy(WBUFP(buf, 13 + namelen), msg, msglen);
-		//crypt(WBUFP(buf, 0));
+		//mithia_crypt(WBUFP(buf, 0));
 		if (type == 1) {
 			clif_send(buf, 16 + namelen + msglen, &sd->bl, SAMEMAP);
 		}
@@ -8609,7 +8612,7 @@ int clif_playsound(struct block_list* bl, int sound) {
 	WBUFB(buf2, 19) = 2;
 	WBUFW(buf2, 20) = SWAP16(4);
 	WBUFB(buf2, 22) = 0;
-	//crypt(WBUFP(buf2,0));
+	//mithia_crypt(WBUFP(buf2,0));
 	clif_send(buf2, 32, bl, SAMEAREA);
 	return 0;
 }
@@ -8635,7 +8638,7 @@ int clif_sendaction(struct block_list* bl, int type, int time, int sound) {
 	WBUFB(buf, 10) = 0x00;
 	WBUFB(buf, 11) = time;
 	WBUFW(buf, 12) = 0x00;
-	//crypt(WBUFP(buf, 0));
+	//mithia_crypt(WBUFP(buf, 0));
 	clif_send(buf, 32, bl, SAMEAREA);
 
 	if (sound > 0) clif_playsound(bl, sound);
@@ -8668,7 +8671,7 @@ int clif_sendmob_action(MOB* mob, int type, int time, int sound) {
 	WBUFB(buf, 10) = 0x00;
 	WBUFB(buf, 11) = time;
 	WBUFB(buf, 12) = 0x00;
-	//crypt(WBUFP(buf, 0));
+	//mithia_crypt(WBUFP(buf, 0));
 	clif_send(buf, 32, &mob->bl, SAMEAREA);
 
 	if (sound > 0) clif_playsound(&mob->bl, sound);
@@ -10641,7 +10644,7 @@ int clif_throwitem_script(USER* sd) {
 		WBUFL(sndbuf, 24) = 0;
 		WBUFB(sndbuf, 28) = 0x02;
 		WBUFB(sndbuf, 29) = 0x00;
-		//crypt(WBUFP(sndbuf,0));
+		//mithia_crypt(WBUFP(sndbuf,0));
 		clif_send(sndbuf, 48, &sd->bl, SAMEAREA);
 	}
 	else {
@@ -11809,7 +11812,7 @@ int send_metafile(USER* sd, char* file) {
 	//printf("%s\n",file);
 	WFIFOW(sd->fd, 1) = SWAP16(len + 3);
 	set_packet_indexes(WFIFOP(sd->fd, 0));
-	crypt(WFIFOP(sd->fd, 0));
+	mithia_crypt(WFIFOP(sd->fd, 0));
 	WFIFOSET(sd->fd, len + 6 + 3);
 
 	free(cbuf);
@@ -11852,7 +11855,7 @@ int send_metalist(USER* sd) {
 
 	WFIFOW(sd->fd, 1) = SWAP16(len + 4);
 	set_packet_indexes(WFIFOP(sd->fd, 0));
-	crypt(WFIFOP(sd->fd, 0));
+	mithia_crypt(WFIFOP(sd->fd, 0));
 	WFIFOSET(sd->fd, len + 7 + 3);
 
 	return 0;

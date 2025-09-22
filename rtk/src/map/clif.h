@@ -5,15 +5,15 @@
 #include "mmo.h"
 
 extern unsigned int groups[MAX_GROUPS][MAX_GROUP_MEMBERS];
-int val[32];
+extern int val[32];
 
 enum { ALL_CLIENT, SAMESRV, SAMEMAP, SAMEMAP_WOS, AREA, AREA_WOS, SAMEAREA, SAMEAREA_WOS, CORNER, SELF };
 enum { LOOK_GET, LOOK_SEND };
 
 #define META_MAX 20
 
-char meta_file[META_MAX][256];
-int metamax;
+extern char meta_file[META_MAX][256];
+extern int metamax;
 
 //int clif_sendguidelist(USER*);
 //int clif_sendguidespecific(USER*);

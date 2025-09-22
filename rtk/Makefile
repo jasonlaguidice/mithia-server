@@ -1,12 +1,52 @@
 #!make
-# Yuri Makefile
-#################
+# RTK Makefile - Modernized for cross-platform compilation
+############################################################
 
-CC = gcc -pipe -w 
+# Detect system architecture and OS
+ARCH := $(shell uname -m)
+OS := $(shell uname -s)
+
+# Compiler settings
+CC = gcc -pipe -w
 MAKE = make -s
 
-CFLAGS = -O2 -DNDEBUG -fno-stack-protector -ffast-math -Wall -Wno-sign-compare -DFD_SETSIZE=1024 -DNO_MEMMGR -DUSE_MYSQL -I../common -I/usr/include/mysql -I/usr/include/lua5.1 -I/usr/local/zlib/include
-CLIBS = -L../lib -L/usr/local/lib -L/usr/lib  -L/usr/local/mysql/lib -lcrypt -lmysqlclient -lm -lz -ldl -llua5.1  -pthread
+# Architecture-specific optimizations
+ifeq ($(ARCH),x86_64)
+    ARCH_FLAGS = -m64
+else ifeq ($(ARCH),aarch64)
+    ARCH_FLAGS = -march=armv8-a
+else ifeq ($(ARCH),arm64)
+    ARCH_FLAGS = -march=armv8-a
+else
+    ARCH_FLAGS =
+endif
+
+# Use pkg-config for library detection with fallbacks
+MYSQL_EXISTS := $(shell pkg-config --exists libmariadb && echo yes || echo no)
+LUA_EXISTS := $(shell pkg-config --exists lua5.1 && echo yes || echo no)
+
+ifeq ($(MYSQL_EXISTS),yes)
+    MYSQL_CFLAGS := $(shell pkg-config --cflags libmariadb)
+    MYSQL_LIBS := $(shell pkg-config --libs libmariadb)
+else
+    # Fallback to legacy paths
+    MYSQL_CFLAGS := -I/usr/include/mysql -I/usr/local/mysql/include
+    MYSQL_LIBS := -L/usr/local/mysql/lib -lmysqlclient
+endif
+
+ifeq ($(LUA_EXISTS),yes)
+    LUA_CFLAGS := $(shell pkg-config --cflags lua5.1)
+    LUA_LIBS := $(shell pkg-config --libs lua5.1)
+else
+    # Fallback to legacy paths
+    LUA_CFLAGS := -I/usr/include/lua5.1
+    LUA_LIBS := -llua5.1
+endif
+
+# Base compiler flags
+BASE_CFLAGS = -O2 -DNDEBUG -Wall -Wno-sign-compare -DFD_SETSIZE=1024 -DNO_MEMMGR -DUSE_MYSQL -I../common
+CFLAGS = $(BASE_CFLAGS) $(ARCH_FLAGS) $(MYSQL_CFLAGS) $(LUA_CFLAGS)
+CLIBS = -lcrypt -lm -lz -ldl -lpthread $(MYSQL_LIBS) $(LUA_LIBS)
 
 COMMON_OBJ = ../common/core.o ../common/socket.o ../common/timer.o ../common/crypt.o ../common/db.o ../common/malloc.o  ../common/db_mysql.o ../common/md5calc.o ../common/ers.o ../common/strlib.o ../common/showmsg.o ../common/rndm.o
 COMMON_H = ../common/core.h ../common/socket.h ../common/timer.h ../common/crypt.h ../common/db.h ../common/mmo.h ../common/version.h ../common/malloc.h ../common/db_mysql.h ../common/md5calc.h ../common/ers.h ../common/cbasetypes.h ../common/strlib.h ../common/showmsg.h ../common/rndm.h

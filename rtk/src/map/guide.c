@@ -9,7 +9,6 @@
 #include "core.h"
 #include "script.h"
 
-DBMap* guide_db;
 
 int guidedb_searchname_sub(void* key, void* data, va_list ap) {
 	struct guide_data* item = (struct guide_data*)data, ** dst;

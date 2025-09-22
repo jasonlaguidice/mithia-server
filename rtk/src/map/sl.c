@@ -56,6 +56,10 @@ int typel_mtindex(lua_State*);
 int typel_mtnewindex(lua_State*);
 int typel_mtgc(lua_State*);
 int typel_mtref;
+
+// Global Lua state variable (moved from sl.h to resolve multiple definition errors)
+lua_State* sl_gstate = NULL;
+
 // TODO: actually use this!
 #define sl_ensureasync(state) \
 	if(state == sl_gstate) { luaL_error(state, "this function must be called from a coroutine; " \
@@ -497,7 +501,7 @@ int bll_throw(lua_State* state, void* self) {
 	WBUFL(buf, 24) = 0;
 	WBUFB(buf, 28) = action;
 	WBUFB(buf, 29) = 0x00;
-	//crypt(WBUFP(buf,0));
+	//mithia_crypt(WBUFP(buf,0));
 	clif_send(buf, 30, bl, SAMEAREA);
 	return 0;
 }
@@ -1025,7 +1029,7 @@ int throw(lua_State* state){
 	WBUFL(buf,24) = 0;
 	WBUFB(buf,28) = action;
 	WBUFB(buf,29) = 0x00;
-	//crypt(WBUFP(buf,0));
+	//mithia_crypt(WBUFP(buf,0));
 	map_foreachinarea(sl_throw,m,x,y,SAMEAREA,BL_PC,buf,30);
 	//clif_send(buf,30,bl,AREA);
 	return 0;

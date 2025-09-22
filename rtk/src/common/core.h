@@ -15,6 +15,6 @@ int set_default_input(int(*func)(char*));
 int default_parse_input(char*);
 int do_init(int, char**);
 
-unsigned long Last_Eof;
+extern unsigned long Last_Eof;
 
 #endif	// _CORE_H_

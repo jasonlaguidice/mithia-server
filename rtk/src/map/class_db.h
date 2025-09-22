@@ -28,7 +28,7 @@ struct class_data {
 	int icon;
 };
 
-struct class_data* cdata[20];
+extern struct class_data* cdata[20];
 
 extern struct DBMap* class_db;
 

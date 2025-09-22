@@ -1,27 +1,31 @@
-# Mithia Map Server - Standalone Container
-# Using Ubuntu 16.04 for legacy library compatibility
-FROM i386/ubuntu:16.04
+# Mithia Map Server - Multi-Architecture Native Build
+# Supports Linux amd64/arm64 via modern compilation (native performance)
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
 
-# Set up timezone configuration to avoid interactive prompts
-RUN echo tzdata tzdata/Zones/America select New_York | debconf-set-selections && \
-    echo tzdata tzdata/Zones/Etc select EST | debconf-set-selections
+# Use modern Ubuntu with native architecture support
+FROM --platform=${TARGETPLATFORM} ubuntu:22.04
 
-# Install legacy dependencies matching RTK server era
-RUN export DEBIAN_FRONTEND=noninteractive && \
-    apt-get update && apt-get install -y \
+# Build arguments for cross-platform support
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
+
+# Set up timezone and locale
+ENV TZ=UTC
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install modern native dependencies with pkg-config support
+RUN apt-get update && apt-get install -y \
     build-essential \
-    make \
-    gcc \
-    g++ \
-    libc6-dev \
-    libmysqlclient20 \
-    libmysqlclient-dev \
-    lua5.1 \
-    liblua5.1 \
-    liblua5.1-dev \
-    mysql-client-5.7 \
     pkg-config \
+    libmariadb-dev \
+    liblua5.1-dev \
     zlib1g-dev \
+    gettext-base \
+    dnsutils \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Create RTK user and directories

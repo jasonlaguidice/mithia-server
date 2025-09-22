@@ -11,7 +11,8 @@
 #include "db_mysql.h"
 #include "strlib.h"
 
-DBMap* class_db;
+// Class data array (moved from class_db.h to resolve multiple definition errors)
+struct class_data* cdata[20] = {NULL};
 
 struct class_data* classdb_search(int id) {
 	static struct class_data* db = NULL;

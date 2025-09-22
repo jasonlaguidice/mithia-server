@@ -167,7 +167,7 @@ char* generate_key2(unsigned char* packet, char* table, char* keyout, int fromcl
 	outbuffer[9] = 0;
 	return outbuffer;
 }*/
-void crypt(char* buff)
+void mithia_crypt(char* buff)
 {
 	unsigned int Group = 0;
 	unsigned int GroupCount = 0;
@@ -204,7 +204,7 @@ void crypt(char* buff)
 		}
 	}
 }
-void crypt2(char* buff, char* key)
+void mithia_crypt2(char* buff, char* key)
 {
 	unsigned int Group = 0;
 	unsigned int GroupCount = 0;

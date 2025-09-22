@@ -10,7 +10,6 @@
 #include "script.h"
 #include "db_mysql.h"
 
-DBMap* item_db;
 //DBMap* custom_db;
 
 int itemdb_searchname_sub(DBKey* key, void* data, va_list ap) {

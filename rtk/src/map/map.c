@@ -61,6 +61,20 @@ DBMap* guide_db;
 DBMap* mobsearch_db;
 DBMap* mobid_db = NULL;
 struct map_msg_data map_msg[MSG_MAX];
+
+// Time/date variables (moved from map.h to resolve multiple definition errors)
+int old_time = 0;
+int cur_time = 0;
+int cur_year = 0;
+int cur_day = 0;
+int cur_season = 0;
+
+// Object flags variable (moved from map.h to resolve multiple definition errors)
+unsigned char* objectFlags = NULL;
+
+// User list variable (moved from map.h to resolve multiple definition errors)
+struct userlist_data userlist = {0};
+
 struct town_data towns[255];
 int town_n = 0;
 char town_name[1024];
@@ -2129,7 +2143,7 @@ int nmail_read(USER* sd, int post) {
 		strcpy(WFIFOP(sd->fd,len+11),sql_get_str(2));
 		len+=strlen(sql_get_str(2))+1;
 		WFIFOW(sd->fd,1)=SWAP16(len+7);
-		crypt(WFIFOP(sd->fd,0));
+		mithia_crypt(WFIFOP(sd->fd,0));
 		WFIFOSET(sd->fd,len+10);
 		sql_free_row();
 		sql_request("UPDATE nmail SET new=0 WHERE touser='%s' AND mail_id=%d",sd->status.name,post);
