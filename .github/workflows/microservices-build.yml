@@ -113,13 +113,15 @@ jobs:
         echo "Testing ${{ matrix.service }} native execution on ${{ matrix.platform }}"
 
         # Pull the image for the specific platform
+        # Sanitize branch name to match docker/metadata-action behavior
+        TAG_NAME=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
         docker pull --platform ${{ matrix.platform }} \
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-${{ matrix.service }}:${{ github.ref_name }}
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-${{ matrix.service }}:${TAG_NAME}
 
         # Verify binary architecture matches platform
         echo "Verifying binary architecture..."
         BINARY_ARCH=$(docker run --rm --platform ${{ matrix.platform }} \
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-${{ matrix.service }}:${{ github.ref_name }} \
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-${{ matrix.service }}:${TAG_NAME} \
           file ./${{ matrix.service }} | grep -oE '(x86-64|aarch64|ARM aarch64)')
 
         PLATFORM_ARCH="${{ matrix.platform }}"
@@ -139,7 +141,7 @@ jobs:
         # Test basic execution (version check)
         echo "Testing basic execution..."
         docker run --rm --platform ${{ matrix.platform }} \
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-${{ matrix.service }}:${{ github.ref_name }} \
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-${{ matrix.service }}:${TAG_NAME} \
           ./${{ matrix.service }} --help || true
 
         echo "✅ ${{ matrix.service }} native execution test passed on ${{ matrix.platform }}"
