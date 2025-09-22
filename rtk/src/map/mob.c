@@ -624,7 +624,7 @@ int mob_timer_new(int id, int n) {
 	unsigned int x;
 
 	for (x = MOB_START_NUM; x < MOB_SPAWN_START; x++) { //only process up to that.
-		mob_handle_sub(map_id2bl(x), NULL);
+		mob_handle_sub(map_id2bl(x));
 	}
 
 	return 0;
@@ -654,7 +654,7 @@ int mob_timer_spawns(int id, int n) {
 					mob_duratimer(mob);
 				}
 
-				mob_handle_sub(mob, NULL);
+				mob_handle_sub(mob);
 			}
 		}
 	}
@@ -677,7 +677,7 @@ int mob_timer_spawns(int id, int n) {
 					mob_duratimer(mob);
 				}
 
-				mob_handle_sub(mob, NULL);
+				mob_handle_sub(mob);
 			}
 		}
 	}
@@ -854,7 +854,7 @@ int kill_mob(MOB* mob) {
 	mob_flushmagic(mob);
 	//sl_doscript_blargs(mob->data->yname,"on_death",2,&mob->bl,&sd->bl);
 }
-int mob_handle_sub(MOB* mob, va_list ap) {
+int mob_handle_sub(MOB* mob) {
 	USER* sd = NULL;
 	struct block_list* bl = NULL;
 	MOB* tmob = NULL;

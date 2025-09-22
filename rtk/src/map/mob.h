@@ -20,7 +20,7 @@ struct mobdb_data* mobdb_searchname(const char*);
 int mobdb_id(char*);
 int mobdb_searchname_sub(void*, void*, va_list);
 int mob_handle(int, int);
-int mob_handle_sub(MOB*, va_list);
+int mob_handle_sub(MOB*);
 int mob_handle_magic(struct block_list*, va_list);
 int move_mob(MOB*);
 unsigned int* mobspawn_onetime(unsigned int, int, int, int, int, int, int, unsigned int, unsigned int);
