@@ -2655,7 +2655,7 @@ int clif_send_sub(struct block_list* bl, va_list ap) {
 	USER* tsd = NULL;
 
 	//nullpo_ret(0, bl);
-	nullpo_ret(0, ap);
+	// Note: va_list ap doesn't need null checking (causes ARM64 compilation error)
 	nullpo_ret(0, sd = (USER*)bl);
 
 	buf = va_arg(ap, unsigned char*);
