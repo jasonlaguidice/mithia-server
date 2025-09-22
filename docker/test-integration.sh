@@ -6,7 +6,7 @@ echo "   Mithia Server Integration Test"
 echo "=================================="
 
 # Configuration
-COMPOSE_FILE="docker-compose.yml"
+COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.yml}"
 TIMEOUT_SERVICES=60
 TIMEOUT_HEALTH=30
 
