@@ -118,17 +118,18 @@ docker compose -f $COMPOSE_FILE ps --format "table"
 echo ""
 echo "Test 3: Database Health"
 echo "======================"
-info "Testing database connectivity..."
-for i in {1..10}; do
+info "Testing database connectivity and initialization..."
+info "Note: Database initialization includes 21 SQL migration scripts (~2.5MB)"
+for i in {1..20}; do
     if docker compose -f $COMPOSE_FILE exec -T mithia-db mysqladmin ping -h localhost --silent 2>/dev/null; then
         success "Database is responsive (attempt $i)"
         break
     else
-        if [ $i -eq 10 ]; then
-            error "Database failed to respond after 10 attempts"
+        if [ $i -eq 20 ]; then
+            error "Database failed to respond after 20 attempts (120 seconds)"
         fi
-        info "Database not ready, waiting... (attempt $i/10)"
-        sleep 3
+        info "Database not ready, waiting... (attempt $i/20)"
+        sleep 6
     fi
 done
 
