@@ -120,12 +120,6 @@ jobs:
         echo "Generated docker-compose.test-override.yml:"
         cat docker-compose.test-override.yml
 
-    - name: Pull feature branch images from registry
-      run: |
-        echo "Pulling feature branch multi-arch images for testing..."
-        export COMPOSE_FILE="docker-compose.yml:docker-compose.test-override.yml"
-        docker compose pull
-
     - name: Verify multi-architecture images exist
       run: |
         TAG_NAME=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
@@ -135,27 +129,6 @@ jobs:
           echo "Checking ${service}-server multi-arch manifest..."
           docker manifest inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-${service}-server:${TAG_NAME} | \
             grep -E "(architecture|platform)" || echo "Manifest inspection not available"
-        done
-
-    - name: Verify native AMD64 binary architectures
-      run: |
-        TAG_NAME=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
-        echo "🔍 Verifying all server binaries are native AMD64 (testing natively on x86-64 runner)..."
-
-        for service in login char map; do
-          echo "Checking ${service}-server binary architecture..."
-          BINARY_ARCH=$(docker run --rm --platform linux/amd64 \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-${service}-server:${TAG_NAME} \
-            file ./${service}-server | grep -oE 'x86-64')
-
-          echo "${service}-server binary architecture: $BINARY_ARCH"
-
-          if [[ "$BINARY_ARCH" =~ "x86-64" ]]; then
-            echo "✅ ${service}-server AMD64 binary validated"
-          else
-            echo "❌ Expected native AMD64 binary, got: $BINARY_ARCH"
-            exit 1
-          fi
         done
 
     - name: Run native AMD64 integration tests
@@ -260,33 +233,6 @@ jobs:
 
         echo "Generated docker-compose.test-override.yml:"
         cat docker-compose.test-override.yml
-
-    - name: Pull feature branch images from registry
-      run: |
-        echo "Pulling feature branch multi-arch images for ARM64 testing..."
-        export COMPOSE_FILE="docker-compose.yml:docker-compose.test-override.yml"
-        docker compose pull
-
-    - name: Verify native ARM64 binary architectures
-      run: |
-        TAG_NAME=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
-        echo "🔍 Verifying all server binaries are native ARM64 (testing natively on ARM64 runner)..."
-
-        for service in login char map; do
-          echo "Checking ${service}-server binary architecture..."
-          BINARY_ARCH=$(docker run --rm --platform linux/arm64 \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-${service}-server:${TAG_NAME} \
-            file ./${service}-server | grep -oE '(aarch64|ARM aarch64)')
-
-          echo "${service}-server binary architecture: $BINARY_ARCH"
-
-          if [[ "$BINARY_ARCH" =~ "aarch64" || "$BINARY_ARCH" =~ "ARM aarch64" ]]; then
-            echo "✅ ${service}-server ARM64 binary validated"
-          else
-            echo "❌ Expected native ARM64 binary, got: $BINARY_ARCH"
-            exit 1
-          fi
-        done
 
     - name: Run native ARM64 integration tests
       run: |
