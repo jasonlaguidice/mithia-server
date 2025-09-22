@@ -102,9 +102,28 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Pull latest images from registry
+    - name: Create docker-compose override for feature branch images
       run: |
-        echo "Pulling latest multi-arch images from registry for testing..."
+        TAG_NAME=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
+        echo "Creating override to test feature branch images with tag: $TAG_NAME"
+
+        cat > docker-compose.test-override.yml << EOF
+        services:
+          mithia-login:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-login-server:${TAG_NAME}
+          mithia-char:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-char-server:${TAG_NAME}
+          mithia-map:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-map-server:${TAG_NAME}
+        EOF
+
+        echo "Generated docker-compose.test-override.yml:"
+        cat docker-compose.test-override.yml
+
+    - name: Pull feature branch images from registry
+      run: |
+        echo "Pulling feature branch multi-arch images for testing..."
+        export COMPOSE_FILE="docker-compose.yml:docker-compose.test-override.yml"
         docker compose pull
 
     - name: Verify multi-architecture images exist
@@ -149,6 +168,8 @@ jobs:
         echo "  - Services accept connections properly"
         echo "  - Pure native execution on x86-64 GitHub runners"
 
+        # Use both base compose file and test override
+        export COMPOSE_FILE="docker-compose.yml:docker-compose.test-override.yml"
         chmod +x docker/test-integration.sh
         ./docker/test-integration.sh
 
@@ -222,9 +243,28 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Pull latest images from registry
+    - name: Create docker-compose override for feature branch images
       run: |
-        echo "Pulling latest multi-arch images from registry for ARM64 testing..."
+        TAG_NAME=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
+        echo "Creating override to test feature branch images with tag: $TAG_NAME"
+
+        cat > docker-compose.test-override.yml << EOF
+        services:
+          mithia-login:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-login-server:${TAG_NAME}
+          mithia-char:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-char-server:${TAG_NAME}
+          mithia-map:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-map-server:${TAG_NAME}
+        EOF
+
+        echo "Generated docker-compose.test-override.yml:"
+        cat docker-compose.test-override.yml
+
+    - name: Pull feature branch images from registry
+      run: |
+        echo "Pulling feature branch multi-arch images for ARM64 testing..."
+        export COMPOSE_FILE="docker-compose.yml:docker-compose.test-override.yml"
         docker compose pull
 
     - name: Verify native ARM64 binary architectures
@@ -258,6 +298,8 @@ jobs:
         echo "  - Services accept connections properly"
         echo "  - Pure native execution on ARM64 GitHub runners"
 
+        # Use both base compose file and test override
+        export COMPOSE_FILE="docker-compose.yml:docker-compose.test-override.yml"
         chmod +x docker/test-integration.sh
         ./docker/test-integration.sh
 
