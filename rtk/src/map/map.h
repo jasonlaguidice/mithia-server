@@ -367,7 +367,7 @@ struct game_data {
 #define OBJ_RIGHT 4
 #define OBJ_LEFT 8
 
-unsigned char* objectFlags;
+extern unsigned char* objectFlags;
 
 struct flooritem_data {
 	struct block_list bl;
@@ -387,7 +387,7 @@ extern char name[1024];
 extern struct map_data* map;
 //extern struct map_data map[];
 extern int map_n;
-struct userlist_data userlist;
+extern struct userlist_data userlist;
 extern struct auth_data auth_fifo[];
 extern int auth_n;
 
@@ -485,7 +485,7 @@ extern int xp_rate;
 extern int d_rate;
 extern int map_fd;
 int map_reset_timer(int, int);
-int old_time, cur_time, cur_year, cur_day, cur_season;
+extern int old_time, cur_time, cur_year, cur_day, cur_season;
 int hasCoref(USER*);
 int map_setglobalreg(int, char*, int);
 int map_readglobalreg(int, char*);

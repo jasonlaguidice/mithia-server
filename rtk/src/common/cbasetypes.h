@@ -244,6 +244,38 @@ typedef char bool;
 //////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
+// Endianness detection and byte swapping macros
+//////////////////////////////////////////////////////////////////////////
+
+// Include endian detection headers
+#ifndef WIN32
+#include <endian.h>
+#endif
+
+// Endianness-aware byte swapping macros
+#if defined(WIN32)
+// Windows - assume little endian
+#define MITHIA_SWAP16(x) ((uint16)(((x)<<8)|((x)>>8)))
+#define MITHIA_SWAP32(x) ((uint32)(((x)<<24)|(((x)<<8)&0x00FF0000)|(((x)>>8)&0x0000FF00)|((x)>>24)))
+#elif defined(__BYTE_ORDER)
+#if __BYTE_ORDER == __BIG_ENDIAN
+// Big endian - no swapping needed for network byte order
+#define MITHIA_SWAP16(x) ((uint16)(x))
+#define MITHIA_SWAP32(x) ((uint32)(x))
+#elif __BYTE_ORDER == __LITTLE_ENDIAN
+// Little endian - swap bytes for network byte order
+#define MITHIA_SWAP16(x) ((uint16)(((x)<<8)|((x)>>8)))
+#define MITHIA_SWAP32(x) ((uint32)(((x)<<24)|(((x)<<8)&0x00FF0000)|(((x)>>8)&0x0000FF00)|((x)>>24)))
+#else
+#error "Unknown byte order"
+#endif
+#else
+// Fallback - assume little endian (original behavior)
+#define MITHIA_SWAP16(x) ((uint16)(((x)<<8)|((x)>>8)))
+#define MITHIA_SWAP32(x) ((uint32)(((x)<<24)|(((x)<<8)&0x00FF0000)|(((x)>>8)&0x0000FF00)|((x)>>24)))
+#endif
+
+//////////////////////////////////////////////////////////////////////////
 // macro tools
 
 #ifdef swap // just to be sure

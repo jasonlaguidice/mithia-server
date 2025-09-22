@@ -70,7 +70,7 @@ struct socket_data {
 	unsigned char increment;
 	char name[32];
 };
-int server_shutdown;
+extern int server_shutdown;
 // Data prototype declaration
 
 extern struct socket_data* session[FD_SETSIZE];

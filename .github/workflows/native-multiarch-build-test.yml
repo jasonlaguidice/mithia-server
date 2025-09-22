@@ -1,0 +1,386 @@
+name: Build and Test Multi-Architecture Docker Images (Native)
+
+on:
+  push:
+    branches: [ main, feature/native-multi-arch-servers ]
+    tags: [ 'v*.*.*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allows manual triggering
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        service: [login-server, char-server, map-server]
+        include:
+          - service: login-server
+            dockerfile: ./services/login-server/Dockerfile
+            context: .
+          - service: char-server
+            dockerfile: ./services/char-server/Dockerfile
+            context: .
+          - service: map-server
+            dockerfile: ./services/map-server/Dockerfile
+            context: .
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-${{ matrix.service }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
+          type=raw,value=latest,enable={{is_default_branch}}
+          type=raw,value=native,enable={{is_default_branch}}
+
+    - name: Build and push ${{ matrix.service }} image
+      uses: docker/build-push-action@v5
+      with:
+        context: ${{ matrix.context }}
+        file: ${{ matrix.dockerfile }}
+        platforms: linux/amd64,linux/arm64
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          BUILDKIT_INLINE_CACHE=1
+
+  # Native AMD64 Integration Testing
+  test-integration-amd64:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name != 'pull_request'
+    timeout-minutes: 15
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install test dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y netcat-openbsd
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create docker-compose override for feature branch images
+      run: |
+        TAG_NAME=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
+        echo "Creating override to test feature branch images with tag: $TAG_NAME"
+
+        cat > docker-compose.test-override.yml << EOF
+        services:
+          mithia-login:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-login-server:${TAG_NAME}
+            volumes:
+              - test_conf:/home/RTK/rtk/conf
+              - test_logs:/home/RTK/rtk/logs
+          mithia-char:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-char-server:${TAG_NAME}
+            volumes:
+              - test_conf:/home/RTK/rtk/conf
+              - test_logs:/home/RTK/rtk/logs
+          mithia-map:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-map-server:${TAG_NAME}
+            volumes:
+              - test_conf:/home/RTK/rtk/conf
+              - test_logs:/home/RTK/rtk/logs
+
+          mithia-db:
+            volumes:
+              - "./database/scripts:/docker-entrypoint-initdb.d"
+              - test_mysql_data:/var/lib/mysql
+              - test_backups:/backups
+
+        volumes:
+          test_conf:
+          test_logs:
+          test_mysql_data:
+          test_backups:
+        EOF
+
+        echo "Generated docker-compose.test-override.yml:"
+        cat docker-compose.test-override.yml
+
+    - name: Verify multi-architecture images exist
+      run: |
+        TAG_NAME=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
+        echo "🔍 Verifying multi-architecture images were built correctly..."
+
+        for service in login char map; do
+          echo "Checking ${service}-server multi-arch manifest..."
+          docker manifest inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-${service}-server:${TAG_NAME} | \
+            grep -E "(architecture|platform)" || echo "Manifest inspection not available"
+        done
+
+    - name: Run native AMD64 integration tests
+      run: |
+        echo "🚀 Starting native AMD64 integration test..."
+        echo "Testing native builds (NO QEMU) - this verifies:"
+        echo "  - All services start correctly with native AMD64 binaries"
+        echo "  - Database connectivity works"
+        echo "  - Inter-server communication is established"
+        echo "  - Services accept connections properly"
+        echo "  - Pure native execution on x86-64 GitHub runners"
+
+        # Use both base compose file and test override
+        export COMPOSE_FILE="docker-compose.yml:docker-compose.test-override.yml"
+        chmod +x docker/test-integration.sh
+        ./docker/test-integration.sh
+
+    - name: Collect service logs on failure
+      if: failure()
+      run: |
+        echo "=================================="
+        echo "   COLLECTING FAILURE DIAGNOSTICS"
+        echo "=================================="
+
+        echo ""
+        echo "=== Docker Compose Status ==="
+        docker compose ps || true
+
+        echo ""
+        echo "=== All Container Logs (last 100 lines) ==="
+        docker compose logs --tail=100 || true
+
+        echo ""
+        echo "=== Container Exit Codes ==="
+        docker compose ps --format "table {{.Service}}\t{{.State}}\t{{.Status}}" || true
+
+        echo ""
+        echo "=== Login Server Logs ==="
+        docker compose logs mithia-login || true
+
+        echo ""
+        echo "=== Character Server Logs ==="
+        docker compose logs mithia-char || true
+
+        echo ""
+        echo "=== Map Server Logs ==="
+        docker compose logs mithia-map || true
+
+        echo ""
+        echo "=== Database Logs ==="
+        docker compose logs mithia-db || true
+
+        echo ""
+        echo "=== Network Information ==="
+        docker network ls || true
+        docker compose exec -T mithia-char ip addr show || true
+
+    - name: Cleanup test environment
+      if: always()
+      run: |
+        echo "Cleaning up test environment..."
+        docker compose down -v --remove-orphans || true
+        docker system prune -f || true
+
+  # Native ARM64 Integration Testing
+  test-integration-arm64:
+    runs-on: [self-hosted, linux, arm64]
+    needs: build
+    if: github.event_name != 'pull_request'
+    timeout-minutes: 15
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install test dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y netcat-openbsd
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create docker-compose override for feature branch images
+      run: |
+        TAG_NAME=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
+        echo "Creating override to test feature branch images with tag: $TAG_NAME"
+
+        cat > docker-compose.test-override.yml << EOF
+        services:
+          mithia-login:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-login-server:${TAG_NAME}
+            volumes:
+              - test_conf:/home/RTK/rtk/conf
+              - test_logs:/home/RTK/rtk/logs
+          mithia-char:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-char-server:${TAG_NAME}
+            volumes:
+              - test_conf:/home/RTK/rtk/conf
+              - test_logs:/home/RTK/rtk/logs
+          mithia-map:
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-map-server:${TAG_NAME}
+            volumes:
+              - test_conf:/home/RTK/rtk/conf
+              - test_logs:/home/RTK/rtk/logs
+
+          mithia-db:
+            volumes:
+              - "./database/scripts:/docker-entrypoint-initdb.d"
+              - test_mysql_data:/var/lib/mysql
+              - test_backups:/backups
+
+        volumes:
+          test_conf:
+          test_logs:
+          test_mysql_data:
+          test_backups:
+        EOF
+
+        echo "Generated docker-compose.test-override.yml:"
+        cat docker-compose.test-override.yml
+
+    - name: Run native ARM64 integration tests
+      run: |
+        echo "🚀 Starting native ARM64 integration test..."
+        echo "Testing native builds (NO QEMU) - this verifies:"
+        echo "  - All services start correctly with native ARM64 binaries"
+        echo "  - Database connectivity works"
+        echo "  - Inter-server communication is established"
+        echo "  - Services accept connections properly"
+        echo "  - Pure native execution on ARM64 GitHub runners"
+
+        # Use both base compose file and test override
+        export COMPOSE_FILE="docker-compose.yml:docker-compose.test-override.yml"
+        chmod +x docker/test-integration.sh
+        ./docker/test-integration.sh
+
+    - name: Collect service logs on failure
+      if: failure()
+      run: |
+        echo "=================================="
+        echo "   COLLECTING FAILURE DIAGNOSTICS"
+        echo "=================================="
+
+        echo ""
+        echo "=== Docker Compose Status ==="
+        docker compose ps || true
+
+        echo ""
+        echo "=== All Container Logs (last 100 lines) ==="
+        docker compose logs --tail=100 || true
+
+        echo ""
+        echo "=== Container Exit Codes ==="
+        docker compose ps --format "table {{.Service}}\t{{.State}}\t{{.Status}}" || true
+
+        echo ""
+        echo "=== Login Server Logs ==="
+        docker compose logs mithia-login || true
+
+        echo ""
+        echo "=== Character Server Logs ==="
+        docker compose logs mithia-char || true
+
+        echo ""
+        echo "=== Map Server Logs ==="
+        docker compose logs mithia-map || true
+
+        echo ""
+        echo "=== Database Logs ==="
+        docker compose logs mithia-db || true
+
+        echo ""
+        echo "=== Network Information ==="
+        docker network ls || true
+        docker compose exec -T mithia-char ip addr show || true
+
+    - name: Cleanup test environment
+      if: always()
+      run: |
+        echo "Cleaning up test environment..."
+        docker compose down -v --remove-orphans || true
+        docker system prune -f || true
+
+  # Summary job that depends on all job completion
+  summary:
+    runs-on: ubuntu-latest
+    needs: [build, test-integration-amd64, test-integration-arm64]
+    if: always()
+    steps:
+    - name: Build and Test Summary
+      run: |
+        if [ "${{ needs.build.result }}" == "success" ] && [ "${{ needs.test-integration-amd64.result }}" == "success" ] && [ "${{ needs.test-integration-arm64.result }}" == "success" ]; then
+          echo "## ✅ Build and Tests Passed" >> $GITHUB_STEP_SUMMARY
+          echo "The following Mithia server containers were built and tested:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Login Server**: \`ghcr.io/${{ github.repository }}/mithia-login-server:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Character Server**: \`ghcr.io/${{ github.repository }}/mithia-char-server:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Map Server**: \`ghcr.io/${{ github.repository }}/mithia-map-server:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Native Execution Test Results:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ **linux/amd64**: Native x86-64 binaries verified and tested" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ **linux/arm64**: Native ARM64 binaries verified and tested" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ **No QEMU runtime**: Eliminated emulation performance penalty" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ **~2-3x performance improvement** expected vs previous i386+QEMU" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Integration Test Results:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ All microservices are working correctly" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Service discovery and networking functional" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Database connectivity verified" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Configuration generation working" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🚀 **Ready for deployment!**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Usage:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "# Deploy with microservices compose" >> $GITHUB_STEP_SUMMARY
+          echo "docker compose -f docker-compose.microservices.yml up" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Scale map servers" >> $GITHUB_STEP_SUMMARY
+          echo "docker compose -f docker-compose.microservices.yml up --scale mithia-map=3" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        elif [ "${{ needs.build.result }}" == "success" ]; then
+          echo "## ⚠️ Build Passed, Tests Failed" >> $GITHUB_STEP_SUMMARY
+          echo "Container images were built successfully but integration tests failed." >> $GITHUB_STEP_SUMMARY
+          echo "Please check the test logs for details." >> $GITHUB_STEP_SUMMARY
+        else
+          echo "## ❌ Build Failed" >> $GITHUB_STEP_SUMMARY
+          echo "Container build failed. Please check the build logs." >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi

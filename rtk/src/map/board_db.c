@@ -10,7 +10,6 @@
 #include "db_mysql.h"
 #include "strlib.h"
 
-DBMap* board_db;
 DBMap* bn_db;
 
 struct board_data* boarddb_search(int id) {

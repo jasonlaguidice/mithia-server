@@ -18,6 +18,10 @@ int login_port = 2010;
 
 int login_fd;
 int char_fd;
+char meta_file[META_MAX][256];
+int metamax = 0;
+int nex_version = 0;
+int nex_deep = 0;
 int require_reg = 0;
 char login_msg[MSG_MAX][256];
 Sql* sql_handle = NULL;
@@ -247,19 +251,28 @@ int do_init(int argc, char** argv) {
 	config_read(CONF_FILE);
 	config_read(INTER_FILE);
 	config_read("conf/char.conf");
+
+	printf("DEBUG: About to initialize SQL connection...\n");
+	printf("DEBUG: SQL config: ip=%s port=%d user=%s db=%s\n", sql_ip, sql_port, sql_id, sql_db);
+
 	sql_handle = Sql_Malloc();
 	if (sql_handle == NULL)
 	{
+		printf("ERROR: Failed to allocate SQL handle\n");
 		Sql_ShowDebug(sql_handle);
 		exit(EXIT_FAILURE);
 	}
+	printf("DEBUG: SQL handle allocated successfully\n");
+
 	if (SQL_ERROR == Sql_Connect(sql_handle, sql_id, sql_pw, sql_ip, (uint16)sql_port, sql_db))
 	{
+		printf("ERROR: SQL connection failed\n");
 		printf("id: %s pass: %s Port: %d\n", sql_id, sql_pw, sql_port);
 		Sql_ShowDebug(sql_handle);
 		Sql_Free(sql_handle);
 		exit(EXIT_FAILURE);
 	}
+	printf("DEBUG: SQL connection successful\n");
 
 	//sql_init();
 	lang_read(LANG_FILE);

@@ -3,7 +3,7 @@
 #include <lua.h>
 #include "map.h"
 
-lua_State* sl_gstate;
+extern lua_State* sl_gstate;
 void sl_init();
 void sl_runfunc(char*, struct block_list*);
 int sl_doscript_blargs(char*, char*, int, ...);

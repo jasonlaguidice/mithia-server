@@ -10,7 +10,6 @@
 #include "core.h"
 #include "script.h"
 
-DBMap* magic_db;
 
 int magicdb_searchname_sub(void* key, void* data, va_list ap) {
 	struct magic_data* item = (struct magic_data*)data, ** dst;
