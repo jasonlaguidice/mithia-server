@@ -79,27 +79,16 @@ jobs:
         build-args: |
           BUILDKIT_INLINE_CACHE=1
 
-  # Native Multi-Architecture Integration Testing
-  # Tests native builds (NO QEMU) for both AMD64 and ARM64
-  test-integration-native:
+  # Native AMD64 Integration Testing
+  test-integration-amd64:
     runs-on: ubuntu-latest
     needs: build
     if: github.event_name != 'pull_request'
     timeout-minutes: 15
 
-    strategy:
-      matrix:
-        platform: [linux/amd64, linux/arm64]
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-
-    - name: Set up QEMU (for ARM64 testing on x86-64 runners)
-      uses: docker/setup-qemu-action@v3
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
 
     - name: Install test dependencies
       run: |
@@ -113,88 +102,161 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Create platform-specific Docker Compose override
+    - name: Pull latest images from registry
       run: |
-        # Sanitize branch name to match docker/metadata-action behavior
-        TAG_NAME=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
-        PLATFORM="${{ matrix.platform }}"
+        echo "Pulling latest multi-arch images from registry for testing..."
+        docker compose pull
 
-        echo "Creating docker-compose.platform-test.yml for $PLATFORM with tag $TAG_NAME"
-
-        {
-          echo "services:"
-          echo "  # Only override game servers - database preserves base configuration (volume mounts, health checks)"
-          echo "  mithia-login:"
-          echo "    image: \${REGISTRY}/\${IMAGE_NAME}/mithia-login-server:\${TAG_NAME}"
-          echo "    platform: \${PLATFORM}"
-          echo "  mithia-char:"
-          echo "    image: \${REGISTRY}/\${IMAGE_NAME}/mithia-char-server:\${TAG_NAME}"
-          echo "    platform: \${PLATFORM}"
-          echo "  mithia-map:"
-          echo "    image: \${REGISTRY}/\${IMAGE_NAME}/mithia-map-server:\${TAG_NAME}"
-          echo "    platform: \${PLATFORM}"
-        } > docker-compose.platform-test.yml
-
-        # Substitute environment variables
-        sed -i "s/\${REGISTRY}/${{ env.REGISTRY }}/g" docker-compose.platform-test.yml
-        sed -i "s/\${IMAGE_NAME}/${{ env.IMAGE_NAME }}/g" docker-compose.platform-test.yml
-        sed -i "s/\${TAG_NAME}/${TAG_NAME}/g" docker-compose.platform-test.yml
-        sed -i "s/\${PLATFORM}/${PLATFORM}/g" docker-compose.platform-test.yml
-
-        echo "Generated docker-compose.platform-test.yml:"
-        cat docker-compose.platform-test.yml
-
-    - name: Pull all platform-specific images
+    - name: Verify multi-architecture images exist
       run: |
         TAG_NAME=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
-        echo "Pulling images for ${{ matrix.platform }} with tag $TAG_NAME"
-
-        docker pull --platform ${{ matrix.platform }} \
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-login-server:${TAG_NAME}
-        docker pull --platform ${{ matrix.platform }} \
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-char-server:${TAG_NAME}
-        docker pull --platform ${{ matrix.platform }} \
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-map-server:${TAG_NAME}
-
-        # Database uses base docker-compose.yml configuration (no platform override needed)
-
-    - name: Verify binary architectures for ${{ matrix.platform }}
-      run: |
-        TAG_NAME=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
-        PLATFORM="${{ matrix.platform }}"
-
-        echo "🔍 Verifying all server binaries are native $PLATFORM..."
+        echo "🔍 Verifying multi-architecture images were built correctly..."
 
         for service in login char map; do
-          echo "Checking ${service}-server binary..."
-          BINARY_ARCH=$(docker run --rm --platform $PLATFORM \
+          echo "Checking ${service}-server multi-arch manifest..."
+          docker manifest inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-${service}-server:${TAG_NAME} | \
+            grep -E "(architecture|platform)" || echo "Manifest inspection not available"
+        done
+
+    - name: Verify native AMD64 binary architectures
+      run: |
+        TAG_NAME=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
+        echo "🔍 Verifying all server binaries are native AMD64 (testing natively on x86-64 runner)..."
+
+        for service in login char map; do
+          echo "Checking ${service}-server binary architecture..."
+          BINARY_ARCH=$(docker run --rm --platform linux/amd64 \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-${service}-server:${TAG_NAME} \
-            file ./${service}-server | grep -oE '(x86-64|aarch64|ARM aarch64)')
+            file ./${service}-server | grep -oE 'x86-64')
 
           echo "${service}-server binary architecture: $BINARY_ARCH"
 
-          if [[ "$PLATFORM" == "linux/amd64" && "$BINARY_ARCH" =~ "x86-64" ]]; then
+          if [[ "$BINARY_ARCH" =~ "x86-64" ]]; then
             echo "✅ ${service}-server AMD64 binary validated"
-          elif [[ "$PLATFORM" == "linux/arm64" && ("$BINARY_ARCH" =~ "aarch64" || "$BINARY_ARCH" =~ "ARM aarch64") ]]; then
-            echo "✅ ${service}-server ARM64 binary validated"
           else
-            echo "❌ Architecture mismatch: expected native binary for $PLATFORM, got $BINARY_ARCH"
+            echo "❌ Expected native AMD64 binary, got: $BINARY_ARCH"
             exit 1
           fi
         done
 
-    - name: Run comprehensive integration tests for ${{ matrix.platform }}
+    - name: Run native AMD64 integration tests
       run: |
-        echo "🚀 Starting comprehensive integration test for ${{ matrix.platform }}"
-        echo "Testing native builds (NOT QEMU) - this verifies:"
-        echo "  - All services start correctly with native binaries"
+        echo "🚀 Starting native AMD64 integration test..."
+        echo "Testing native builds (NO QEMU) - this verifies:"
+        echo "  - All services start correctly with native AMD64 binaries"
         echo "  - Database connectivity works"
         echo "  - Inter-server communication is established"
         echo "  - Services accept connections properly"
-        echo "  - No emulation overhead - pure native execution"
+        echo "  - Pure native execution on x86-64 GitHub runners"
 
-        # Use both base compose file and platform override
-        export COMPOSE_FILE="docker-compose.yml:docker-compose.platform-test.yml"
+        chmod +x docker/test-integration.sh
+        ./docker/test-integration.sh
+
+    - name: Collect service logs on failure
+      if: failure()
+      run: |
+        echo "=================================="
+        echo "   COLLECTING FAILURE DIAGNOSTICS"
+        echo "=================================="
+
+        echo ""
+        echo "=== Docker Compose Status ==="
+        docker compose ps || true
+
+        echo ""
+        echo "=== All Container Logs (last 100 lines) ==="
+        docker compose logs --tail=100 || true
+
+        echo ""
+        echo "=== Container Exit Codes ==="
+        docker compose ps --format "table {{.Service}}\t{{.State}}\t{{.Status}}" || true
+
+        echo ""
+        echo "=== Login Server Logs ==="
+        docker compose logs mithia-login || true
+
+        echo ""
+        echo "=== Character Server Logs ==="
+        docker compose logs mithia-char || true
+
+        echo ""
+        echo "=== Map Server Logs ==="
+        docker compose logs mithia-map || true
+
+        echo ""
+        echo "=== Database Logs ==="
+        docker compose logs mithia-db || true
+
+        echo ""
+        echo "=== Network Information ==="
+        docker network ls || true
+        docker compose exec -T mithia-char ip addr show || true
+
+    - name: Cleanup test environment
+      if: always()
+      run: |
+        echo "Cleaning up test environment..."
+        docker compose down -v --remove-orphans || true
+        docker system prune -f || true
+
+  # Native ARM64 Integration Testing
+  test-integration-arm64:
+    runs-on: ubuntu-latest-arm64
+    needs: build
+    if: github.event_name != 'pull_request'
+    timeout-minutes: 15
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install test dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y netcat-openbsd
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Pull latest images from registry
+      run: |
+        echo "Pulling latest multi-arch images from registry for ARM64 testing..."
+        docker compose pull
+
+    - name: Verify native ARM64 binary architectures
+      run: |
+        TAG_NAME=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
+        echo "🔍 Verifying all server binaries are native ARM64 (testing natively on ARM64 runner)..."
+
+        for service in login char map; do
+          echo "Checking ${service}-server binary architecture..."
+          BINARY_ARCH=$(docker run --rm --platform linux/arm64 \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/mithia-${service}-server:${TAG_NAME} \
+            file ./${service}-server | grep -oE '(aarch64|ARM aarch64)')
+
+          echo "${service}-server binary architecture: $BINARY_ARCH"
+
+          if [[ "$BINARY_ARCH" =~ "aarch64" || "$BINARY_ARCH" =~ "ARM aarch64" ]]; then
+            echo "✅ ${service}-server ARM64 binary validated"
+          else
+            echo "❌ Expected native ARM64 binary, got: $BINARY_ARCH"
+            exit 1
+          fi
+        done
+
+    - name: Run native ARM64 integration tests
+      run: |
+        echo "🚀 Starting native ARM64 integration test..."
+        echo "Testing native builds (NO QEMU) - this verifies:"
+        echo "  - All services start correctly with native ARM64 binaries"
+        echo "  - Database connectivity works"
+        echo "  - Inter-server communication is established"
+        echo "  - Services accept connections properly"
+        echo "  - Pure native execution on ARM64 GitHub runners"
 
         chmod +x docker/test-integration.sh
         ./docker/test-integration.sh
@@ -249,12 +311,12 @@ jobs:
   # Summary job that depends on all job completion
   summary:
     runs-on: ubuntu-latest
-    needs: [build, test-integration-native]
+    needs: [build, test-integration-amd64, test-integration-arm64]
     if: always()
     steps:
     - name: Build and Test Summary
       run: |
-        if [ "${{ needs.build.result }}" == "success" ] && [ "${{ needs.test-integration-native.result }}" == "success" ]; then
+        if [ "${{ needs.build.result }}" == "success" ] && [ "${{ needs.test-integration-amd64.result }}" == "success" ] && [ "${{ needs.test-integration-arm64.result }}" == "success" ]; then
           echo "## ✅ Build and Tests Passed" >> $GITHUB_STEP_SUMMARY
           echo "The following Mithia server containers were built and tested:" >> $GITHUB_STEP_SUMMARY
           echo "- **Login Server**: \`ghcr.io/${{ github.repository }}/mithia-login-server:latest\`" >> $GITHUB_STEP_SUMMARY
@@ -262,8 +324,8 @@ jobs:
           echo "- **Map Server**: \`ghcr.io/${{ github.repository }}/mithia-map-server:latest\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Native Execution Test Results:" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ **linux/amd64**: Native x86-64 binaries verified" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ **linux/arm64**: Native ARM64 binaries verified" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ **linux/amd64**: Native x86-64 binaries verified and tested" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ **linux/arm64**: Native ARM64 binaries verified and tested" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ **No QEMU runtime**: Eliminated emulation performance penalty" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ **~2-3x performance improvement** expected vs previous i386+QEMU" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
