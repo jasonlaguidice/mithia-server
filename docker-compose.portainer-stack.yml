@@ -127,52 +127,13 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
     volumes:
-      - "./mithia-data/database/scripts:/docker-entrypoint-initdb.d"
       - "mysql_data:/var/lib/mysql"
-      - "./mithia-data/data/backups:/backups"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 30s
-
-  # Web PHP-FPM for dashboard
-  mithia-web-php:
-    build:
-      context: .
-      dockerfile: web/php/Dockerfile
-    image: mithia-web-php:latest
-    container_name: mithia-web-php
-    restart: unless-stopped
-    networks:
-      mithia_network:
-        ipv4_address: 172.20.0.40
-    volumes:
-      - "./web/public:/var/www/html"
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    depends_on:
-      - mithia-db
-
-  # Web Nginx for dashboard
-  mithia-web-nginx:
-    image: nginx:alpine
-    container_name: mithia-web-nginx
-    restart: unless-stopped
-    depends_on:
-      - mithia-web-php
-    networks:
-      mithia_network:
-        ipv4_address: 172.20.0.41
-    ports:
-      - "8080:80"
-    volumes:
-      - "./web/public:/var/www/html:ro"
-      - "./web/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro"
-      - "./web/nginx/.htpasswd:/etc/nginx/.htpasswd:ro"
-    environment:
-      - MITHIA_MAP_METRICS_URL=http://mithia-map:9000/metrics/players
-
 
 networks:
   mithia_network:
