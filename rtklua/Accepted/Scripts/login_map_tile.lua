@@ -10,7 +10,7 @@ login = function(player)
 		player.baseArmor = 100
 		player.baseHealth = math.random(45, 55)
 		player.baseMagic = math.random(33, 38)
-		player.money = 0
+		player.money = 1000
 		player:sendStatus()
 		player:calcStat()
 	end
