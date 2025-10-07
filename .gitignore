@@ -149,3 +149,24 @@ TODO.md
 
 # Docker persistent data
 /data/
+
+# Sensitive environment files
+stack.env
+stack.env.production
+*.env.local
+
+# Database data
+/mithia-data/
+backup_*.sql
+
+# Web auth files
+/web/nginx/.htpasswd
+
+# Documentation and setup guides (not needed for deployment)
+UBUNTU_DEPLOYMENT.md
+PORTAINER_SETUP.md
+DOCKER_PORTAINER_SETUP.md
+setup-ubuntu.sh
+setup-portainer.sh
+LEGACY_SETUP.md
+WARP.md

@@ -47,9 +47,9 @@ mob_ai_basic = {
 			if (mob.state ~= MOB_HIT and target == nil and mob.owner == 0) then
 				if (checkmove >= 4) then
 					mob.side = math.random(0, 3)
-					mob:sendSide()
-					if (mob.side == oldside and not mob.snare and not mob.blind) then
+					if (not mob.snare and not mob.blind) then
 						moved = mob:move()
+						if (not moved) then mob:sendSide() end
 					end
 				elseif (not mob.snare and not mob.blind) then
 					moved = mob:move()
@@ -75,16 +75,15 @@ mob_ai_basic = {
 
 					if mob:checkIfCast(amnesias) then
 						if mob.amnesia == target.ID then
-							if (checkmove >= 4) then
-								mob.side = math.random(0, 3)
-								mob:sendSide()
-
-								if (mob.side == oldside and not mob.snare and not mob.blind) then
-									moved = mob:move()
-								end
-							elseif (not mob.snare and not mob.blind) then
+						if (checkmove >= 4) then
+							mob.side = math.random(0, 3)
+							if (not mob.snare and not mob.blind) then
 								moved = mob:move()
+								if (not moved) then mob:sendSide() end
 							end
+						elseif (not mob.snare and not mob.blind) then
+							moved = mob:move()
+						end
 							return
 						end
 					end

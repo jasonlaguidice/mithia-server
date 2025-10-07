@@ -137,12 +137,24 @@ threat = {
 			--
 			-- otherwise it will check for everything in room
 		else
+			-- Gather potential targets in room
 			threat_id = mob:getObjectsInArea(BL_PC)
 
 			if (#threat_id > 0) then
 				for i = 1, #threat_id do
+					-- Only consider targets on same map
 					if (threat_id[i].m == mob.m and mob:checkThreat(threat_id[i].ID) ~= false) then
-						threat_amount[i] = mob:checkThreat(threat_id[i].ID)
+						-- If we have no current target (i.e., we dropped aggro), enforce 12x12 vision box for reacquire
+						if (mob.target == 0) then
+							local dx = math.abs(threat_id[i].x - mob.x)
+							local dy = math.abs(threat_id[i].y - mob.y)
+							if (dx <= 6 and dy <= 6) then
+								threat_amount[i] = mob:checkThreat(threat_id[i].ID)
+							end
+						else
+							-- Existing target case, keep prior behavior
+							threat_amount[i] = mob:checkThreat(threat_id[i].ID)
+						end
 					end
 				end
 			end
@@ -162,6 +174,21 @@ threat = {
 		if (current_target > 0) then
 			mob.target = current_target
 		end
+	end,
+
+	-- Clear all threat towards this mob for players in the map area
+	clearAllThreat = function(mob)
+		local players = mob:getObjectsInArea(BL_PC)
+		if (#players > 0) then
+			for i = 1, #players do
+				if (players[i].m == mob.m) then
+					players[i]:setThreat(mob.ID, 0)
+				end
+			end
+		end
+		mob.target = 0
+		mob.attacker = 0
+		mob.state = MOB_ALIVE
 	end,
 
 	getHighestThreat = function(mob)

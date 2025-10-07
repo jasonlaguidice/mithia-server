@@ -6851,7 +6851,19 @@ int pcl_setattr(lua_State* state, USER* sd, char* attrname) {
 	else if (!strcmp(attrname, "blind")) { sd->blind = lua_toboolean(state, -1); }
 	else if (!strcmp(attrname, "drunk")) { sd->drunk = lua_tonumber(state, -1); }
 	else if (!strcmp(attrname, "sex")) { sd->status.sex = lua_tonumber(state, -1); }
-	else if (!strcmp(attrname, "uflags")) { sd->uFlags ^= lua_tointeger(state, -1); }
+	else if (!strcmp(attrname, "uflags")) {
+		unsigned int mask = (unsigned int)lua_tointeger(state, -1);
+		unsigned int before = sd->uFlags;
+		// Disallow Lua from toggling unphysical directly; reserve it for /unphysical
+		unsigned int protected_bits = uFlag_unphysical;
+		unsigned int allowed_mask = mask & ~protected_bits;
+		sd->uFlags ^= allowed_mask;
+		// If sticky is enabled and somehow unphysical got cleared elsewhere, reassert it
+		if (pc_unphys_sticky_has(sd->status.id) && !(sd->uFlags & uFlag_unphysical)) {
+			sd->uFlags |= uFlag_unphysical;
+			clif_sendmsg(sd, 0, "[DEBUG] Unphysical: prevented Lua from clearing (sticky)");
+		}
+	}
 	else if (!strcmp(attrname, "backstab")) sd->backstab = lua_toboolean(state, -1);
 	else if (!strcmp(attrname, "flank")) sd->flank = lua_toboolean(state, -1);
 	else if (!strcmp(attrname, "armor")) sd->armor = lua_tonumber(state, -1);
@@ -6878,7 +6890,11 @@ int pcl_setattr(lua_State* state, USER* sd, char* attrname) {
 	else if (!strcmp(attrname, "speech")) strcpy(sd->speech, lua_tostring(state, -1));
 	else if (!strcmp(attrname, "enchant")) sd->enchanted = lua_tonumber(state, -1);
 	else if (!strcmp(attrname, "money")) sd->status.money = lua_tonumber(state, -1);
-	else if (!strcmp(attrname, "settings")) sd->status.settingFlags ^= lua_tointeger(state, -1);
+	else if (!strcmp(attrname, "settings")) {
+		unsigned int mask = (unsigned int)lua_tointeger(state, -1);
+		unsigned int before = sd->status.settingFlags;
+		sd->status.settingFlags ^= mask;
+	}
 	else if (!strcmp(attrname, "confused")) sd->confused = lua_toboolean(state, -1);
 	else if (!strcmp(attrname, "skinColor")) sd->status.skin_color = lua_tonumber(state, -1);
 	else if (!strcmp(attrname, "target")) sd->target = lua_tonumber(state, -1);

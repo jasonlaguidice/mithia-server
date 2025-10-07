@@ -23,7 +23,50 @@
 #include "socket.h"
 #include "mob.h"
 
+// Refresh helper: for mobs in SAMEAREA that are currently aggro on this player,
+// send a precise object look to reduce perceived teleporting during chase.
+static int pc_aggro_look_sub(struct block_list* bl, va_list ap) {
+	USER* sd = NULL;
+	MOB* mob = NULL;
+	nullpo_ret(0, sd = va_arg(ap, USER*));
+	if (!bl || bl->type != BL_MOB) return 0;
+	mob = (MOB*)bl;
+	if (mob->target == sd->bl.id && mob->state != MOB_DEAD && mob->bl.m == sd->bl.m) {
+		clif_object_look_specific(sd, mob->bl.id);
+	}
+	return 0;
+}
+
 struct timeval start;
+
+// Keep a small list of players who requested sticky-unphysical
+static unsigned int unphys_sticky_ids[1024];
+static void unphys_sticky_init_once() {
+	static int inited = 0;
+	if (!inited) {
+		for (int i = 0; i < 1024; i++) unphys_sticky_ids[i] = 0;
+		inited = 1;
+	}
+}
+void pc_unphys_sticky_set(unsigned int id) {
+	unphys_sticky_init_once();
+	for (int i = 0; i < 1024; i++) {
+		if (unphys_sticky_ids[i] == id || unphys_sticky_ids[i] == 0) { unphys_sticky_ids[i] = id; return; }
+	}
+}
+void pc_unphys_sticky_clear(unsigned int id) {
+	unphys_sticky_init_once();
+	for (int i = 0; i < 1024; i++) {
+		if (unphys_sticky_ids[i] == id) { unphys_sticky_ids[i] = 0; return; }
+	}
+}
+unsigned char pc_unphys_sticky_has(unsigned int id) {
+	unphys_sticky_init_once();
+	for (int i = 0; i < 1024; i++) {
+		if (unphys_sticky_ids[i] == id) return 1;
+	}
+	return 0;
+}
 
 //New function used for evaluating how many miliseconds the server program
 //has been running for.
@@ -122,6 +165,62 @@ int pc_castusetimer(int id, int none) {
 	return 0;
 }
 
+int pc_lookaround(int id, int none) {
+	USER* sd = map_id2sd((unsigned int)id);
+	nullpo_ret(1, sd);
+
+// Periodic refresh at 150ms: keep items and NPCs updated within SAMEAREA (avoid BL_MOB here to prevent snap overrides)
+	clif_mob_look_start(sd);
+	map_foreachinarea(clif_object_look_sub, sd->bl.m, sd->bl.x, sd->bl.y, SAMEAREA, BL_ITEM, LOOK_GET, sd);
+	map_foreachinarea(clif_object_look_sub, sd->bl.m, sd->bl.x, sd->bl.y, SAMEAREA, BL_NPC, LOOK_GET, sd);
+clif_mob_look_close(sd);
+	// Also ensure aggro mobs chasing this player get precise position refreshes
+	map_foreachinarea(pc_aggro_look_sub, sd->bl.m, sd->bl.x, sd->bl.y, SAMEAREA, BL_MOB, sd);
+	// Keep nearby players refreshed
+	clif_getchararea(sd);
+
+	// If targeting a nearby mob, force a precise position refresh for that one mob only
+	if (sd->target) {
+		MOB* tmob = map_id2mob(sd->target);
+		if (tmob && tmob->bl.m == sd->bl.m) {
+			int dx = (int)tmob->bl.x - (int)sd->bl.x;
+			int dy = (int)tmob->bl.y - (int)sd->bl.y;
+			if (dx < 0) dx = -dx;
+			if (dy < 0) dy = -dy;
+			if (dx <= 8 && dy <= 8) {
+				clif_object_look_specific(sd, tmob->bl.id);
+			}
+		}
+	}
+	// Also refresh attacker if it's a nearby mob
+	if (sd->attacker) {
+		MOB* amob = map_id2mob(sd->attacker);
+		if (amob && amob->bl.m == sd->bl.m) {
+			int dx = (int)amob->bl.x - (int)sd->bl.x;
+			int dy = (int)amob->bl.y - (int)sd->bl.y;
+			if (dx < 0) dx = -dx;
+			if (dy < 0) dy = -dy;
+			if (dx <= 8 && dy <= 8) {
+				clif_object_look_specific(sd, amob->bl.id);
+			}
+		}
+	}
+
+	// Occasionally send a full area refresh to fix incomplete client renders (skip if walking)
+	sd->looktick++;
+if (sd->looktick >= 12) { // ~1.8 seconds at 150ms
+		sd->looktick = 0;
+		if (!sd->iswalking) {
+			clif_mob_look_start(sd);
+			map_foreachinarea(clif_object_look_sub, sd->bl.m, sd->bl.x, sd->bl.y, SAMEAREA, BL_ALL, LOOK_GET, sd);
+			clif_mob_look_close(sd);
+			clif_getchararea(sd);
+		}
+	}
+
+	return 0;
+}
+
 //afk timer!
 int pc_afktimer(int id, int none) {
 	USER* sd = map_id2sd((unsigned int)id);
@@ -181,6 +280,14 @@ int pc_afktimer(int id, int none) {
 }
 
 int pc_starttimer(USER* sd) {
+	// If GM has opted into persistence AND had unphysical set, re-enable it and make sticky
+	if (sd->status.gm_level && pc_readglobalreg(sd, "gm_unphys_persist") > 0 && pc_readglobalreg(sd, "gm_unphysical") > 0) {
+		sd->uFlags |= uFlag_unphysical;
+		pc_unphys_sticky_set(sd->status.id);
+		if (!(sd->status.settingFlags & FLAG_FASTMOVE)) {
+			sd->status.settingFlags |= FLAG_FASTMOVE;
+		}
+	}
 	sd->timer = timer_insert(1000, 1000, pc_timer, sd->bl.id, 0);
 	//sd->healingtimer=timer_insert(1000,1000,pc_healing,sd->bl.id,0);
 	//sd->heartbeat=timer_insert(10000,10000,clif_sendheartbeat,sd->bl.id,0);
@@ -196,6 +303,8 @@ int pc_starttimer(USER* sd) {
 	sd->fifthduratimer = timer_insert(3000, 3000, bl_fifthduratimer, sd->bl.id, 0);
 	sd->scripttimer = timer_insert(500, 500, pc_scripttimer, sd->bl.id, 0);
 	sd->castusetimer = timer_insert(250, 250, pc_castusetimer, sd->bl.id, 0);
+	// periodic object look-around to keep nearby objects and players up to date
+sd->looktimer = timer_insert(150, 150, pc_lookaround, sd->bl.id, 0);
 
 	return 0;
 }
@@ -212,6 +321,7 @@ int pc_stoptimer(USER* sd) {
 	if (sd->fourthduratimer) timer_remove(sd->fourthduratimer);
 	if (sd->fifthduratimer) timer_remove(sd->fifthduratimer);
 	if (sd->scripttimer) timer_remove(sd->scripttimer);
+	if (sd->looktimer) timer_remove(sd->looktimer);
 
 	return 0;
 }
@@ -846,7 +956,7 @@ int pc_calcstat(USER* sd) {
 	sd->minLdam = 0;
 	sd->maxLdam = 0;
 
-	sd->attack_speed = 20;
+	sd->attack_speed = 10; // halve interval => ~2x swing rate
 	sd->protection = 0;
 	sd->healing = 0;
 	sd->status.tnl = 0;
@@ -876,12 +986,14 @@ int pc_calcstat(USER* sd) {
 
 	if (sd->status.state == 3) {
 		if (sd->status.gm_level == 0) {
+			// Mounted: enforce minimum speed of 40 (higher numbers are slower in this engine)
 			if (sd->speed < 40) sd->speed = 40;
 		}
 		sl_doscript_blargs("remount", NULL, 1, &sd->bl);
 	}
 	else {
-		sd->speed = 90;
+		// Unmounted: set to 55
+		sd->speed = 55;
 	}
 
 	if (sd->status.state != PC_DIE) {
@@ -1106,6 +1218,8 @@ int pc_warp(USER* sd, int m, int x, int y) {
 	if (y >= map[m].ys) y = map[m].ys - 1;
 
 	if (m != oldmap) {
+		// Immediately force-drop aggro from any mobs targeting this player before the map change
+		mob_drop_player_from_all_mobs(sd->bl.id);
 		sl_doscript_blargs("mapLeave", NULL, 1, &sd->bl);
 
 		if (!map[m].canMount) sl_doscript_blargs("onDismount", NULL, 1, &sd->bl);
@@ -1143,10 +1257,10 @@ int pc_warp(USER* sd, int m, int x, int y) {
 	clif_spawn(sd);
 	clif_refresh(sd);
 	//clif_sendxy(sd);
-	//clif_mob_look_start(sd);
-	//map_foreachinarea(clif_object_look_sub,sd->bl.m,sd->bl.x,sd->bl.y,SAMEAREA,BL_ALL,LOOK_GET,sd);
-	//clif_mob_look_close(sd);
-	//clif_getchararea(sd);
+	clif_mob_look_start(sd);
+	map_foreachinarea(clif_object_look_sub, sd->bl.m, sd->bl.x, sd->bl.y, SAMEAREA, BL_ALL, LOOK_GET, sd);
+	clif_mob_look_close(sd);
+	clif_getchararea(sd);
 	if (m != oldmap) {
 		sl_doscript_blargs("mapEnter", NULL, 1, &sd->bl);
 	}
@@ -2954,6 +3068,12 @@ int pc_scripttimer(int id, int none) {
 
 	sd->scripttick++;
 	sl_doscript_blargs("pc_timer", "tick", 1, &sd->bl);
+	// (Removed fastmove enforcement while unphysical is active)
+	// If sticky-unphysical requested but flag is cleared, reassert it
+	if (pc_unphys_sticky_has(sd->status.id) && !(sd->uFlags & uFlag_unphysical)) {
+		sd->uFlags |= uFlag_unphysical;
+		clif_sendmsg(sd, 0, "[DEBUG] Unphysical: reasserted");
+	}
 
 	if (sd->status.settingFlags & FLAG_ADVICE) {
 		sl_doscript_blargs("pc_timer", "advice", 1, &sd->bl);
@@ -2971,6 +3091,11 @@ int pc_atkspeed(int id, int none) {
 
 	nullpo_ret(1, sd = map_id2sd((unsigned int)id));
 	sd->attacked = 0;
+	return 1;
+}
+
+int pc_freewalk_timer(int id, int none) {
+	// Feature disabled
 	return 1;
 }
 

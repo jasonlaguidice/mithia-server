@@ -310,23 +310,23 @@ function FindCoords(mob, player)
 		if (checkmove >= 1) then
 			if (mob.y < player.y) then
 				mob.side = 2
-				mob:sendSide()
 				canmove = mob:move()
+				if (not canmove) then mob:sendSide() end
 			end
 			if (mob.y > player.y and not canmove) then
 				mob.side = 0
-				mob:sendSide()
 				canmove = mob:move()
+				if (not canmove) then mob:sendSide() end
 			end
 			if (mob.x < player.x and not canmove) then
 				mob.side = 1
-				mob:sendSide()
 				canmove = mob:move()
+				if (not canmove) then mob:sendSide() end
 			end
 			if (mob.x > player.x and not canmove) then
 				mob.side = 3
-				mob:sendSide()
 				canmove = mob:move()
+				if (not canmove) then mob:sendSide() end
 			end
 		else
 			if (mob.x < player.x) then
@@ -375,8 +375,8 @@ function FindCoords(mob, player)
 		for i = 0, 10 do
 			if (not found) then
 				mob.side = math.random(0, 3)
-				mob:sendSide()
 				found = mob:move()
+				if (not found) then mob:sendSide() end
 			end
 		end
 	end
@@ -445,23 +445,23 @@ function RunAway(mob, player)
 		if (checkmove >= 1) then
 			if (mob.y < player.y) then
 				mob.side = 0
-				mob:sendSide()
 				canmove = mob:move()
+				if (not canmove) then mob:sendSide() end
 			end
 			if (mob.y > player.y and not canmove) then
 				mob.side = 2
-				mob:sendSide()
 				canmove = mob:move()
+				if (not canmove) then mob:sendSide() end
 			end
 			if (mob.x < player.x and not canmove) then
 				mob.side = 3
-				mob:sendSide()
 				canmove = mob:move()
+				if (not canmove) then mob:sendSide() end
 			end
 			if (mob.x > player.x and not canmove) then
 				mob.side = 1
-				mob:sendSide()
 				canmove = mob:move()
+				if (not canmove) then mob:sendSide() end
 			end
 		else
 			if (mob.x < player.x) then
@@ -504,8 +504,8 @@ function RunAway(mob, player)
 		for i = 1, 10 do
 			if (not found) then
 				mob.side = math.random(0, 3)
-				mob:sendSide()
 				found = mob:move()
+				if (not found) then mob:sendSide() end
 			end
 		end
 
@@ -526,23 +526,23 @@ function FindCoordsGhost(mob, player)
 		if (checkmove >= 1) then
 			if (mob.y < player.y) then
 				mob.side = 2
-				mob:sendSide()
 				canmove = mob:moveGhost()
+				if (canmove == 0) then mob:sendSide() end
 			end
 			if (mob.y > player.y and canmove == 0) then
 				mob.side = 0
-				mob:sendSide()
 				canmove = mob:moveGhost()
+				if (canmove == 0) then mob:sendSide() end
 			end
 			if (mob.x < player.x and canmove == 0) then
 				mob.side = 1
-				mob:sendSide()
 				canmove = mob:moveGhost()
+				if (canmove == 0) then mob:sendSide() end
 			end
 			if (mob.x > player.x and canmove == 0) then
 				mob.side = 3
-				mob:sendSide()
 				canmove = mob:moveGhost()
+				if (canmove == 0) then mob:sendSide() end
 			end
 		else
 			if (mob.x < player.x) then
@@ -584,8 +584,8 @@ function FindCoordsGhost(mob, player)
 		for i = 0, 10 do
 			if (not found) then
 				mob.side = math.random(0, 3)
-				mob:sendSide()
 				found = mob:moveGhost()
+				if (not found) then mob:sendSide() end
 			end
 		end
 	end
@@ -614,44 +614,44 @@ function RunAwayGhost(mob, player)
 		if (checkmove >= 1) then
 			if (mob.y < player.y) then
 				mob.side = 0
-				mob:sendSide()
 				canmove = mob:moveGhost()
+				if (canmove == 0) then mob:sendSide() end
 			end
 			if (mob.y > player.y and canmove == 0) then
 				mob.side = 2
-				mob:sendSide()
 				canmove = mob:moveGhost()
+				if (canmove == 0) then mob:sendSide() end
 			end
 			if (mob.x < player.x and canmove == 0) then
 				mob.side = 3
-				mob:sendSide()
 				canmove = mob:moveGhost()
+				if (canmove == 0) then mob:sendSide() end
 			end
 			if (mob.x > player.x and canmove == 0) then
 				mob.side = 1
-				mob:sendSide()
 				canmove = mob:moveGhost()
+				if (canmove == 0) then mob:sendSide() end
 			end
 		else
 			if (mob.x < player.x) then
 				mob.side = 3
-				mob:sendSide()
 				canmove = mob:moveGhost()
+				if (canmove == 0) then mob:sendSide() end
 			end
 			if (mob.x > player.x and canmove == 0) then
 				mob.side = 1
-				mob:sendSide()
 				canmove = mob:moveGhost()
+				if (canmove == 0) then mob:sendSide() end
 			end
 			if (mob.y < player.y and canmove == 0) then
 				mob.side = 0
-				mob:sendSide()
 				canmove = mob:moveGhost()
+				if (canmove == 0) then mob:sendSide() end
 			end
 			if (mob.y > player.y and canmove == 0) then
 				mob.side = 2
-				mob:sendSide()
 				canmove = mob:moveGhost()
+				if (canmove == 0) then mob:sendSide() end
 			end
 		end
 	end
@@ -667,8 +667,8 @@ function RunAwayGhost(mob, player)
 		for i = 0, 10 do
 			if (not found) then
 				mob.side = math.random(0, 3)
-				mob:sendSide()
 				found = mob:moveGhost()
+				if (not found) then mob:sendSide() end
 			end
 		end
 	end
@@ -944,23 +944,23 @@ function Mob.checkToObject(mob, object)
 	if (checkmove >= 1) then
 		if (mob.y < object.y) then
 			mob.side = 2
-			mob:sendSide()
 			canmove = mob:checkMove()
+			if (not canmove) then mob:sendSide() end
 		end
 		if (mob.y > object.y and canmove == false) then
 			mob.side = 0
-			mob:sendSide()
 			canmove = mob:checkMove()
+			if (not canmove) then mob:sendSide() end
 		end
 		if (mob.x < object.x and canmove == false) then
 			mob.side = 1
-			mob:sendSide()
 			canmove = mob:checkMove()
+			if (not canmove) then mob:sendSide() end
 		end
 		if (mob.x > object.x and canmove == false) then
 			mob.side = 3
-			mob:sendSide()
 			canmove = mob:checkMove()
+			if (not canmove) then mob:sendSide() end
 		end
 	else
 		if (mob.x < object.x) then
@@ -989,8 +989,8 @@ function Mob.checkToObject(mob, object)
 		for i = 0, 10 do
 			if (found == false) then
 				mob.side = math.random(0, 3)
-				mob:sendSide()
 				found = mob:checkMove()
+				if (not found) then mob:sendSide() end
 			end
 		end
 

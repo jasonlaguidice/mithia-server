@@ -49,9 +49,9 @@ mob_ai_normal = {
 			if (mob.state ~= MOB_HIT and target == nil and mob.owner == 0) then
 				if (checkmove >= 4) then
 					mob.side = math.random(0, 3)
-					mob:sendSide()
-					if (mob.side == oldside and not mob.snare and not mob.blind) then
+					if (not mob.snare and not mob.blind) then
 						moved = mob:move()
+						if (not moved) then mob:sendSide() end
 					end
 				elseif (not mob.snare and not mob.blind) then
 					moved = mob:move()

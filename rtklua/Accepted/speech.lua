@@ -249,11 +249,16 @@ onSay = function(player)
 
 	-- Test connection speed
 	if (lspeech == "/ping") then
-		if player:hasDuration("ping") then
-			player:setDuration("ping", 0)
-		else
-			player:setDuration("ping", 60000)
+		-- Use aether and a 15s duration; emit immediate bubble and then every 3s via while_cast
+		if player:hasAether("ping") then
+			player:sendMinitext("Ping is on cooldown.")
+			printf = 0
+			return
 		end
+		player:setAether("ping", 15000)
+		player:setDuration("ping", 15000)
+		player.registry["ping_last_ms"] = 0
+		player:talkSelf(2, "Ping: " .. player.ping .. "ms")
 		printf = 0
 	end
 

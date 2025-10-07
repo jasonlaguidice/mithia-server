@@ -13,7 +13,8 @@ gateway = {
 			player:sendMinitext("Spirits cannot use Gateway")
 			return
 		end
-		if not player:canCast(1, 1, 0) then
+		-- Allow casting while mounted: set mount flag to 0
+		if not player:canCast(1, 0, 0) then
 			return
 		end
 		if player.warpOut == 0 then

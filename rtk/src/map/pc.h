@@ -87,5 +87,12 @@ int pc_readquestreg(USER*, char*);
 int pc_scripttimer(int, int);
 int pc_atkspeed(int, int);
 int pc_disptimertick(int, int);
+int pc_lookaround(int, int);
+int pc_freewalk_timer(int, int);
+
+// Unphysical sticky helpers
+void pc_unphys_sticky_set(unsigned int id);
+void pc_unphys_sticky_clear(unsigned int id);
+unsigned char pc_unphys_sticky_has(unsigned int id);
 
 #endif

@@ -661,7 +661,7 @@ general_npc_funcs = {
 			player:dialogSeq(
 				{
 					t,
-					"After you have reached level 11, you will be able to broadcast messages to the RetroTK community regarding an event you are hosting."
+					"After you have reached level 11, you will be able to broadcast messages to the NakamaTK community regarding an event you are hosting."
 				},
 				0
 			)
@@ -672,7 +672,7 @@ general_npc_funcs = {
 			player:dialogSeq(
 				{
 					t,
-					"You have broadcasted to RetroTK recently. Please wait one day."
+					"You have broadcasted to NakamaTK recently. Please wait one day."
 				},
 				0
 			)
@@ -1541,7 +1541,7 @@ general_npc_funcs = {
 			"Joining a clan",
 			"Joining a subpath",
 			"Registering my character",
-			"How can I contact RetroTKeborn staff?",
+			"How can I contact NakamaTKeborn staff?",
 			"Show me other Help topics."
 		}
 
@@ -1556,8 +1556,8 @@ general_npc_funcs = {
 			player:dialogSeq(
 				{
 					t,
-					"If you have problems that prevent you from playing the game, please ask in the RTK discord for help resolving your problem",
-					"If you are unsure what you need to do, try reading the Guide or Welcome to RetroTK boards.",
+					"If you have problems that prevent you from playing the game, please ask in the NTK discord for help resolving your problem",
+					"If you are unsure what you need to do, try reading the Guide or Welcome to NakamaTK boards.",
 					"Asking other players politely is also another way to get some wonderful help."
 				},
 				1
@@ -1610,7 +1610,7 @@ general_npc_funcs = {
 					player:dialogSeq(
 						{
 							tironheart,
-							"There are many things you need to learn in the world of RetroTKeborn. The tutor can teach you some of those things."
+						"There are many things you need to learn in the world of NakamaTKeborn. The tutor can teach you some of those things."
 						},
 						1
 					)

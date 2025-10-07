@@ -23,6 +23,27 @@
 #include "malloc.h"
 #include "rndm.h"
 //#include "../metan/metan.h"
+#include "timer.h"
+
+// Track players' original fastmove setting while unphysical is active
+static struct { unsigned int id; unsigned char saved_fastmove; } unphys_fast_saves[1024];
+static unsigned char get_saved_fastmove(unsigned int id, unsigned char* out_saved) {
+	for (int i = 0; i < 1024; i++) {
+		if (unphys_fast_saves[i].id == id) { if (out_saved) *out_saved = unphys_fast_saves[i].saved_fastmove; return 1; }
+	}
+	return 0;
+}
+static void set_saved_fastmove(unsigned int id, unsigned char saved) {
+	for (int i = 0; i < 1024; i++) {
+		if (unphys_fast_saves[i].id == id || unphys_fast_saves[i].id == 0) { unphys_fast_saves[i].id = id; unphys_fast_saves[i].saved_fastmove = saved; return; }
+	}
+}
+static void clear_saved_fastmove(unsigned int id) {
+	for (int i = 0; i < 1024; i++) {
+		if (unphys_fast_saves[i].id == id) { unphys_fast_saves[i].id = 0; unphys_fast_saves[i].saved_fastmove = 0; return; }
+	}
+}
+#include <time.h>
 
 int spellgfx;
 int musicfx;
@@ -119,6 +140,10 @@ int command_reloadboard(USER*, char*, lua_State*);
 int command_reloadclan(USER*, char*, lua_State*);
 //int command_online(USER*,char*,lua_State*);
 int command_transfer(USER*, char*, lua_State*);
+int command_graveyard(USER*, char*, lua_State*);
+int command_step(USER*, char*, lua_State*);
+int command_freewalk(USER*, char*, lua_State*);
+int command_unphyspersist(USER*, char*, lua_State*);
 
 //int command_metan(USER*,char*);
 //int command_reload(USER*,char*,lua_State*);
@@ -128,6 +153,8 @@ int command_reloadmaps(USER*, char*, lua_State*);
 int command_reloadclass(USER*, char*, lua_State*);
 int command_reloadlevels(USER*, char*, lua_State*);
 int command_reloadwarps(USER*, char*, lua_State*);
+int command_unphysdbg(USER*, char*, lua_State*);
+int command_physstatus(USER*, char*, lua_State*);
 extern unsigned long Last_Eof;
 struct {
 	int (*func)(USER*, char*, lua_State*);
@@ -230,7 +257,15 @@ struct {
 		{command_reloadclass, "reloadclass", 99},
 		{command_reloadlevels, "reloadlevels", 99},
 		{command_reloadwarps, "reloadwarps", 99},
-		{command_transfer, "transfer", 99},
+	{command_transfer, "transfer", 99},
+	{command_graveyard, "graveyard", 99},
+	{command_graveyard, "gy", 99},
+	{command_unphysdbg, "unphysdbg", 99},
+	{command_physstatus, "physstatus", 99},
+	{command_step, "step", 99},
+	{command_step, "st", 99},
+	{command_freewalk, "freewalk", 99},
+	{command_unphyspersist, "unphyspersist", 99},
 		{NULL,NULL,NULL}
 };
 
@@ -281,6 +316,112 @@ int command_gm(USER* sd, char* line, lua_State* state) {
 int command_transfer(USER* sd, char* line, lua_State* state) {
 	clif_transfer_test(sd, 1, 10, 10);
 
+	return 0;
+}
+
+int command_step(USER* sd, char* line, lua_State* state) {
+	// Usage: /step [n]
+	int n = 1;
+	sscanf(line, "%d", &n);
+	if (n < 1) n = 1;
+	if (n > 50) n = 50; // safety cap
+	int dx = 0, dy = 0;
+	switch (sd->status.side) {
+		case 0: dy = -1; break; // up
+		case 1: dx = 1; break;  // right
+		case 2: dy = 1; break;  // down
+		case 3: dx = -1; break; // left
+	}
+	for (int i = 0; i < n; i++) {
+		int nx = sd->bl.x + dx;
+		int ny = sd->bl.y + dy;
+		if (nx < 0) nx = 0;
+		if (ny < 0) ny = 0;
+		if (nx >= map[sd->bl.m].xs) nx = map[sd->bl.m].xs - 1;
+		if (ny >= map[sd->bl.m].ys) ny = map[sd->bl.m].ys - 1;
+		map_moveblock(&sd->bl, nx, ny);
+	}
+	clif_sendxy(sd);
+clif_getchararea(sd);
+	return 0;
+}
+
+int command_freewalk(USER* sd, char* line, lua_State* state) {
+	// Feature disabled: noclip is solely controlled by /unphysical
+	sd->freewalk = 0;
+	if (sd->freewalktimer) { timer_remove(sd->freewalktimer); sd->freewalktimer = 0; }
+	clif_sendminitext(sd, "Freewalk is disabled. Use /unphysical to noclip.");
+	return 0;
+}
+
+int command_unphyspersist(USER* sd, char* line, lua_State* state) {
+	// Usage: /unphyspersist on|off
+	char opt[8] = {0};
+	if (sscanf(line, "%7s", opt) < 1) {
+		clif_sendminitext(sd, "Usage: /unphyspersist on|off");
+		return 0;
+	}
+	if (!strcmpi(opt, "on")) {
+		pc_setglobalreg(sd, "gm_unphys_persist", 1);
+		clif_sendminitext(sd, "Unphysical persistence :ON");
+	} else if (!strcmpi(opt, "off")) {
+		pc_setglobalreg(sd, "gm_unphys_persist", 0);
+		clif_sendminitext(sd, "Unphysical persistence :OFF");
+	} else {
+		clif_sendminitext(sd, "Usage: /unphyspersist on|off");
+	}
+	return 0;
+}
+
+int command_physstatus(USER* sd, char* line, lua_State* state) {
+	char buf[256];
+	sprintf(buf, "[INFO] gm=%d unphys=%d fastmove=%d flags=0x%X", sd->status.gm_level, (sd->uFlags & uFlag_unphysical) ? 1 : 0, (sd->status.settingFlags & FLAG_FASTMOVE) ? 1 : 0, sd->status.settingFlags);
+	clif_sendmsg(sd, 0, buf);
+	return 0;
+}
+
+// extern from clif.c
+extern unsigned int unphys_dbg_id;
+int command_unphysdbg(USER* sd, char* line, lua_State* state) {
+	if (unphys_dbg_id == sd->status.id) {
+		unphys_dbg_id = 0;
+		clif_sendminitext(sd, "Unphysical debug: OFF");
+	} else {
+		unphys_dbg_id = sd->status.id;
+		clif_sendminitext(sd, "Unphysical debug: ON");
+	}
+	return 0;
+}
+
+int command_graveyard(USER* sd, char* line, lua_State* state) {
+	// Usage: /graveyard [clean|now|purge]
+	char sub[32];
+	memset(sub, 0, sizeof(sub));
+	time_t now = time(NULL);
+	struct tm* lt = localtime(&now);
+	int mon = lt ? lt->tm_mon + 1 : 1;
+	int day = lt ? lt->tm_mday : 1;
+	int year = lt ? lt->tm_year + 1900 : 1970;
+	int h = lt ? lt->tm_hour : 0;
+	int mi = lt ? lt->tm_min : 0;
+	int s = lt ? lt->tm_sec : 0;
+	char buf[256];
+	if (sscanf(line, "%31s", sub) == 1) {
+		if (!strcmpi(sub, "clean") || !strcmpi(sub, "now") || !strcmpi(sub, "purge")) {
+			int freed = 0, remaining = 0, cap = 0;
+			mob_graveyard_cleanup_now(&freed, &remaining);
+int free_ct = 0, pend_ct = 0;
+mob_graveyard_stats_detail(NULL, &cap, &free_ct, &pend_ct);
+sprintf(buf, "[INFO]: [%02d:%02d:%04d:%02d:%02d:%02d] - Mob Graveyard cleaned: freed %d, remaining %d (free %d, pending %d) / %d", mon, day, year, h, mi, s, freed, remaining, free_ct, pend_ct, cap);
+clif_sendmsg(sd, 0, buf);
+			return 0;
+		}
+	}
+// Default: report one player-only line with timestamp and capacity and breakdown
+	int len = 0, cap = 0, free_ct = 0, pend_ct = 0;
+	mob_graveyard_stats_detail(&len, &cap, &free_ct, &pend_ct);
+	sprintf(buf, "[INFO]: [%02d:%02d:%04d:%02d:%02d:%02d] - Mob Graveyard: %d (free %d, pending %d) / %d", mon, day, year, h, mi, s, len, free_ct, pend_ct, cap);
+	clif_sendmsg(sd, 0, buf);
 	return 0;
 }
 
@@ -422,7 +563,7 @@ int command_shutdown(USER* sd, char* line, lua_State* state) {
 		}
 
 		if (t_time >= 60000) {
-			sprintf(msg, "RetroTK! Reset in %d minutes.", t_time / 60000);
+			sprintf(msg, "NakamaTK! Reset in %d minutes.", t_time / 60000);
 			clif_broadcast("---------------------------------------------------", -1);
 			clif_broadcast(msg, -1);
 			clif_broadcast("---------------------------------------------------", -1);
@@ -430,7 +571,7 @@ int command_shutdown(USER* sd, char* line, lua_State* state) {
 			t_time = d * 60000;
 		}
 		else {
-			sprintf(msg, "RetroTK! Reset in %d seconds.", t_time / 1000);
+			sprintf(msg, "NakamaTK! Reset in %d seconds.", t_time / 1000);
 			clif_broadcast("---------------------------------------------------", -1);
 			clif_broadcast(msg, -1);
 			clif_broadcast("---------------------------------------------------", -1);
@@ -509,14 +650,43 @@ int command_ghosts(USER* sd, char* line, lua_State* state) {
 }
 
 int command_unphysical(USER* sd, char* line, lua_State* state) {
-	sd->uFlags ^= uFlag_unphysical;
+	// Optional: /unphysical on | off ; default toggles
+	char opt[8];
+	int hasopt = sscanf(line, "%7s", opt);
+	if (hasopt == 1) {
+		if (!strcmpi(opt, "on")) {
+			sd->uFlags |= uFlag_unphysical;
+			pc_unphys_sticky_set(sd->status.id);
+			pc_setglobalreg(sd, "gm_unphysical", 1);
+		} else if (!strcmpi(opt, "off")) {
+			sd->uFlags &= ~uFlag_unphysical;
+			pc_unphys_sticky_clear(sd->status.id);
+			pc_setglobalreg(sd, "gm_unphysical", 0);
+		} else {
+			// unknown option, ignore and fall back to toggle
+			sd->uFlags ^= uFlag_unphysical;
+			if (sd->uFlags & uFlag_unphysical) { pc_unphys_sticky_set(sd->status.id); pc_setglobalreg(sd, "gm_unphysical", 1); }
+			else { pc_unphys_sticky_clear(sd->status.id); pc_setglobalreg(sd, "gm_unphysical", 0); }
+		}
+	} else {
+		sd->uFlags ^= uFlag_unphysical;
+		if (sd->uFlags & uFlag_unphysical) { pc_unphys_sticky_set(sd->status.id); pc_setglobalreg(sd, "gm_unphysical", 1); }
+		else { pc_unphys_sticky_clear(sd->status.id); pc_setglobalreg(sd, "gm_unphysical", 0); }
+	}
 
 	if (sd->uFlags & uFlag_unphysical) {
+		pc_unphys_sticky_set(sd->status.id);
 		clif_sendminitext(sd, "Unphysical :ON");
-	}
-	else {
+	} else {
+		pc_unphys_sticky_clear(sd->status.id);
 		clif_sendminitext(sd, "Unphysical :OFF");
 	}
+	// Hard resync client state: warp to self then refresh local view
+	pc_warp(sd, sd->bl.m, sd->bl.x, sd->bl.y);
+	clif_refresh(sd);
+	clif_sendchararea(sd);
+	clif_getchararea(sd);
+	return 0;
 }
 
 int command_immortality(USER* sd, char* line, lua_State* state) {

@@ -7,6 +7,9 @@
 #include "core.h"
 #include "map.h"
 #include "intif.h"
+
+// Unphysical movement debug: target character id (0 = off)
+unsigned int unphys_dbg_id = 0;
 #include "socket.h"
 #include "crypt.h"
 #include "clif.h"
@@ -802,7 +805,8 @@ int pc_sendpong(int id, int none) {
 
 		WFIFOHEAD(sd->fd, 10);
 		WFIFOB(sd->fd, 0) = 0xAA;
-		WFIFOW(sd->fd, 1) = SWAP16(0x09);
+		// Correct length to include byte at index 9 (total 10 bytes: 0..9)
+		WFIFOW(sd->fd, 1) = SWAP16(0x0A);
 		WFIFOB(sd->fd, 3) = 0x68;
 		WFIFOL(sd->fd, 5) = SWAP32(gettick());
 		WFIFOB(sd->fd, 9) = 0x00;
@@ -2551,14 +2555,23 @@ int clif_mob_kill(MOB* mob) {
 	mob->dmgdealt = 0;
 	mob->dmgtaken = 0;
 	mob->maxdmg = mob->data->vita;
-	mob->state = MOB_DEAD;
-	mob->last_death = time(NULL);
-	//Do a check for 30 MINIMUM
-	if (!mob->onetime) map_lastdeath_mob(mob);
-	//map_delblock(&mob->bl);
-	map_foreachinarea(clif_send_destroy, mob->bl.m, mob->bl.x, mob->bl.y, AREA, BL_PC, LOOK_GET, &mob->bl);
-	//map_addblock(&mob->bl);
-	return 0;
+mob->state = MOB_DEAD;
+mob->last_death = time(NULL);
+//Do a check for 30 MINIMUM
+if (!mob->onetime) map_lastdeath_mob(mob);
+
+// Queue into graveyard for 30s: free one-time mobs, stats-only for regular
+if (mob->onetime) {
+	// Remove from world and iddb; actual free after delay
+	map_delblock(&mob->bl);
+	map_deliddb(&mob->bl);
+	mob_add_to_graveyard(mob);
+} else {
+	mob_graveyard_note_kill(mob);
+}
+
+map_foreachinarea(clif_send_destroy, mob->bl.m, mob->bl.x, mob->bl.y, AREA, BL_PC, LOOK_GET, &mob->bl);
+return 0;
 }
 
 int clif_send_destroy(struct block_list* bl, va_list ap) {
@@ -5032,7 +5045,7 @@ int clif_parsewalk(USER* sd) {
 	if (dy < 0) dy = 0;
 	if (dy >= map[sd->bl.m].ys) dy = map[sd->bl.m].ys - 1;
 
-	if (!sd->status.gm_level) {
+	if (!sd->status.gm_level && !(sd->uFlags & uFlag_unphysical)) {
 		map_foreachincell(clif_canmove_sub, sd->bl.m, dx, dy, BL_PC, sd);
 		map_foreachincell(clif_canmove_sub, sd->bl.m, dx, dy, BL_MOB, sd);
 		map_foreachincell(clif_canmove_sub, sd->bl.m, dx, dy, BL_NPC, sd);
@@ -5040,7 +5053,7 @@ int clif_parsewalk(USER* sd) {
 	}
 
 	//map_foreachincell(clif_canmove_sub,sd->bl.m,dx,dy,BL_NPC,sd);
-	if ((sd->canmove || sd->paralyzed || sd->sleep != 1.0f || sd->snare) && !sd->status.gm_level) {
+	if ((sd->canmove || sd->paralyzed || sd->sleep != 1.0f || sd->snare) && !sd->status.gm_level && !(sd->uFlags & uFlag_unphysical)) {
 		clif_blockmovement(sd, 0);
 		clif_sendxy(sd);
 		clif_blockmovement(sd, 1);
@@ -5055,6 +5068,16 @@ int clif_parsewalk(USER* sd) {
 	if (sd->viewx > 16) sd->viewx = 16;
 	if (sd->viewy < 0) sd->viewy = 0;
 	if (sd->viewy > 14) sd->viewy = 14;
+
+	// Debug: snapshot blockers and tile flags before move
+	int pass_val_dbg = read_pass(sd->bl.m, dx, dy);
+	int obj_to_dbg = clif_object_canmove(sd->bl.m, dx, dy, direction);
+	int obj_from_dbg = clif_object_canmove_from(sd->bl.m, sd->bl.x, sd->bl.y, direction);
+	if (unphys_dbg_id == sd->status.id) {
+		printf("[UNPHYSDBG] %s gm=%d unphys=%d dir=%d from=(%d,%d) to=(%d,%d) pass=%d obj_to=%d obj_from=%d canmove=%d\n",
+			 sd->status.name, sd->status.gm_level, (sd->uFlags & uFlag_unphysical) ? 1 : 0, direction,
+			 xold, yold, dx, dy, pass_val_dbg, obj_to_dbg, obj_from_dbg, sd->canmove);
+	}
 
 	//Fast Walk shit, will flag later.
 	if (!(sd->status.settingFlags & FLAG_FASTMOVE)) {
@@ -5124,6 +5147,9 @@ int clif_parsewalk(USER* sd) {
 
 	//if(moveblock)
 	map_moveblock(&sd->bl, dx, dy);
+	if (unphys_dbg_id == sd->status.id) {
+		printf("[UNPHYSDBG] %s moved to (%d,%d)\n", sd->status.name, dx, dy);
+	}
 	//if(moveblock) map_addblock(&sd->bl);
 
 	if (RFIFOB(sd->fd, 3) == 0x06) {
@@ -5140,6 +5166,12 @@ int clif_parsewalk(USER* sd) {
 		map_foreachinblock(clif_cnpclook_sub, sd->bl.m, x0, y0, x0 + (x1 - 1), y0 + (y1 - 1), BL_NPC, LOOK_GET, sd);
 		map_foreachinblock(clif_cmoblook_sub, sd->bl.m, x0, y0, x0 + (x1 - 1), y0 + (y1 - 1), BL_MOB, LOOK_GET, sd);
 		map_foreachinblock(clif_charlook_sub, sd->bl.m, x0, y0, x0 + (x1 - 1), y0 + (y1 - 1), BL_PC, LOOK_SEND, sd);
+	} else {
+		// Fallback: perform a full SAMEAREA look so mobs/NPCs appear promptly on older clients
+		clif_mob_look_start(sd);
+		map_foreachinarea(clif_object_look_sub, sd->bl.m, sd->bl.x, sd->bl.y, SAMEAREA, BL_ALL, LOOK_GET, sd);
+		clif_mob_look_close(sd);
+		clif_getchararea(sd);
 	}
 
 	if (session[sd->fd]->eof)printf("%s eof set on.  19", sd->status.name);
@@ -5298,18 +5330,28 @@ int clif_noparsewalk(USER* sd, char speed) {
 	if (dy >= map[m].ys) dy = map[m].ys - 1;
 	sd->canmove = 0;
 
-	if (!sd->status.gm_level) {
+	if (!sd->status.gm_level && !(sd->uFlags & uFlag_unphysical)) {
 		map_foreachincell(clif_canmove_sub, m, dx, dy, BL_PC, sd);
 		map_foreachincell(clif_canmove_sub, m, dx, dy, BL_MOB, sd);
 		map_foreachincell(clif_canmove_sub, m, dx, dy, BL_NPC, sd);
 		if (read_pass(m, dx, dy)) sd->canmove = 1;
 	}
 
-	if (sd->canmove || sd->paralyzed || sd->sleep != 1.0f || sd->snare) {
+	if ((sd->canmove || sd->paralyzed || sd->sleep != 1.0f || sd->snare) && !(sd->uFlags & uFlag_unphysical)) {
 		clif_blockmovement(sd, 0);
 		clif_sendxy(sd);
 		clif_blockmovement(sd, 1);
 		return 0;
+	}
+
+	// Debug snapshot before client-side fastmove
+	int pass_val_dbg2 = read_pass(m, dx, dy);
+	int obj_to_dbg2 = clif_object_canmove(m, dx, dy, direction);
+	int obj_from_dbg2 = clif_object_canmove_from(m, sd->bl.x, sd->bl.y, direction);
+	if (unphys_dbg_id == sd->status.id) {
+		printf("[UNPHYSDBG] %s (noparse) gm=%d unphys=%d dir=%d from=(%d,%d) to=(%d,%d) pass=%d obj_to=%d obj_from=%d canmove=%d\n",
+			 sd->status.name, sd->status.gm_level, (sd->uFlags & uFlag_unphysical) ? 1 : 0, direction,
+			 xold, yold, dx, dy, pass_val_dbg2, obj_to_dbg2, obj_from_dbg2, sd->canmove);
 	}
 
 	if (dx == sd->bl.x && dy == sd->bl.y)
@@ -11366,6 +11408,9 @@ printf("%02X ",RFIFOB(fd,i));
 printf("\n");*/
 
 	switch (RFIFOB(fd, 3)) {
+	case 0x45: // client-side ack/keepalive seen on some clients; no-op to avoid unknown packet log
+		clif_cancelafk(sd);
+		break;
 	case 0x05:
 		//clif_cancelafk(sd); -- conflict with light function, causes character to never enter AFK status
 		clif_parsemap(sd);
@@ -11374,13 +11419,13 @@ printf("\n");*/
 		clif_cancelafk(sd);
 		clif_parsewalk(sd);
 		break;
-	case 0x07:
-		clif_cancelafk(sd);
-		sd->time += 1;
-		if (sd->time < 4) {
-			clif_parsegetitem(sd);
-		}
-		break;
+case 0x07:
+    clif_cancelafk(sd);
+    sd->time += 1;
+    if (sd->time < 7) {
+        clif_parsegetitem(sd);
+    }
+    break;
 	case 0x08:
 		clif_cancelafk(sd);
 		clif_parsedropitem(sd);
@@ -11422,16 +11467,15 @@ printf("\n");*/
 		clif_cancelafk(sd);
 		sd->time += 1;
 
-		if (!sd->paralyzed && sd->sleep == 1.0f) {
-			if (sd->time < 4) {
-				if (map[sd->bl.m].spell || sd->status.gm_level) {
-					clif_parsemagic(sd);
-				}
-				else {
-					clif_sendminitext(sd, "That doesn't work here.");
-				}
-			}
-		}
+if (!sd->paralyzed && sd->sleep == 1.0f) {
+            if (sd->time < 7) {
+                if (map[sd->bl.m].spell || sd->status.gm_level) {
+                    clif_parsemagic(sd);
+                } else {
+                    clif_sendminitext(sd, "That doesn't work here.");
+                }
+            }
+        }
 		break;
 	case 0x11:
 		clif_cancelafk(sd);
@@ -11497,22 +11541,23 @@ printf("\n");*/
 		clif_parseuseitem(sd);
 
 		break;
-	case 0x1D:
-		clif_cancelafk(sd);
-		sd->time++;
-		if (sd->time < 4) {
-			clif_parseemotion(sd);
-		}
-		break;
-	case 0x1E:
-		clif_cancelafk(sd);
-		sd->time++;
-		if (sd->time < 4)	clif_parsewield(sd);
-		break;
+case 0x1D:
+    clif_cancelafk(sd);
+    sd->time++;
+    if (sd->time < 7) {
+        clif_parseemotion(sd);
+    }
+    break;
+case 0x1E:
+    clif_cancelafk(sd);
+
+    sd->time++;
+if (sd->time < 7) 	clif_parsewield(sd);
+    break;
 	case 0x1F:
-		clif_cancelafk(sd);
-		if (sd->time < 4) clif_parseunequip(sd);
-		break;
+    clif_cancelafk(sd);
+    if (sd->time < 7) clif_parseunequip(sd);
+    break;
 	case 0x20: //Clicked 'O'
 		clif_cancelafk(sd);
 		clif_open_sub(sd);
@@ -11643,6 +11688,8 @@ printf("\n");*/
 		clif_changeprofile(sd);
 		break;
 	case 0x60: //PING
+		// Reply to client ping with a heartbeat to avoid client-side crash
+		clif_sendheartbeat(sd->bl.id, 0);
 		break;
 	case 0x66:
 		clif_cancelafk(sd);
@@ -14245,9 +14292,30 @@ int clif_changestatus(USER* sd, int type) {
 	case 0x00: //Ride/something else
 		if (RFIFOB(sd->fd, 7) == 1) {
 			if (sd->status.state == 0) {
+				// First, try to ride a mountable creature in front of the player
 				clif_findmount(sd);
-
-				if (sd->status.state == 0) clif_sendminitext(sd, "Good try, but there is nothing here that you can ride.");
+				// If still not mounted, attempt to use a mount item from inventory
+				if (sd->status.state == 0) {
+					int tried_inventory = 0;
+					int i;
+					for (i = 0; i < sd->status.maxinv; i++) {
+						if (sd->status.inventory[i].id > 0) {
+							if (itemdb_type(sd->status.inventory[i].id) == ITM_MOUNT) {
+								tried_inventory = 1;
+								// Emulate using the mount item (same flow as pc_useitem ITM_MOUNT)
+								sd->invslot = i;
+								sl_async_freeco(sd);
+								sl_doscript_simple(itemdb_yname(sd->status.inventory[i].id), "use", &sd->bl);
+								sl_doscript_blargs("onMountItem", NULL, 1, &sd->bl);
+								break;
+							}
+						}
+					}
+					// Only show the original message if no inventory mount was even attempted
+					if (!tried_inventory && sd->status.state == 0) {
+						clif_sendminitext(sd, "Good try, but there is nothing here that you can ride.");
+					}
+				}
 			}
 			else if (sd->status.state == 1) {
 				clif_sendminitext(sd, "Spirits can't do that.");
@@ -15297,7 +15365,7 @@ int clif_canmove_sub(struct block_list* bl, va_list ap) {
 }
 int clif_canmove(USER* sd, int direct) {
 	int nx = 0, ny = 0;
-	if (sd->status.gm_level) return 0;
+	if (sd->status.gm_level || (sd->uFlags & uFlag_unphysical)) return 0;
 	switch (direct) {
 	case 0:
 		ny = sd->bl.y - 1;

@@ -54,8 +54,8 @@ RUN cd rtk && make map
 # Make server executable
 RUN chmod +x rtk/map-server
 
-# Expose map server port
-EXPOSE 2001
+# Expose map server ports (game and metrics)
+EXPOSE 2001 9000
 
 # Use startup script as entrypoint
 WORKDIR /home/RTK/rtk

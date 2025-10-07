@@ -41,6 +41,9 @@ int mobdb_dropitem(unsigned int, unsigned int, int, int, int, int, int, int, int
 int mob_timer_new(int, int);
 int mob_timer_spawns(int, int);
 int move_mob(MOB*);
+
+// Drop aggro on any mobs targeting the given player immediately (used on player warp)
+void mob_drop_player_from_all_mobs(unsigned int player_id);
 int move_mob_ignore_object(MOB*);
 int moveghost_mob(MOB*);
 int mob_flushmagic(MOB*);
@@ -51,6 +54,15 @@ int mob_fourthduratimer(MOB*);
 int mob_warp(MOB*, int, int, int);
 int mob_setglobalreg(MOB*, char*, int);
 int mob_readglobalreg(MOB*, char*);
+
+// Mob graveyard API
+void mob_graveyard_init(void);
+void mob_add_to_graveyard(MOB* mob); // enqueue to free after delay
+void mob_graveyard_note_kill(MOB* mob); // enqueue for stats only (no free)
+int mob_graveyard_report(USER* sd);
+int mob_graveyard_cleanup_now(int* out_freed, int* out_remaining);
+void mob_graveyard_stats(int* out_len, int* out_cap);
+void mob_graveyard_stats_detail(int* out_len, int* out_cap, int* out_free, int* out_pending);
 
 void onetime_addiddb(struct block_list*);
 void onetime_deliddb(unsigned int);

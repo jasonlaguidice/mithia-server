@@ -39,6 +39,7 @@
 #include "guide.h"
 #include "zlib.h"
 #include "strlib.h"
+#include "http.h"
 
 #include <netdb.h>
 #ifndef _MAP_SERVER_
@@ -1845,6 +1846,8 @@ int do_init(int argc, char** argv) {
 	itemdb_init();
 	recipedb_init();
 	mobdb_init();
+	// Initialize mob graveyard cleanup timer
+	mob_graveyard_init();
 	magicdb_init();
 	classdb_init();
 	clandb_init();
@@ -1855,9 +1858,11 @@ int do_init(int argc, char** argv) {
 	sl_init();
 	map_loadgameregistry();
 	//set_defaultaccept(clif_accept);
-	set_defaultparse(clif_parse);
+	set_defaultparse(multiplex_parse);
 	set_defaulttimeout(clif_timeout);
 	map_fd = make_listen_port(map_port);
+	// Initialize HTTP endpoint (default port 9000 or MAP_HTTP_PORT env)
+	http_init();
 	cur_time = 12;
 	cur_day = 0;
 	cur_year = 1;
@@ -1878,7 +1883,14 @@ int do_init(int argc, char** argv) {
 	for (i = 0; i < MAX_GROUPS; i++) {
 		memset(groups[i], 0, sizeof(unsigned int) * MAX_GROUP_MEMBERS);
 	}
-	printf("RetroTK Map Server is \033[1;32mready\033[0m! Listening at %d.\n", map_port);
+	{
+		const char* color = getenv("MAP_COLOR");
+		if (color && color[0] && color[0] != '0') {
+			printf("RetroTK Map Server is \033[1;32mready\033[0m! Listening at %d.\n", map_port);
+		} else {
+			printf("RetroTK Map Server is ready! Listening at %d.\n", map_port);
+		}
+	}
 
 	add_log("Server Ready! Listening at %d.\n", map_port);
 #ifdef LOGGING_ENABLED
@@ -1888,27 +1900,13 @@ int do_init(int argc, char** argv) {
 }
 
 int map_canmove(int m, int x, int y) {
-	//struct block_list *bl;
-	//int c;
-	int obj;
-	int bx, by;
-	int pass;
-	obj = read_obj(m, x, y);
-	pass = read_pass(m, x, y);
-	//bx=x/BLOCK_SIZE;
-	//by=y/BLOCK_SIZE;
-
-	//bl=map[m].block[x+y*map[m].bxs];
-	//c=map[m].block_count[bx+by*map[m].bxs];
-
-	//if(obj)	return 1;
-
+	int pass = read_pass(m, x, y);
 	if (pass) {
-		USER* sd = map_id2sd(pass);
-		if (!sd || !(sd->uFlags & uFlag_unphysical))
-			return 1;
+		USER* blocker = map_id2sd(pass);
+		if (!blocker) return 1; // unknown blocker, treat as solid
+		// Note: Do not gate by blocker->uFlags; the moving actor decides pass-through logic.
+		return 1;
 	}
-
 	return 0;
 }
 

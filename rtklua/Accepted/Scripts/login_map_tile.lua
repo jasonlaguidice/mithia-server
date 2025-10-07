@@ -43,9 +43,6 @@ login = function(player)
 
 	player.registry["expCounter"] = 0
 
-	if (player.gmLevel > 50) then
-		player:speak("/stealth", 0)
-	end
 
 	for i = 1, #pc do
 		if pc[i].gmLevel > 0 then

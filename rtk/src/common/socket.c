@@ -434,7 +434,8 @@ int send_from_fifo(int fd) {
 		return -1;
 
 	//printf("recv_to_fifo : %d %d\n", fd, session[fd]->eof);
-	if (session[fd]->eof)
+	// Allow flushing remaining data even if EOF is set; only abort when there's nothing left to send
+	if (session[fd]->eof && session[fd]->wdata_size == 0)
 		return -1;
 
 	if (!session[fd]->wdata_size)
@@ -494,18 +495,32 @@ int null_timeout(int fd) {
 }
 // Socket main function
 //----------------------------
+static int http_listen_fd_global = -1;
+void register_http_listen_fd(int fd) { http_listen_fd_global = fd; }
+
 int connect_client(int listen_fd) {
 	int fd;
 	struct sockaddr_in client_address;
 	int len;
 	int result;
 	int yes = 1; // reuse fix
+	// Lazy-init env-controlled HTTP accept logging flag
+	static int http_accept_log_flag = -1;
+	if (http_accept_log_flag == -1) {
+		const char *env = getenv("MAP_HTTP_ACCEPT_LOG");
+		if (env && *env && strcmp(env, "0") != 0) http_accept_log_flag = 1; else http_accept_log_flag = 0;
+	}
 
 	//printf("connect_client : %d\n", listen_fd);
 
 	len = sizeof(client_address);
 
 	fd = accept(listen_fd, (struct sockaddr*)&client_address, &len);
+	if (fd >= 0 && listen_fd == http_listen_fd_global) {
+		if (http_accept_log_flag) {
+			printf("HTTP accept new fd=%d from %u.%u.%u.%u\n", fd, CONVIP2(client_address.sin_addr.s_addr));
+		}
+	}
 	if (Check_Throttle(client_address))
 	{
 		close(fd);

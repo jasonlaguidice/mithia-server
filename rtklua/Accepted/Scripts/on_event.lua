@@ -382,8 +382,9 @@ onDismount = function(player)
 	player.disguise = 0
 	player.state = 0
 
-	if player.speed < 90 then
-		player.speed = 90
+	-- Restore walk speed after dismount (lower number = faster)
+	if player.speed > 30 then
+		player.speed = 30
 	end
 	player:updateState()
 
@@ -465,6 +466,7 @@ onDismount = function(player)
 end
 
 remount = function(player)
-	player.speed = 50
+	-- Set mounted movement speed (lower number = faster)
+	player.speed = 20
 	player:updateState()
 end

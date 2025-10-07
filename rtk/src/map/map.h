@@ -196,6 +196,9 @@ struct mobspawn_data {
 	float sleep, deduction, damage, dmgshield, invis;
 	double dmgdealt, dmgtaken, maxdmg, dmgindtable[MAX_THREATCOUNT][2], dmggrptable[MAX_THREATCOUNT][2];
 	unsigned char cursed;
+	// Aggro grace tracking
+	unsigned int last_seen_tick;       // last time target was within vision box
+	unsigned int last_same_map_tick;   // last time target was on same map
 };
 
 struct script_reg {
@@ -243,6 +246,8 @@ struct map_sessiondata {
 	unsigned short disguise, disguise_color;
 	unsigned char cursed;
 	int castusetimer;
+	int looktimer;
+	int looktick;
 	unsigned char fakeDrop;
 
 	unsigned char confused, talktype, pickuptype, invslot, equipslot, spottraps;
@@ -297,6 +302,9 @@ struct map_sessiondata {
 	unsigned long optFlags, uFlags, LastPongStamp, LastPingTick, flags;
 	unsigned long LastWalkTick;
 	unsigned char PrevSeed, NextSeed, LastWalk, loaded;
+	// custom movement helpers
+	char freewalk; // 0=off, 1=on
+	int freewalktimer;
 };
 
 struct npc_data {

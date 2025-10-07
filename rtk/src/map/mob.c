@@ -11,6 +11,7 @@
 #include "sl.h"
 #include "pc.h"
 #include "timer.h"
+
 #include "db_mysql.h"
 #include "strlib.h"
 #include "rndm.h"
@@ -29,10 +30,163 @@ unsigned char timercheck = 0;
 DBMap* mobdb;
 //struct dbt *onetimedb;
 
+// Graveyard storage for delayed mob frees
+struct mob_grave_entry {
+    MOB* mob;
+    unsigned int expires_tick;
+    unsigned char should_free; // 1 = free_onetime when expired; 0 = stats-only
+};
+static struct mob_grave_entry* mob_graveyard = NULL;
+static int mob_graveyard_len = 0;
+static int mob_graveyard_cap = 0;
+static int mob_graveyard_timer_id = INVALID_TIMER;
+
+static void mob_graveyard_reserve(int need) {
+    if (mob_graveyard_cap >= need) return;
+    int newcap = mob_graveyard_cap ? mob_graveyard_cap * 2 : 64;
+    while (newcap < need) newcap *= 2;
+    if (mob_graveyard_cap) {
+        REALLOC(mob_graveyard, struct mob_grave_entry, newcap);
+    } else {
+        CALLOC(mob_graveyard, struct mob_grave_entry, newcap);
+    }
+    mob_graveyard_cap = newcap;
+}
+
+static int mob_graveyard_cleanup(int tid, int data) {
+    unsigned int now = gettick();
+    for (int i = 0; i < mob_graveyard_len; ) {
+        struct mob_grave_entry* e = &mob_graveyard[i];
+        if (e->mob == NULL) { // compact holes
+            mob_graveyard[i] = mob_graveyard[mob_graveyard_len - 1];
+            mob_graveyard_len--;
+            continue;
+        }
+        if (DIFF_TICK(now, e->expires_tick) >= 0) {
+            // If we should free, ensure it is no longer in iddb
+            if (e->should_free) {
+                if (e->mob->bl.id) {
+                    struct block_list* chk = map_id2bl(e->mob->bl.id);
+                    if (chk) {
+                        // Still present somehow, skip this round and try later
+                        i++;
+                        continue;
+                    }
+                }
+                free_onetime(e->mob);
+            }
+            e->mob = NULL;
+            mob_graveyard[i] = mob_graveyard[mob_graveyard_len - 1];
+            mob_graveyard_len--;
+            continue;
+        }
+        i++;
+    }
+    return 0;
+}
+
+void mob_graveyard_init(void) {
+    if (mob_graveyard_timer_id == INVALID_TIMER) {
+        mob_graveyard_timer_id = timer_insert(1000, 1000, mob_graveyard_cleanup, 0, 0);
+    }
+    // Ensure we have a baseline capacity so stats don't show 0/0
+    if (mob_graveyard_cap == 0) {
+        mob_graveyard_reserve(512);
+    }
+}
+
+static void mob_graveyard_enqueue(MOB* mob, unsigned char should_free) {
+    if (!mob) return;
+    // Ensure capacity for one more
+    if (mob_graveyard_len + 1 > mob_graveyard_cap) {
+        mob_graveyard_reserve(mob_graveyard_len + 1);
+    } else if (mob_graveyard_cap > 0 && (mob_graveyard_len + 1) >= (mob_graveyard_cap / 2)) {
+        // Proactively expand when at or past 50% utilization
+        mob_graveyard_reserve(mob_graveyard_cap * 2);
+    }
+    mob_graveyard[mob_graveyard_len].mob = mob;
+    mob_graveyard[mob_graveyard_len].should_free = should_free;
+    mob_graveyard[mob_graveyard_len].expires_tick = gettick() + 30000; // 30 seconds
+    mob_graveyard_len++;
+}
+
+void mob_add_to_graveyard(MOB* mob) {
+    // enqueue for eventual free
+    mob_graveyard_enqueue(mob, 1);
+}
+
+void mob_graveyard_note_kill(MOB* mob) {
+    // enqueue for stats only (no free)
+    mob_graveyard_enqueue(mob, 0);
+}
+
+int mob_graveyard_report(USER* sd) {
+    char buf[128];
+    sprintf(buf, "Graveyard: %d pending mob frees", mob_graveyard_len);
+    clif_sendminitext(sd, buf);
+    int show = mob_graveyard_len;
+    if (show > 10) show = 10; // limit output
+    unsigned int now = gettick();
+    for (int i = 0; i < show; i++) {
+        struct mob_grave_entry* e = &mob_graveyard[i];
+        if (!e->mob) continue;
+        int ms_left = (int)(e->expires_tick - now);
+        if (ms_left < 0) ms_left = 0;
+        sprintf(buf, "- id:%u free in %d ms", e->mob->bl.id, ms_left);
+        clif_sendminitext(sd, buf);
+    }
+    if (mob_graveyard_len > show) {
+        sprintf(buf, "...and %d more", mob_graveyard_len - show);
+        clif_sendminitext(sd, buf);
+    }
+    return 0;
+}
+
+int mob_graveyard_cleanup_now(int* out_freed, int* out_remaining) {
+    int freed = 0;
+    for (int i = 0; i < mob_graveyard_len; i++) {
+        struct mob_grave_entry* e = &mob_graveyard[i];
+        if (!e->mob) continue;
+        if (e->mob->bl.id) {
+            struct block_list* chk = map_id2bl(e->mob->bl.id);
+            if (chk) {
+                // ensure removal just in case
+                map_deliddb(&e->mob->bl);
+            }
+        }
+        free_onetime(e->mob);
+        e->mob = NULL;
+        freed++;
+    }
+    mob_graveyard_len = 0;
+    if (out_freed) *out_freed = freed;
+    if (out_remaining) *out_remaining = mob_graveyard_len;
+    return 0;
+}
+
+void mob_graveyard_stats(int* out_len, int* out_cap) {
+    if (out_len) *out_len = mob_graveyard_len;
+    if (out_cap) *out_cap = mob_graveyard_cap;
+}
+
+void mob_graveyard_stats_detail(int* out_len, int* out_cap, int* out_free, int* out_pending) {
+    int free_ct = 0, pend_ct = 0;
+    for (int i = 0; i < mob_graveyard_len; i++) {
+        if (!mob_graveyard[i].mob) continue;
+        if (mob_graveyard[i].should_free) free_ct++; else pend_ct++;
+    }
+    if (out_len) *out_len = mob_graveyard_len;
+    if (out_cap) *out_cap = mob_graveyard_cap;
+    if (out_free) *out_free = free_ct;
+    if (out_pending) *out_pending = pend_ct;
+}
+
 int mobAIeasy(MOB*, struct block_list*);
 int mobAInormal(MOB*);
 int mobAIhard(MOB*);
 int mob_timerhandle(int, int);
+// Forward declaration for internal helper
+static void mob_drop_aggro(MOB* mob, int to_alive);
 
 unsigned int mob_get_new_id() {
 	return mob_id++;
@@ -139,6 +293,7 @@ int mobdb_read() {
 		//sql_get_row();
 		db = mobdb_search(a.id);
 		memcpy(db, &a, sizeof(a));
+
 
 		if (db->mobtype == 1) {
 			if (SQL_ERROR == SqlStmt_Prepare(eqstmt, "SELECT `MeqLook`, 1, 0, 0, `MeqColor`, `MeqSlot` FROM `MobEquipment` WHERE `MeqMobId` = '%u' LIMIT 14", db->id)
@@ -620,6 +775,32 @@ int mob_fourthduratimer(MOB* mob) {
 	return 0;
 }
 
+// Drop aggro on any mobs targeting the given player immediately (used on player warp)
+void mob_drop_player_from_all_mobs(unsigned int player_id) {
+	MOB* mob = NULL;
+	unsigned int x;
+	if (MOB_SPAWN_START != MOB_SPAWN_MAX) {
+		for (x = MOB_SPAWN_START; x < MOB_SPAWN_MAX; x++) {
+			mob = map_id2mob(x);
+			if (!mob) continue;
+			if (mob->target == player_id) {
+				printf("[AGGRO] DROP: mob %u drop due to player %u warp/leave (spawn)\n", mob->bl.id, player_id);
+				mob_drop_aggro(mob, 0);
+			}
+		}
+	}
+	if (MOB_ONETIME_START != MOB_ONETIME_MAX) {
+		for (x = MOB_ONETIME_START; x < MOB_ONETIME_MAX; x++) {
+			mob = map_id2mob(x);
+			if (!mob) continue;
+			if (mob->target == player_id) {
+				printf("[AGGRO] DROP: mob %u drop due to player %u warp/leave (onetime)\n", mob->bl.id, player_id);
+				mob_drop_aggro(mob, 0);
+			}
+		}
+	}
+}
+
 int mob_timer_new(int id, int n) {
 	unsigned int x;
 
@@ -854,6 +1035,14 @@ int kill_mob(MOB* mob) {
 	mob_flushmagic(mob);
 	//sl_doscript_blargs(mob->data->yname,"on_death",2,&mob->bl,&sd->bl);
 }
+static void mob_drop_aggro(MOB* mob, int to_alive) {
+	if (!mob) return;
+	mob->target = 0;
+	mob->attacker = 0;
+	if (to_alive) mob->state = MOB_ALIVE;
+	sl_doscript_blargs("threat", "clearAllThreat", 1, &mob->bl);
+}
+
 int mob_handle_sub(MOB* mob, va_list ap) {
 	USER* sd = NULL;
 	struct block_list* bl = NULL;
@@ -902,21 +1091,59 @@ int mob_handle_sub(MOB* mob, va_list ap) {
 	mob->time += 50;
 
 	switch (mob->state) {
-	case MOB_DEAD:
+case MOB_DEAD:
 
-		if (mob->onetime) {
-			map_delblock(&mob->bl);
-
-			map_deliddb(&mob->bl); // This MOB needs to be free'd from memory
-			free_onetime(mob);
-
-			return 0;
-		}
+		// handled at the time of kill; nothing to do here for graveyard
 
 		break;
-	case MOB_ALIVE:
+case MOB_ALIVE:
 
-		if ((mob->time >= mob->data->movetime && mob->time >= mob->newmove) || (mob->time >= mob->newmove && mob->newmove > 0)) {
+		// Pre-check target visibility and map grace irrespective of move cadence
+		if (mob->target) {
+			struct block_list* tbl = map_id2bl(mob->target);
+			unsigned int now = gettick();
+			// Robust cross-map drop using direct session lookup
+			USER* tsd_mapcheck = map_id2sd(mob->target);
+			if (!tsd_mapcheck) {
+				printf("[AGGRO] ALIVE: mob %u drop (no session) target %u\n", mob->bl.id, mob->target);
+				mob_drop_aggro(mob, 0);
+			} else if (tsd_mapcheck->bl.m != mob->bl.m) {
+				printf("[AGGRO] ALIVE: mob %u drop map!= target %u now_map=%d target_map=%d\n", mob->bl.id, tsd_mapcheck->bl.id, mob->bl.m, tsd_mapcheck->bl.m);
+				mob_drop_aggro(mob, 0);
+			} else if (tbl && tbl->type == BL_PC) {
+				if (tbl->m == mob->bl.m) {
+					mob->last_same_map_tick = now;
+					int dxv = (tbl->x > mob->bl.x) ? (tbl->x - mob->bl.x) : (mob->bl.x - tbl->x);
+					int dyv = (tbl->y > mob->bl.y) ? (tbl->y - mob->bl.y) : (mob->bl.y - tbl->y);
+					if (dxv <= 6 && dyv <= 6) {
+						mob->last_seen_tick = now;
+} else if (DIFF_TICK(now, mob->last_seen_tick) > 6000) {
+						printf("[AGGRO] ALIVE: mob %u drop unseen>6s (dx=%d dy=%d) target %u at (%d,%d) m=%d\n",
+							mob->bl.id, dxv, dyv, tbl->id, tbl->x, tbl->y, tbl->m);
+						mob_drop_aggro(mob, 0);
+					}
+				} else {
+					// Immediate drop when target is on different map
+					printf("[AGGRO] ALIVE: mob %u drop map!= target %u now_map=%d target_map=%d\n",
+						mob->bl.id, tbl->id, mob->bl.m, tbl->m);
+					mob_drop_aggro(mob, 0);
+				}
+			} else if (!tbl) {
+				// target no longer valid
+				mob_drop_aggro(mob, 0);
+			}
+		}
+
+		// Movement cadence: honor per-mob base movetime from SQL for all states
+		mob->newmove = mob->data->movetime;
+		// Faster cadence while returning to spawn
+		if (mob->returning) {
+			int ret_ms = 250; // match legacy Lua return speed
+			if (ret_ms < 1) ret_ms = 1;
+			mob->newmove = ret_ms;
+		}
+		// No additional chase-time slowdown; keep base cadence to preserve walk animation smoothness
+		if ((mob->time >= mob->newmove && mob->newmove > 0)) {
 			if (mob->data->type >= 2) return 0;
 			if (mob->data->type == 1) { //Aggressive
 				if (!mob->target) map_foreachinarea(mob_find_target, mob->bl.m, mob->bl.x, mob->bl.y, AREA, BL_PC, mob);
@@ -925,17 +1152,36 @@ int mob_handle_sub(MOB* mob, va_list ap) {
 			bl = map_id2bl(mob->target);
 
 			if (bl != NULL) {
-				if (bl->m != mob->bl.m) {
-					mob->target = 0;
-					mob->attacker = 0;
-					mob->state = MOB_ALIVE;
+				unsigned int now = gettick();
+				// Robust cross-map drop using direct session lookup
+				USER* tsd_mapcheck2 = map_id2sd(mob->target);
+				if (!tsd_mapcheck2) {
+					mob_drop_aggro(mob, 0);
+					bl = NULL;
+				} else if (tsd_mapcheck2->bl.m != mob->bl.m) {
+					mob_drop_aggro(mob, 0);
+					bl = NULL;
+				} else if (bl->m == mob->bl.m) {
+					mob->last_same_map_tick = now;
 				}
 
-				if (bl->type == BL_MOB) {
+			// Aggro sight grace: 12x12 (|dx|<=6, |dy|<=6); lose aggro if unseen >6s
+			if (bl && bl->type == BL_PC) {
+				unsigned int now = gettick();
+				int dxv = (bl->x > mob->bl.x) ? (bl->x - mob->bl.x) : (mob->bl.x - bl->x);
+				int dyv = (bl->y > mob->bl.y) ? (bl->y - mob->bl.y) : (mob->bl.y - bl->y);
+				if (dxv <= 6 && dyv <= 6) {
+					mob->last_seen_tick = now;
+				} else if (DIFF_TICK(now, mob->last_seen_tick) > 6000) {
+					mob_drop_aggro(mob, 0);
+					bl = NULL;
+				}
+			}
+
+				if (bl && bl->type == BL_MOB) {
 					tmob = (MOB*)bl;
 					if (tmob->state == MOB_DEAD) {
-						mob->target = 0;
-						mob->attacker = 0;
+						mob_drop_aggro(mob, 0);
 						bl = NULL;
 					}
 				}
@@ -943,15 +1189,13 @@ int mob_handle_sub(MOB* mob, va_list ap) {
 					sd = (USER*)bl;
 
 					if (sd->status.state == 1) {
-						mob->target = 0;
-						mob->attacker = 0;
+						mob_drop_aggro(mob, 0);
 						bl = NULL;
 					}
 				}
 			}
 			else {
-				mob->target = 0;
-				mob->attacker = 0;
+				mob_drop_aggro(mob, 0);
 				bl = NULL;
 			}
 
@@ -977,35 +1221,81 @@ int mob_handle_sub(MOB* mob, va_list ap) {
 		}
 		break;
 
-	case MOB_HIT:
+case MOB_HIT:
+
+		// Pre-check target visibility and map grace irrespective of attack cadence
+		if (mob->target) {
+			struct block_list* tbl = map_id2bl(mob->target);
+			unsigned int now = gettick();
+			// Robust cross-map drop using direct session lookup
+			USER* tsd_hit = map_id2sd(mob->target);
+			if (!tsd_hit) {
+				printf("[AGGRO] HIT: mob %u drop (no session) target %u\n", mob->bl.id, mob->target);
+				mob_drop_aggro(mob, 1);
+			} else if (tsd_hit->bl.m != mob->bl.m) {
+				printf("[AGGRO] HIT: mob %u drop map!= target %u now_map=%d target_map=%d\n", mob->bl.id, tsd_hit->bl.id, mob->bl.m, tsd_hit->bl.m);
+				mob_drop_aggro(mob, 1);
+			} else if (tbl && tbl->type == BL_PC) {
+				if (tbl->m == mob->bl.m) {
+					mob->last_same_map_tick = now;
+					int dxv = (tbl->x > mob->bl.x) ? (tbl->x - mob->bl.x) : (mob->bl.x - tbl->x);
+					int dyv = (tbl->y > mob->bl.y) ? (tbl->y - mob->bl.y) : (mob->bl.y - tbl->y);
+					if (dxv <= 6 && dyv <= 6) {
+						mob->last_seen_tick = now;
+} else if (DIFF_TICK(now, mob->last_seen_tick) > 6000) {
+						printf("[AGGRO] HIT: mob %u drop unseen>6s (dx=%d dy=%d) target %u at (%d,%d) m=%d\n",
+							mob->bl.id, dxv, dyv, tbl->id, tbl->x, tbl->y, tbl->m);
+						mob_drop_aggro(mob, 1);
+					}
+				} else {
+					// Immediate drop when target is on different map
+					printf("[AGGRO] HIT: mob %u drop map!= target %u now_map=%d target_map=%d\n",
+						mob->bl.id, tbl->id, mob->bl.m, tbl->m);
+					mob_drop_aggro(mob, 1);
+				}
+			} else if (!tbl) {
+				mob_drop_aggro(mob, 1);
+			}
+		}
 
 		if ((mob->time >= mob->data->atktime && mob->time >= mob->newatk) || (mob->time >= mob->newatk && mob->newatk > 0)) {
 			if (mob->data->type >= 2) return 0;
 
 			bl = map_id2bl(mob->target);
 			if (!bl) {
-				mob->target = 0;
-				mob->attacker = 0;
-				mob->state = MOB_ALIVE;
+				mob_drop_aggro(mob, 1);
 				return 0;
 			}
 			if (bl) {
-				//test=sizeof(*sd);
-				if (bl->m != mob->bl.m) {
-					mob->target = 0;
-					mob->attacker = 0;
-					mob->state = MOB_ALIVE;
+				unsigned int now = gettick();
+				USER* tsd_hit2 = map_id2sd(mob->target);
+				if (!tsd_hit2) {
+					mob_drop_aggro(mob, 1);
 					return 0;
+				} else if (tsd_hit2->bl.m != mob->bl.m) {
+					mob_drop_aggro(mob, 1);
+					return 0;
+				} else if (bl->m == mob->bl.m) {
+					mob->last_same_map_tick = now;
+				}
+				// Aggro sight grace (hit state): 12x12; lose after 6s unseen
+				if (bl->type == BL_PC) {
+					int dxv = (bl->x > mob->bl.x) ? (bl->x - mob->bl.x) : (mob->bl.x - bl->x);
+					int dyv = (bl->y > mob->bl.y) ? (bl->y - mob->bl.y) : (mob->bl.y - bl->y);
+					if (dxv <= 6 && dyv <= 6) {
+						mob->last_seen_tick = now;
+} else if (DIFF_TICK(now, mob->last_seen_tick) > 6000) {
+						mob_drop_aggro(mob, 1);
+						return 0;
+					}
 				}
 
 				if (bl->type == BL_MOB) {
 					tmob = (MOB*)bl;
 
-					if (tmob) {
+if (tmob) {
 						if (tmob->state == MOB_DEAD) {
-							mob->target = 0;
-							mob->attacker = 0;
-							mob->state = MOB_ALIVE;
+							mob_drop_aggro(mob, 1);
 							return 0;
 						}
 					}
@@ -1013,11 +1303,9 @@ int mob_handle_sub(MOB* mob, va_list ap) {
 				else if (bl->type == BL_PC) {
 					sd = (USER*)bl;
 
-					if (sd) {
+if (sd) {
 						if (sd->status.state == 1) {
-							mob->target = 0;
-							mob->attacker = 0;
-							mob->state = MOB_ALIVE;
+							mob_drop_aggro(mob, 1);
 							return 0;
 						}
 					}
@@ -1048,9 +1336,50 @@ int mob_handle_sub(MOB* mob, va_list ap) {
 		}
 		break;
 
-	case MOB_ESCAPE:
+case MOB_ESCAPE:
 
-		if ((mob->time >= mob->data->movetime && mob->time >= mob->newmove) || (mob->time >= mob->newmove && mob->newmove > 0)) {
+		// Pre-check target visibility and map grace irrespective of move cadence
+		if (mob->target) {
+			struct block_list* tbl = map_id2bl(mob->target);
+			unsigned int now = gettick();
+			USER* tsd_esc = map_id2sd(mob->target);
+			if (!tsd_esc) {
+				printf("[AGGRO] ESCAPE: mob %u drop (no session) target %u\n", mob->bl.id, mob->target);
+				mob_drop_aggro(mob, 0);
+			} else if (tsd_esc->bl.m != mob->bl.m) {
+				printf("[AGGRO] ESCAPE: mob %u drop map!= target %u now_map=%d target_map=%d\n", mob->bl.id, tsd_esc->bl.id, mob->bl.m, tsd_esc->bl.m);
+				mob_drop_aggro(mob, 0);
+			} else if (tbl && tbl->type == BL_PC) {
+				if (tbl->m == mob->bl.m) {
+					mob->last_same_map_tick = now;
+					int dxv = (tbl->x > mob->bl.x) ? (tbl->x - mob->bl.x) : (mob->bl.x - tbl->x);
+					int dyv = (tbl->y > mob->bl.y) ? (tbl->y - mob->bl.y) : (mob->bl.y - tbl->y);
+					if (dxv <= 6 && dyv <= 6) {
+						mob->last_seen_tick = now;
+} else if (DIFF_TICK(now, mob->last_seen_tick) > 6000) {
+						printf("[AGGRO] ESCAPE: mob %u drop unseen>6s (dx=%d dy=%d) target %u at (%d,%d) m=%d\n",
+							mob->bl.id, dxv, dyv, tbl->id, tbl->x, tbl->y, tbl->m);
+						mob_drop_aggro(mob, 0); // stay in escape or return to alive
+					}
+				} else {
+					// Immediate drop when target is on different map
+					printf("[AGGRO] ESCAPE: mob %u drop map!= target %u now_map=%d target_map=%d\n",
+						mob->bl.id, tbl->id, mob->bl.m, tbl->m);
+					mob_drop_aggro(mob, 0);
+				}
+			} else if (!tbl) {
+				mob_drop_aggro(mob, 0);
+			}
+		}
+
+		// Movement cadence while escaping: keep base movetime, but return faster if flagged
+		mob->newmove = mob->data->movetime;
+		if (mob->returning) {
+			int ret_ms = 250;
+			if (ret_ms < 1) ret_ms = 1;
+			mob->newmove = ret_ms;
+		}
+		if ((mob->time >= mob->newmove && mob->newmove > 0)) {
 			if (mob->data->type >= 2) return 0;
 			if (mob->data->type == 1) { //Aggressive
 				if (!mob->target) map_foreachinarea(mob_find_target, mob->bl.m, mob->bl.x, mob->bl.y, AREA, BL_PC, mob);
@@ -1059,33 +1388,47 @@ int mob_handle_sub(MOB* mob, va_list ap) {
 			bl = map_id2bl(mob->target);
 
 			if (bl != NULL) {
-				if (bl->m != mob->bl.m) {
-					mob->target = 0;
-					mob->attacker = 0;
-					mob->state = MOB_ALIVE;
+				unsigned int now = gettick();
+				USER* tsd_esc2 = map_id2sd(mob->target);
+				if (!tsd_esc2) {
+					mob_drop_aggro(mob, 1);
+				} else if (tsd_esc2->bl.m != mob->bl.m) {
+					mob_drop_aggro(mob, 1);
+				} else if (bl->m == mob->bl.m) {
+					mob->last_same_map_tick = now;
 				}
 
-				if (bl->type == BL_MOB) {
+			// Aggro sight grace (escape state) 12x12; lose after 6s unseen
+			if (bl && bl->type == BL_PC) {
+				int dxv = (bl->x > mob->bl.x) ? (bl->x - mob->bl.x) : (mob->bl.x - bl->x);
+				int dyv = (bl->y > mob->bl.y) ? (bl->y - mob->bl.y) : (mob->bl.y - bl->y);
+				if (dxv <= 6 && dyv <= 6) {
+					mob->last_seen_tick = now;
+				} else if (DIFF_TICK(now, mob->last_seen_tick) > 6000) {
+					mob->target = 0;
+					mob->attacker = 0;
+					bl = NULL;
+				}
+			}
+
+				if (bl && bl->type == BL_MOB) {
 					tmob = (MOB*)bl;
-					if (tmob->state == MOB_DEAD) {
-						mob->target = 0;
-						mob->attacker = 0;
+if (tmob->state == MOB_DEAD) {
+						mob_drop_aggro(mob, 0);
 						bl = NULL;
 					}
 				}
 				else if (bl->type == BL_PC) {
 					sd = (USER*)bl;
 
-					if (sd->status.state == 1) {
-						mob->target = 0;
-						mob->attacker = 0;
+if (sd->status.state == 1) {
+						mob_drop_aggro(mob, 0);
 						bl = NULL;
 					}
 				}
 			}
 			else {
-				mob->target = 0;
-				mob->attacker = 0;
+				mob_drop_aggro(mob, 0);
 				bl = NULL;
 			}
 
@@ -1300,8 +1643,8 @@ int move_mob(MOB* mob) {
 		mob->by = backy;
 		//mob->bl.next=NULL;
 		//mob->bl.prev=NULL;
-		//printf("Moved\n");
-		map_moveblock(&mob->bl, dx, dy);
+			//printf("Moved\n");
+			map_moveblock(&mob->bl, dx, dy);
 		//if(moveish) map_addblock(&mob->bl);
 		//if(x0 || y0) {
 		if (!nothingnew) {
@@ -1452,6 +1795,7 @@ int move_mob_ignore_object(MOB* mob) {
 
 	//if(read_pass(mob->bl.m,dx,dy)) mob->canmove = 1;
 
+	// Respect one-way object blocking for all mobs
 	if (clif_object_canmove(m, dx, dy, direction)) {
 		mob->canmove = 0;
 		return 0;
@@ -1488,8 +1832,8 @@ int move_mob_ignore_object(MOB* mob) {
 		mob->by = backy;
 		//mob->bl.next=NULL;
 		//mob->bl.prev=NULL;
-		//printf("Moved\n");
-		map_moveblock(&mob->bl, dx, dy);
+			//printf("Moved\n");
+			map_moveblock(&mob->bl, dx, dy);
 		//if(moveish) map_addblock(&mob->bl);
 		//if(x0 || y0) {
 		if (!nothingnew) {
@@ -1651,6 +1995,7 @@ int moveghost_mob(MOB* mob) {
 
 	//if(read_pass(mob->bl.m,dx,dy)) mob->canmove = 1;
 
+	// For ghost movement, keep the relaxed behavior: only block on objects when not targeting
 	if (clif_object_canmove(m, dx, dy, direction) && mob->target == 0) {
 		mob->canmove = 0;
 		return 0;
@@ -1691,8 +2036,8 @@ int moveghost_mob(MOB* mob) {
 		mob->by = backy;
 		//mob->bl.next=NULL;
 		//mob->bl.prev=NULL;
-		//printf("Moved\n");
-		map_moveblock(&mob->bl, dx, dy);
+			//printf("Moved\n");
+			map_moveblock(&mob->bl, dx, dy);
 		//if(moveish) map_addblock(&mob->bl);
 		//if(x0 || y0) {
 		if (!nothingnew) {
@@ -1813,7 +2158,8 @@ int mob_respawn_getstats(MOB* mob) {
 	mob->look_color = mob->data->look_color;
 	mob->charstate = mob->data->state;
 	mob->clone = 0;
-	mob->time = 0;
+	// Desynchronize initial movement so mobs don’t all move at once
+	mob->time = (mob->newmove > 0) ? rnd(mob->newmove) : 0;
 	mob->paralyzed = 0;
 	mob->blind = 0;
 	mob->confused = 0;
@@ -1831,6 +2177,9 @@ int mob_respawn_getstats(MOB* mob) {
 	mob->crit = 0;
 	mob->critmult = 0;
 	mob->invis = 1.0f;
+	// initialize aggro grace tracking
+	mob->last_seen_tick = gettick();
+	mob->last_same_map_tick = gettick();
 
 	return 0;
 }
@@ -2267,6 +2616,184 @@ int mobAInormal(MOB* mob) {
 int mobAIhard(MOB* mob) {
 	return 0;
 }
+
+// Short-range BFS pathing to choose the next step toward (tx, ty).
+// Returns 1 and sets *out_dir to 0:up,1:right,2:down,3:left if a step was found.
+// Searches within a bounded window around the mob and target for performance.
+static int mob_next_step_bfs(MOB* mob, int tx, int ty, int* out_dir) {
+	if (!mob || !out_dir) return 0;
+	int m = mob->bl.m;
+	int sx = mob->bl.x, sy = mob->bl.y;
+	if (sx == tx && sy == ty) return 0;
+
+	// Bound the search around start/target
+	const int R = 12; // up to ~25x25 cells
+	int minx = sx < tx ? sx : tx; minx -= R; if (minx < 0) minx = 0;
+	int miny = sy < ty ? sy : ty; miny -= R; if (miny < 0) miny = 0;
+	int maxx = sx > tx ? sx : tx; maxx += R; if (maxx >= map[m].xs) maxx = map[m].xs - 1;
+	int maxy = sy > ty ? sy : ty; maxy += R; if (maxy >= map[m].ys) maxy = map[m].ys - 1;
+	int width = maxx - minx + 1;
+	int height = maxy - miny + 1;
+	if (width <= 0 || height <= 0) return 0;
+	int max_nodes = width * height;
+	if (max_nodes <= 0 || max_nodes > 4096) return 0; // safety cap
+
+	typedef struct { short x, y; int parent; unsigned char dir; } BFSNode;
+	BFSNode* nodes = NULL; int* queue = NULL; unsigned char* visited = NULL;
+	CALLOC(nodes, BFSNode, max_nodes);
+	CALLOC(queue, int, max_nodes);
+	CALLOC(visited, unsigned char, max_nodes);
+	if (!nodes || !queue || !visited) {
+		if (nodes) FREE(nodes); if (queue) FREE(queue); if (visited) FREE(visited);
+		return 0;
+	}
+	#define IDX(X,Y) (((Y) - miny) * width + ((X) - minx))
+
+	int ncount = 0, qh = 0, qt = 0;
+	nodes[0].x = (short)sx; nodes[0].y = (short)sy; nodes[0].parent = -1; nodes[0].dir = 0xFF;
+	queue[qt++] = 0; ncount = 1; visited[IDX(sx, sy)] = 1;
+	int found = -1;
+	static const int dx[4] = {0, 1, 0, -1};
+	static const int dy[4] = {-1, 0, 1, 0};
+
+	while (qh < qt) {
+		int ni = queue[qh++];
+		int cx = nodes[ni].x, cy = nodes[ni].y;
+		// If adjacent to target, stop
+		int md = (cx > tx ? cx - tx : tx - cx) + (cy > ty ? cy - ty : ty - cy);
+		if (md == 1 || (cx == tx && cy == ty)) { found = ni; break; }
+
+		for (int dir = 0; dir < 4; dir++) {
+			int nx = cx + dx[dir];
+			int ny = cy + dy[dir];
+			if (nx < minx || ny < miny || nx > maxx || ny > maxy) continue;
+			int vi = IDX(nx, ny);
+			if (visited[vi]) continue;
+			// Respect one-way object flags and occupancy
+			if (clif_object_canmove(m, nx, ny, dir)) continue;
+			if (clif_object_canmove_from(m, cx, cy, dir)) continue;
+			if (map_canmove(m, nx, ny)) continue; // 0 means free
+
+			// Accept this node
+			int ci = ncount++;
+			if (ci >= max_nodes) break;
+			nodes[ci].x = (short)nx; nodes[ci].y = (short)ny; nodes[ci].parent = ni; nodes[ci].dir = (unsigned char)dir;
+			visited[vi] = 1; queue[qt++] = ci;
+			if (qt >= max_nodes) break;
+			// Early exit if reached target exactly
+			if (nx == tx && ny == ty) { found = ci; break; }
+		}
+		if (found != -1) break;
+	}
+
+	int ok = 0;
+	if (found != -1) {
+		int idx = found;
+		// Walk back to the first step from the start (parent == 0)
+		while (nodes[idx].parent != 0 && nodes[idx].parent != -1) {
+			idx = nodes[idx].parent;
+		}
+		if (nodes[idx].parent != -1) {
+			*out_dir = nodes[idx].dir;
+			ok = 1;
+		}
+	}
+
+	FREE(nodes); FREE(queue); FREE(visited);
+	return ok;
+	#undef IDX
+}
+
+// A* pathfinding to choose next step toward (tx, ty). Similar bounds to BFS but uses Manhattan heuristic.
+static int mob_next_step_astar(MOB* mob, int tx, int ty, int* out_dir) {
+	if (!mob || !out_dir) return 0;
+	int m = mob->bl.m;
+	int sx = mob->bl.x, sy = mob->bl.y;
+	if (sx == tx && sy == ty) return 0;
+
+	const int R = 12;
+	int minx = sx < tx ? sx : tx; minx -= R; if (minx < 0) minx = 0;
+	int miny = sy < ty ? sy : ty; miny -= R; if (miny < 0) miny = 0;
+	int maxx = sx > tx ? sx : tx; maxx += R; if (maxx >= map[m].xs) maxx = map[m].xs - 1;
+	int maxy = sy > ty ? sy : ty; maxy += R; if (maxy >= map[m].ys) maxy = map[m].ys - 1;
+	int width = maxx - minx + 1;
+	int height = maxy - miny + 1;
+	if (width <= 0 || height <= 0) return 0;
+	int max_nodes = width * height;
+	if (max_nodes <= 0 || max_nodes > 4096) return 0;
+
+	#define IDX(X,Y) (((Y) - miny) * width + ((X) - minx))
+	int vi_start = IDX(sx, sy);
+	int vi_goal = IDX(tx, ty);
+
+	int* g = NULL; int* f = NULL; int* parent = NULL; unsigned char* firstdir = NULL; unsigned char* inopen = NULL; unsigned char* closed = NULL;
+	CALLOC(g, int, max_nodes);
+	CALLOC(f, int, max_nodes);
+	CALLOC(parent, int, max_nodes);
+	CALLOC(firstdir, unsigned char, max_nodes);
+	CALLOC(inopen, unsigned char, max_nodes);
+	CALLOC(closed, unsigned char, max_nodes);
+	if (!g || !f || !parent || !firstdir || !inopen || !closed) {
+		if (g) FREE(g); if (f) FREE(f); if (parent) FREE(parent); if (firstdir) FREE(firstdir); if (inopen) FREE(inopen); if (closed) FREE(closed);
+		return 0;
+	}
+
+	for (int i = 0; i < max_nodes; i++) { g[i] = 0x3FFFFFFF; f[i] = 0x3FFFFFFF; parent[i] = -1; firstdir[i] = 0xFF; }
+	static const int dx[4] = {0, 1, 0, -1};
+	static const int dy[4] = {-1, 0, 1, 0};
+
+	int h0 = (sx > tx ? sx - tx : tx - sx) + (sy > ty ? sy - ty : ty - sy);
+	g[vi_start] = 0;
+	f[vi_start] = h0;
+	inopen[vi_start] = 1;
+
+	int found = -1;
+	while (1) {
+		int best = -1; int bestf = 0x3FFFFFFF;
+		for (int i = 0; i < max_nodes; i++) {
+			if (inopen[i] && !closed[i] && f[i] < bestf) { bestf = f[i]; best = i; }
+		}
+		if (best == -1) break; // no path
+		inopen[best] = 0; closed[best] = 1;
+		if (best == vi_goal) { found = best; break; }
+		int cx = (best % width) + minx;
+		int cy = (best / width) + miny;
+		for (int dir = 0; dir < 4; dir++) {
+			int nx = cx + dx[dir]; int ny = cy + dy[dir];
+			if (nx < minx || ny < miny || nx > maxx || ny > maxy) continue;
+			int vi = IDX(nx, ny);
+			if (closed[vi]) continue;
+			// Movement constraints
+			if (clif_object_canmove(m, nx, ny, dir)) continue;
+			if (clif_object_canmove_from(m, cx, cy, dir)) continue;
+			if (map_canmove(m, nx, ny)) continue; // 0 == free
+			int tg = g[best] + 1;
+			if (!inopen[vi] || tg < g[vi]) {
+				g[vi] = tg;
+				int hx = (nx > tx ? nx - tx : tx - nx);
+				int hy = (ny > ty ? ny - ty : ty - ny);
+				f[vi] = tg + hx + hy;
+				parent[vi] = best;
+				if (firstdir[best] == 0xFF) firstdir[vi] = (unsigned char)dir; else firstdir[vi] = firstdir[best];
+				inopen[vi] = 1;
+			}
+		}
+	}
+
+	int ok = 0;
+	if (found != -1) {
+		unsigned char dir = firstdir[found];
+		if (dir != 0xFF) {
+			*out_dir = (int)dir;
+			ok = 1;
+		}
+	}
+
+	FREE(g); FREE(f); FREE(parent); FREE(firstdir); FREE(inopen); FREE(closed);
+	return ok;
+	#undef IDX
+}
+
 int move_mob_intent(MOB* mob, struct block_list* bl) {
 	int mx, my;
 	int px, py;
@@ -2296,24 +2823,43 @@ int move_mob_intent(MOB* mob, struct block_list* bl) {
 		//mob_attack(mob,sd); //attack the SOB
 		return 1;
 	}
-	else {
-		return 0;
-		/*if(mx < px && ay==0) { d= mob_move2(mob,mx+1,my,1); }
-		if(mx > px && ay==0) { d=mob_move2(mob,mx-1,my,3); }
-		if(my < py && ax==0) { d=mob_move2(mob,mx,my+1,2); }
-		if(my > py && ax==0) { d= mob_move2(mob,mx,my-1,0); }
-		*/
-		/*if(zz) {
-			if(my < py) { mob->side=2; d=move_mob(mob); }
-			if(my > py && d==0) { mob->side=0; d=move_mob(mob); }
-			if(mx < px && d==0) { mob->side=1; d=move_mob(mob); }
-			if(mx > px && d==0) { mob->side=3; d=move_mob(mob); }
+else {
+		// First: try BFS pathing within a small window to get a true next step
+		int bfs_dir = -1;
+		if (mob_next_step_astar(mob, px, py, &bfs_dir)) {
+			mob->side = bfs_dir;
+			if (move_mob(mob)) return 0;
+		}
+		// Fallback: prefer axis with larger distance, with pre-checks to avoid blocked cells
+		int m = mob->bl.m;
+		int try_dir, nx, ny;
+		#define TRY_STEP(DIR_CODE, XN, YN) \
+			do { \
+				try_dir = (DIR_CODE); \
+				nx = (XN); \
+				ny = (YN); \
+				if (nx < 0) nx = 0; if (ny < 0) ny = 0; \
+				if (nx >= map[m].xs) nx = map[m].xs - 1; \
+				if (ny >= map[m].ys) ny = map[m].ys - 1; \
+				if (!clif_object_canmove(m, nx, ny, try_dir) && !clif_object_canmove_from(m, mx, my, try_dir) && map_canmove(m, nx, ny) == 0) { \
+					mob->side = try_dir; \
+					if (move_mob(mob)) { return 0; } \
+				} \
+			} while (0)
+
+		if (ax >= ay) {
+			if (mx < px) { TRY_STEP(1, mx + 1, my); }
+			if (mx > px) { TRY_STEP(3, mx - 1, my); }
+			if (my < py) { TRY_STEP(2, mx, my + 1); }
+			if (my > py) { TRY_STEP(0, mx, my - 1); }
 		} else {
-			if(mx < px) { mob->side=1; d=move_mob(mob); }
-			if(mx > px && d==0) { mob->side=3; d=move_mob(mob); }
-			if(my < py && d==0) { mob->side=2; d=move_mob(mob); }
-			if(my > py && d==0) { mob->side=0; d=move_mob(mob); }
-		}*/
+			if (my < py) { TRY_STEP(2, mx, my + 1); }
+			if (my > py) { TRY_STEP(0, mx, my - 1); }
+			if (mx < px) { TRY_STEP(1, mx + 1, my); }
+			if (mx > px) { TRY_STEP(3, mx - 1, my); }
+		}
+		#undef TRY_STEP
+		return 0;
 	}
 	//  if(d==0) mob->side=side; //didn't move, change back
 	//chances are it moved

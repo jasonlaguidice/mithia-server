@@ -1,6 +1,12 @@
 ping = {
 	while_cast = function(player)
-		player:talk(2, "Ping: " .. player.ping .. "ms")
+		-- Show a self-only ping bubble at most once every 3 seconds while the duration is active
+		local now = timeMS()
+		local last = player.registry["ping_last_ms"] or 0
+		if last == 0 or (now - last) >= 3000 then
+			player.registry["ping_last_ms"] = now
+			player:talkSelf(2, "Ping: " .. player.ping .. "ms")
+		end
 	end,
 
 	requirements = function(player)
