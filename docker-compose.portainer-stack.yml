@@ -26,14 +26,7 @@ services:
       - "./rtk/conf:/home/RTK/rtk/conf"
       - "./rtk/logs/login:/home/RTK/rtk/logs"
     depends_on:
-      mithia-db:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "2000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      - mithia-db
 
   # Character Server - Manages character data and bridges login/map
   mithia-char:
@@ -62,16 +55,8 @@ services:
       - "./rtk/conf:/home/RTK/rtk/conf"
       - "./rtk/logs/char:/home/RTK/rtk/logs"
     depends_on:
-      mithia-db:
-        condition: service_healthy
-      mithia-login:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "2005"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      - mithia-db
+      - mithia-login
 
   # Map Server - Game world simulation (scalable)
   mithia-map:
@@ -102,14 +87,7 @@ services:
       - "./rtk/logs/map:/home/RTK/rtk/logs"
       - "./rtk/SObj.tbl:/home/RTK/rtk/SObj.tbl:ro"
     depends_on:
-      mithia-char:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "2001"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      - mithia-char
 
   # Database Server - MySQL
   mithia-db:
@@ -128,12 +106,6 @@ services:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
     volumes:
       - "mysql_data:/var/lib/mysql"
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
 
 networks:
   mithia_network:
