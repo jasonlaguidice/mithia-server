@@ -1,0 +1,197 @@
+version: '3.8'
+services:
+  # Login Server - Handles user authentication
+  mithia-login:
+    build:
+      context: .
+      dockerfile: services/login-server/Dockerfile
+    image: mithia-login-server:latest
+    container_name: mithia-login
+    restart: unless-stopped
+    mem_limit: 4g
+    networks:
+      mithia_network:
+        ipv4_address: 172.20.0.10
+    ports:
+      - "2000:2000"
+    environment:
+      - LOGIN_SERVER_HOST=mithia-login
+      - CHAR_SERVER_HOST=mithia-char
+      - CHAR_SERVER_PORT=2005
+      - DB_HOST=mithia-db
+      - DB_PORT=3306
+      - PUBLIC_LOGIN_IP=184.107.141.66
+      - PUBLIC_MAP_IP=184.107.141.66
+    volumes:
+      - "./rtk/conf:/home/RTK/rtk/conf"
+      - "./rtk/logs/login:/home/RTK/rtk/logs"
+    depends_on:
+      mithia-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Character Server - Manages character data and bridges login/map
+  mithia-char:
+    build:
+      context: .
+      dockerfile: services/char-server/Dockerfile
+    image: mithia-char-server:latest
+    container_name: mithia-char
+    restart: unless-stopped
+    mem_limit: 4g
+    networks:
+      mithia_network:
+        ipv4_address: 172.20.0.20
+    ports:
+      - "2005:2005"
+    environment:
+      - LOGIN_SERVER_HOST=mithia-login
+      - LOGIN_SERVER_PORT=2000
+      - MAP_SERVER_HOST=mithia-map
+      - MAP_SERVER_PORT=2001
+      - DB_HOST=mithia-db
+      - DB_PORT=3306
+      - PUBLIC_LOGIN_IP=184.107.141.66
+      - PUBLIC_MAP_IP=184.107.141.66
+    volumes:
+      - "./rtk/conf:/home/RTK/rtk/conf"
+      - "./rtk/logs/char:/home/RTK/rtk/logs"
+    depends_on:
+      mithia-db:
+        condition: service_healthy
+      mithia-login:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2005"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Map Server - Game world simulation (scalable)
+  mithia-map:
+    build:
+      context: .
+      dockerfile: services/map-server/Dockerfile
+    image: mithia-map-server:latest
+    container_name: mithia-map
+    restart: unless-stopped
+    mem_limit: 4g
+    networks:
+      mithia_network:
+        ipv4_address: 172.20.0.30
+    ports:
+      - "2001:2001"
+      - "9000:9000"
+    environment:
+      - LOGIN_SERVER_HOST=mithia-login
+      - LOGIN_SERVER_PORT=2000
+      - CHAR_SERVER_HOST=mithia-char
+      - CHAR_SERVER_PORT=2005
+      - DB_HOST=mithia-db
+      - DB_PORT=3306
+      - PUBLIC_LOGIN_IP=184.107.141.66
+      - PUBLIC_MAP_IP=184.107.141.66
+    volumes:
+      - "./rtk/conf:/home/RTK/rtk/conf"
+      - "./rtk/logs/map:/home/RTK/rtk/logs"
+      - "./rtk/SObj.tbl:/home/RTK/rtk/SObj.tbl:ro"
+    depends_on:
+      mithia-char:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2001"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Database Server - MySQL
+  mithia-db:
+    image: mysql/mysql-server:8.0
+    container_name: mithia-db
+    restart: unless-stopped
+    networks:
+      mithia_network:
+        ipv4_address: 172.20.0.5
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    volumes:
+      - "./mithia-data/database/scripts:/docker-entrypoint-initdb.d"
+      - "mysql_data:/var/lib/mysql"
+      - "./mithia-data/data/backups:/backups"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # Web PHP-FPM for dashboard
+  mithia-web-php:
+    build:
+      context: .
+      dockerfile: web/php/Dockerfile
+    image: mithia-web-php:latest
+    container_name: mithia-web-php
+    restart: unless-stopped
+    networks:
+      mithia_network:
+        ipv4_address: 172.20.0.40
+    volumes:
+      - "./web/public:/var/www/html"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    depends_on:
+      - mithia-db
+
+  # Web Nginx for dashboard
+  mithia-web-nginx:
+    image: nginx:alpine
+    container_name: mithia-web-nginx
+    restart: unless-stopped
+    depends_on:
+      - mithia-web-php
+    networks:
+      mithia_network:
+        ipv4_address: 172.20.0.41
+    ports:
+      - "8080:80"
+    volumes:
+      - "./web/public:/var/www/html:ro"
+      - "./web/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro"
+      - "./web/nginx/.htpasswd:/etc/nginx/.htpasswd:ro"
+    environment:
+      - MITHIA_MAP_METRICS_URL=http://mithia-map:9000/metrics/players
+
+
+networks:
+  mithia_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
+
+volumes:
+  mysql_data:
+    driver: local
+
+# Portainer Stack Deployment Version
+# This version removes env_file references for Portainer compatibility
+# All environment variables are passed via Portainer's environment variable UI
+#
+# Required Environment Variables in Portainer:
+#   MYSQL_ROOT_PASSWORD
+#   MYSQL_USER
+#   MYSQL_PASSWORD
+#   MYSQL_DATABASE
