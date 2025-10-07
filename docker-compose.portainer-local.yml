@@ -1,0 +1,140 @@
+version: '3.8'
+services:
+  # Login Server - Handles user authentication
+  mithia-login:
+    build:
+      context: /opt/mithia-server
+      dockerfile: services/login-server/Dockerfile
+    image: mithia-login-server:latest
+    container_name: mithia-login
+    restart: unless-stopped
+    mem_limit: 4g
+    networks:
+      mithia_network:
+        ipv4_address: 172.20.0.10
+    ports:
+      - "2000:2000"
+    environment:
+      - LOGIN_SERVER_HOST=mithia-login
+      - CHAR_SERVER_HOST=mithia-char
+      - CHAR_SERVER_PORT=2005
+      - DB_HOST=mithia-db
+      - DB_PORT=3306
+      - PUBLIC_LOGIN_IP=184.107.141.66
+      - PUBLIC_MAP_IP=184.107.141.66
+    volumes:
+      - "/opt/mithia-server/rtk/conf:/home/RTK/rtk/conf"
+      - "/opt/mithia-server/rtk/logs/login:/home/RTK/rtk/logs"
+    depends_on:
+      - mithia-db
+
+  # Character Server - Manages character data and bridges login/map
+  mithia-char:
+    build:
+      context: /opt/mithia-server
+      dockerfile: services/char-server/Dockerfile
+    image: mithia-char-server:latest
+    container_name: mithia-char
+    restart: unless-stopped
+    mem_limit: 4g
+    networks:
+      mithia_network:
+        ipv4_address: 172.20.0.20
+    ports:
+      - "2005:2005"
+    environment:
+      - LOGIN_SERVER_HOST=mithia-login
+      - LOGIN_SERVER_PORT=2000
+      - MAP_SERVER_HOST=mithia-map
+      - MAP_SERVER_PORT=2001
+      - DB_HOST=mithia-db
+      - DB_PORT=3306
+      - PUBLIC_LOGIN_IP=184.107.141.66
+      - PUBLIC_MAP_IP=184.107.141.66
+    volumes:
+      - "/opt/mithia-server/rtk/conf:/home/RTK/rtk/conf"
+      - "/opt/mithia-server/rtk/logs/char:/home/RTK/rtk/logs"
+    depends_on:
+      - mithia-db
+      - mithia-login
+
+  # Map Server - Game world simulation (scalable)
+  mithia-map:
+    build:
+      context: /opt/mithia-server
+      dockerfile: services/map-server/Dockerfile
+    image: mithia-map-server:latest
+    container_name: mithia-map
+    restart: unless-stopped
+    mem_limit: 4g
+    networks:
+      mithia_network:
+        ipv4_address: 172.20.0.30
+    ports:
+      - "2001:2001"
+      - "9000:9000"
+    environment:
+      - LOGIN_SERVER_HOST=mithia-login
+      - LOGIN_SERVER_PORT=2000
+      - CHAR_SERVER_HOST=mithia-char
+      - CHAR_SERVER_PORT=2005
+      - DB_HOST=mithia-db
+      - DB_PORT=3306
+      - PUBLIC_LOGIN_IP=184.107.141.66
+      - PUBLIC_MAP_IP=184.107.141.66
+    volumes:
+      - "/opt/mithia-server/rtk/conf:/home/RTK/rtk/conf"
+      - "/opt/mithia-server/rtk/logs/map:/home/RTK/rtk/logs"
+      - "/opt/mithia-server/rtk/SObj.tbl:/home/RTK/rtk/SObj.tbl:ro"
+    depends_on:
+      - mithia-char
+
+  # Database Server - MySQL
+  mithia-db:
+    image: mysql/mysql-server:8.0
+    container_name: mithia-db
+    restart: unless-stopped
+    networks:
+      mithia_network:
+        ipv4_address: 172.20.0.5
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    volumes:
+      - "mysql_data:/var/lib/mysql"
+
+networks:
+  mithia_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
+
+volumes:
+  mysql_data:
+    driver: local
+
+# Portainer Stack - Local File Version
+#
+# Prerequisites:
+#   1. Clone repo to server: git clone -b koinuedit https://github.com/jasonlaguidice/mithia-server.git /opt/mithia-server
+#   2. Create env file: cp /opt/mithia-server/stack.env.example /opt/mithia-server/stack.env.production
+#   3. Edit passwords: nano /opt/mithia-server/stack.env.production
+#
+# Deploy in Portainer:
+#   - Stacks → Add stack
+#   - Name: mithia-production
+#   - Web editor → paste this file content
+#   - Add environment variables (see below)
+#   - Deploy
+#
+# Required Environment Variables in Portainer:
+#   MYSQL_ROOT_PASSWORD=your_secure_password
+#   MYSQL_USER=rtk
+#   MYSQL_PASSWORD=your_secure_password
+#   MYSQL_DATABASE=RTK

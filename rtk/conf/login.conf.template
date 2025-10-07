@@ -4,6 +4,13 @@
 version: 752
 deep: 0
 
+//sql server configuration - IP resolved at runtime
+sql_ip: ${DB_IP}
+sql_port: ${DB_PORT}
+sql_id: ${DB_USER}
+sql_pw: ${DB_PASSWORD}
+sql_db: ${DB_NAME}
+
 //logfile
 login_log: logs/login.log
 require_reg: 0
