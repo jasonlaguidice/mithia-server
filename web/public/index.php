@@ -493,6 +493,17 @@ foreach ($services as $k => $_) {
       color: var(--warning);
     }
 
+    button.compile-btn:not(:disabled) {
+      background: rgba(139, 92, 246, 0.15);
+      border-color: rgba(139, 92, 246, 0.3);
+      color: #a78bfa;
+    }
+
+    button.compile-btn:hover:not(:disabled) {
+      background: rgba(139, 92, 246, 0.25);
+      border-color: rgba(139, 92, 246, 0.5);
+    }
+
     /* Console */
     .console-card {
       background: var(--bg-card);
@@ -707,6 +718,12 @@ foreach ($services as $k => $_) {
       <div class="msg"><?php echo htmlspecialchars($msg, ENT_QUOTES, 'UTF-8'); ?></div>
     <?php endif; ?>
 
+    <div style="margin-bottom: 1.5rem; text-align: right;">
+      <button class="compile-btn" onclick="compileService('all')" style="padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 600;">
+        Recompile All Servers
+      </button>
+    </div>
+
     <div class="grid">
       <?php foreach ($services as $id => $label): $st = $statuses[$id]; $isRun = !empty($st['running']); ?>
         <div class="card">
@@ -759,6 +776,7 @@ foreach ($services as $k => $_) {
               <input type="hidden" name="service" value="<?php echo htmlspecialchars($id); ?>" />
               <button name="action" value="restart">Restart</button>
             </form>
+            <button class="compile-btn" onclick="compileService('<?php echo htmlspecialchars($id); ?>')">Recompile</button>
           </div>
         </div>
       <?php endforeach; ?>
@@ -993,6 +1011,51 @@ foreach ($services as $k => $_) {
         clearInterval(refreshTimer);
       }
     });
+
+    // Recompile service function
+    async function compileService(service) {
+      const btn = event.target;
+      btn.disabled = true;
+      btn.textContent = service === 'all' ? 'Compiling All...' : 'Compiling...';
+
+      try {
+        const formData = new FormData();
+        formData.append('action', 'compile');
+        formData.append('service', service);
+
+        const response = await fetch('/recompile.php', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (service === 'all') {
+          // Show results for all services
+          let message = 'Compilation Results:\n\n';
+          for (const [svc, res] of Object.entries(result.results)) {
+            message += `${svc}: ${res.success ? 'SUCCESS' : 'FAILED'}\n`;
+            message += `${res.message}\n\n`;
+          }
+          alert(message);
+        } else {
+          // Show result for single service
+          if (result.result.success) {
+            alert(`${result.service} compiled and restarted successfully!`);
+          } else {
+            alert(`Compilation failed:\n${result.result.message}\n\nOutput:\n${result.result.output}`);
+          }
+        }
+
+        // Reload page to show updated status
+        setTimeout(() => window.location.reload(), 1000);
+      } catch (error) {
+        alert('Error: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = service === 'all' ? 'Recompile All Servers' : 'Recompile';
+      }
+    }
   </script>
 </body>
 </html>
