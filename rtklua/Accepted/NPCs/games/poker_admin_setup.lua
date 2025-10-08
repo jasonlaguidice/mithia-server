@@ -85,7 +85,8 @@ PokerManagerSetup = {
         sql(updateQuery)
         print(string.format("Updated permissions for poker manager %s.", playerName))
         return true
-    end,
+    end
+}
 
 PokerAdminSetup = {
     -- Toggle poker NPC on/off
