@@ -718,7 +718,10 @@ foreach ($services as $k => $_) {
       <div class="msg"><?php echo htmlspecialchars($msg, ENT_QUOTES, 'UTF-8'); ?></div>
     <?php endif; ?>
 
-    <div style="margin-bottom: 1.5rem; text-align: right;">
+    <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem;">
+      <button class="compile-btn" onclick="reloadScripts()" style="padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 600; background: rgba(34, 197, 94, 0.15); border-color: rgba(34, 197, 94, 0.3); color: #4ade80;">
+        Sync & Reload Scripts
+      </button>
       <button class="compile-btn" onclick="compileService('all')" style="padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 600;">
         Recompile All Servers
       </button>
@@ -1033,17 +1036,28 @@ foreach ($services as $k => $_) {
         if (service === 'all') {
           // Show results for all services
           let message = 'Compilation Results:\n\n';
+          let hasErrors = false;
           for (const [svc, res] of Object.entries(result.results)) {
-            message += `${svc}: ${res.success ? 'SUCCESS' : 'FAILED'}\n`;
-            message += `${res.message}\n\n`;
+            const status = res.success ? '✅ SUCCESS' : '❌ FAILED';
+            message += `${svc.toUpperCase()}: ${status}\n`;
+            message += `${res.message}\n`;
+            if (res.output && res.output.trim()) {
+              message += `\nOutput:\n${res.output}\n`;
+            }
+            message += '\n' + '─'.repeat(50) + '\n\n';
+            if (!res.success) hasErrors = true;
           }
-          alert(message);
+          alert((hasErrors ? '⚠️ ' : '✅ ') + message);
         } else {
           // Show result for single service
           if (result.result.success) {
-            alert(`${result.service} compiled and restarted successfully!`);
+            let msg = `✅ ${result.service.toUpperCase()} compiled and restarted successfully!`;
+            if (result.result.output && result.result.output.trim()) {
+              msg += `\n\nOutput:\n${result.result.output}`;
+            }
+            alert(msg);
           } else {
-            alert(`Compilation failed:\n${result.result.message}\n\nOutput:\n${result.result.output}`);
+            alert(`❌ Compilation failed for ${result.service.toUpperCase()}:\n\n${result.result.message}\n\nOutput:\n${result.result.output}`);
           }
         }
 
@@ -1054,6 +1068,41 @@ foreach ($services as $k => $_) {
       } finally {
         btn.disabled = false;
         btn.textContent = service === 'all' ? 'Recompile All Servers' : 'Recompile';
+      }
+    }
+
+    // Reload scripts function (git pull + Lua reload)
+    async function reloadScripts() {
+      const btn = event.target;
+      const originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Syncing...';
+
+      try {
+        const formData = new FormData();
+        formData.append('action', 'reload');
+
+        const response = await fetch('/recompile.php', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.result.success) {
+          let msg = '✅ Scripts synced and reloaded successfully!';
+          if (result.result.output && result.result.output.trim()) {
+            msg += '\n\nOutput:\n' + result.result.output;
+          }
+          alert(msg);
+        } else {
+          alert('❌ Script sync/reload had issues:\n\n' + result.result.output);
+        }
+      } catch (error) {
+        alert('Error: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
       }
     }
   </script>

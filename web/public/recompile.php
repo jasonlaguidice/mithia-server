@@ -56,6 +56,24 @@ function compile_service(string $container, array $info): array {
     }
 }
 
+function reload_scripts(): array {
+    // Git pull to get latest changes
+    [$pullCode, $pullOut, $pullErr] = run_cmd('cd /opt/mithia-server && git pull 2>&1');
+
+    // Execute /reloadlua command in map server via docker exec
+    $reloadCmd = 'docker exec mithia-map /home/RTK/rtk/map-server --lua-reload 2>&1';
+    [$reloadCode, $reloadOut, $reloadErr] = run_cmd($reloadCmd);
+
+    $output = "Git Pull:\n" . trim($pullOut . "\n" . $pullErr) . "\n\n";
+    $output .= "Lua Reload:\n" . trim($reloadOut . "\n" . $reloadErr);
+
+    if (ok($pullCode)) {
+        return ['success' => true, 'message' => 'Scripts synced and reloaded successfully', 'output' => $output];
+    } else {
+        return ['success' => false, 'message' => 'Script sync/reload had issues', 'output' => $output];
+    }
+}
+
 // Handle request
 $action = $_POST['action'] ?? '';
 $target = $_POST['service'] ?? '';
@@ -76,6 +94,10 @@ if ($action === 'compile') {
     } else {
         echo json_encode(['error' => 'Invalid service']);
     }
+} elseif ($action === 'reload') {
+    // Reload scripts (git pull + reload Lua)
+    $result = reload_scripts();
+    echo json_encode(['action' => 'reload', 'result' => $result]);
 } else {
     echo json_encode(['error' => 'Invalid action']);
 }
