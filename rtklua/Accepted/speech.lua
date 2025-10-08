@@ -1083,6 +1083,72 @@ onSay = function(player)
 			player:sendMinitext("Added " .. Tools.formatNumber(tonumber(string.match(lspeech, "/gold (%d+)"))) .. " coins")
 			printf = 0
 		end
+
+		-- NPC Management Commands
+		-- Spawn NPC at current location: /npcadd [NpcIdentifier] [Look] [Color]
+		if string.match(lspeech, "/npcadd (.+)") ~= nil then
+			local params = string.match(lspeech, "/npcadd (.+)")
+			local npcId, look, color = string.match(params, "(%S+)%s+(%d+)%s*(%d*)")
+
+			if npcId then
+				look = tonumber(look) or 500
+				color = tonumber(color) or 0
+
+				local query = string.format(
+					"INSERT INTO NPCs0 (NpcIdentifier, NpcDescription, NpcMapId, NpcX, NpcY, NpcLook, NpcLookColor) VALUES ('%s', '%s', %d, %d, %d, %d, %d)",
+					npcId, npcId, player.m, player.x, player.y, look, color
+				)
+				sql(query)
+				player:sendMinitext("Added NPC: " .. npcId .. " at " .. player.m .. "," .. player.x .. "," .. player.y)
+				player:sendMinitext("Use /reloadnpc to see it!")
+			else
+				player:sendMinitext("Usage: /npcadd [NpcIdentifier] [Look] [Color]")
+			end
+			printf = 0
+		end
+
+		-- List NPCs on current map: /npclist
+		if lspeech == "/npclist" then
+			local query = string.format("SELECT NpcIdentifier, NpcX, NpcY, NpcLook FROM NPCs0 WHERE NpcMapId = %d LIMIT 20", player.m)
+			local result = sql(query)
+
+			if result and #result > 0 then
+				player:sendMinitext("NPCs on map " .. player.m .. ":")
+				for i, npc in ipairs(result) do
+					player:sendMinitext(string.format("%s (%d,%d) Look:%d", npc.NpcIdentifier, npc.NpcX, npc.NpcY, npc.NpcLook))
+				end
+			else
+				player:sendMinitext("No NPCs found on this map")
+			end
+			printf = 0
+		end
+
+		-- Delete NPC by identifier: /npcdel [NpcIdentifier]
+		if string.match(lspeech, "/npcdel (.+)") ~= nil then
+			local npcId = string.match(lspeech, "/npcdel (.+)")
+			local query = string.format("DELETE FROM NPCs0 WHERE NpcIdentifier = '%s' AND NpcMapId = %d", npcId, player.m)
+			sql(query)
+			player:sendMinitext("Deleted NPC: " .. npcId .. " from map " .. player.m)
+			player:sendMinitext("Use /reloadnpc to apply!")
+			printf = 0
+		end
+
+		-- Search for NPC script: /npcfind [name]
+		if string.match(lspeech, "/npcfind (.+)") ~= nil then
+			local searchTerm = string.match(lspeech, "/npcfind (.+)")
+			local query = string.format("SELECT NpcIdentifier, NpcDescription, NpcMapId, NpcX, NpcY FROM NPCs0 WHERE NpcIdentifier LIKE '%%%s%%' OR NpcDescription LIKE '%%%s%%' LIMIT 10", searchTerm, searchTerm)
+			local result = sql(query)
+
+			if result and #result > 0 then
+				player:sendMinitext("Found " .. #result .. " NPC(s):")
+				for i, npc in ipairs(result) do
+					player:sendMinitext(string.format("%s - %s (Map:%d at %d,%d)", npc.NpcIdentifier, npc.NpcDescription, npc.NpcMapId, npc.NpcX, npc.NpcY))
+				end
+			else
+				player:sendMinitext("No NPCs found matching: " .. searchTerm)
+			end
+			printf = 0
+		end
 	elseif player.gmLevel ~= 99 and string.sub(lspeech, 1, 1) == "/" then
 		--player:msg(5,"Invalid command",player.ID)
 		--printf = 0
