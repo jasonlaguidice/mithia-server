@@ -2,6 +2,7 @@
 // Recompile server binaries endpoint
 // Compiles C code inside running containers without full rebuild
 
+set_time_limit(600); // 10 minute max execution time
 header('Content-Type: application/json');
 
 $services = [
@@ -10,13 +11,46 @@ $services = [
     'mithia-map'   => ['name' => 'Map', 'dir' => '/home/RTK/rtk/src/map'],
 ];
 
-function run_cmd(string $cmd): array {
+function run_cmd(string $cmd, int $timeout = 300): array {
     $descriptor = [1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
     $proc = proc_open($cmd, $descriptor, $pipes);
     if (!\is_resource($proc)) return [1, '', 'proc_open failed'];
-    $stdout = stream_get_contents($pipes[1]);
-    $stderr = stream_get_contents($pipes[2]);
+
+    // Set non-blocking mode on pipes
+    stream_set_blocking($pipes[1], false);
+    stream_set_blocking($pipes[2], false);
+
+    $stdout = '';
+    $stderr = '';
+    $start = time();
+
+    // Read output with timeout
+    while (time() - $start < $timeout) {
+        $status = proc_get_status($proc);
+        if (!$status['running']) break;
+
+        $out = stream_get_contents($pipes[1]);
+        $err = stream_get_contents($pipes[2]);
+        if ($out !== false) $stdout .= $out;
+        if ($err !== false) $stderr .= $err;
+
+        usleep(100000); // 100ms sleep to avoid busy-waiting
+    }
+
+    // Final read
+    $stdout .= stream_get_contents($pipes[1]);
+    $stderr .= stream_get_contents($pipes[2]);
+
     foreach ($pipes as $p) { if (\is_resource($p)) fclose($p); }
+
+    // Check if timed out
+    $status = proc_get_status($proc);
+    if ($status['running']) {
+        proc_terminate($proc, 9); // SIGKILL
+        proc_close($proc);
+        return [1, $stdout, $stderr . "\n[TIMEOUT after {$timeout}s]"];
+    }
+
     $code = proc_close($proc);
     return [$code, $stdout, $stderr];
 }
@@ -58,12 +92,13 @@ function compile_service(string $container, array $info): array {
 
 function reload_scripts(): array {
     // Fetch and reset to force overwrite local files (no merge conflicts)
-    [$fetchCode, $fetchOut, $fetchErr] = run_cmd('cd /opt/mithia-server && git fetch origin 2>&1');
-    [$resetCode, $resetOut, $resetErr] = run_cmd('cd /opt/mithia-server && git reset --hard origin/koinuedit 2>&1');
+    // Using 60 second timeout for git operations
+    [$fetchCode, $fetchOut, $fetchErr] = run_cmd('cd /opt/mithia-server && git fetch origin 2>&1', 60);
+    [$resetCode, $resetOut, $resetErr] = run_cmd('cd /opt/mithia-server && git reset --hard origin/koinuedit 2>&1', 30);
 
     // Execute /reloadlua command in map server via docker exec
     $reloadCmd = 'docker exec mithia-map /home/RTK/rtk/map-server --lua-reload 2>&1';
-    [$reloadCode, $reloadOut, $reloadErr] = run_cmd($reloadCmd);
+    [$reloadCode, $reloadOut, $reloadErr] = run_cmd($reloadCmd, 10);
 
     $output = "Git Fetch:\n" . trim($fetchOut . "\n" . $fetchErr) . "\n\n";
     $output .= "Git Reset (force overwrite):\n" . trim($resetOut . "\n" . $resetErr) . "\n\n";
