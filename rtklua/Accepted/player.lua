@@ -4272,7 +4272,7 @@ function Player.giveXPStacked(player, amount, bonus)
 		end
 
 		-- Low-level catch-up bonus XP system
-		if player:checkTempReg("disableLowbieEXP") == 0 then
+		if player.registry["disableLowbieEXP"] ~= 1 then
 			if player.baseHealth >= 640200 or player.baseMagic >= 320100 then
 				if player.baseHealth < 1000000 and player.baseMagic < 500000 then
 					get = math.ceil(get * 1.25) -- 25% bonus for mid-level players
