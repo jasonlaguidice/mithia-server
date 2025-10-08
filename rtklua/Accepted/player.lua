@@ -4271,6 +4271,22 @@ function Player.giveXPStacked(player, amount, bonus)
 			get = math.abs(math.floor(amount))
 		end
 
+		-- Low-level catch-up bonus XP system
+		if player:checkTempReg("disableLowbieEXP") == 0 then
+			if player.baseHealth >= 640200 or player.baseMagic >= 320100 then
+				if player.baseHealth < 1000000 and player.baseMagic < 500000 then
+					get = math.ceil(get * 1.25) -- 25% bonus for mid-level players
+				end
+				-- no bonus for high-level players
+			elseif player.baseHealth >= 320000 or player.baseMagic >= 160000 then
+				get = math.ceil(get * 1.33) -- 33% bonus for medium players
+			elseif player.level >= 99 then
+				get = math.ceil(get * 1.66) -- 66% bonus for level 99 lowbies
+			else
+				get = math.ceil(get * 2) -- 100% bonus for new/low players
+			end
+		end
+
 		if (player.level >= 5 and player.registry["basic_tutorial_complete"] == 0) then
 			player:sendMinitext("Finish your tutorial to advance beyond level 5.")
 			return
