@@ -4275,15 +4275,16 @@ function Player.giveXPStacked(player, amount, bonus)
 		if player.registry["disableLowbieEXP"] ~= 1 then
 			if player.baseHealth >= 640200 or player.baseMagic >= 320100 then
 				if player.baseHealth < 1000000 and player.baseMagic < 500000 then
-					get = math.ceil(get * 1.25) -- 25% bonus for mid-level players
+					get = math.ceil(get * 2) -- 2x for mid-high players
+				else
+					get = math.ceil(get * 1.5) -- 1.5x for high-level players
 				end
-				-- no bonus for high-level players
 			elseif player.baseHealth >= 320000 or player.baseMagic >= 160000 then
-				get = math.ceil(get * 1.33) -- 33% bonus for medium players
+				get = math.ceil(get * 2.5) -- 2.5x for medium players
 			elseif player.level >= 99 then
-				get = math.ceil(get * 1.66) -- 66% bonus for level 99 lowbies
+				get = math.ceil(get * 3) -- 3x for level 99 lowbies
 			else
-				get = math.ceil(get * 2) -- 100% bonus for new/low players
+				get = math.ceil(get * 3.5) -- 3.5x for new/low players
 			end
 		end
 
