@@ -1086,13 +1086,17 @@ onSay = function(player)
 
 		-- NPC Management Commands
 		-- Spawn NPC at current location: /npcadd [NpcIdentifier] [Look] [Color]
-		if string.match(lspeech, "/npcadd (.+)") ~= nil then
-			local params = string.match(lspeech, "/npcadd (.+)")
-			local npcId, look, color = string.match(params, "(%S+)%s+(%d+)%s*(%d*)")
+		local npcadd_params = string.match(lspeech, "/npcadd%s+(.+)")
+		if npcadd_params ~= nil then
+			local parts = {}
+			for word in string.gmatch(npcadd_params, "%S+") do
+				table.insert(parts, word)
+			end
 
-			if npcId then
-				look = tonumber(look) or 500
-				color = tonumber(color) or 0
+			if #parts >= 2 then
+				local npcId = parts[1]
+				local look = tonumber(parts[2]) or 500
+				local color = tonumber(parts[3]) or 0
 
 				local query = string.format(
 					"INSERT INTO NPCs0 (NpcIdentifier, NpcDescription, NpcMapId, NpcX, NpcY, NpcLook, NpcLookColor) VALUES ('%s', '%s', %d, %d, %d, %d, %d)",
