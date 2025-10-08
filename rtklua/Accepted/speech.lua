@@ -1088,15 +1088,18 @@ onSay = function(player)
 		-- Spawn NPC at current location: /npcadd [NpcIdentifier] [Look] [Color]
 		local npcadd_params = string.match(lspeech, "/npcadd%s+(.+)")
 		if npcadd_params ~= nil then
+			player:sendMinitext("DEBUG: Matched params: " .. npcadd_params)
 			local parts = {}
 			for word in string.gmatch(npcadd_params, "%S+") do
 				table.insert(parts, word)
 			end
+			player:sendMinitext("DEBUG: Parts count: " .. #parts)
 
 			if #parts >= 2 then
 				local npcId = parts[1]
 				local look = tonumber(parts[2]) or 500
 				local color = tonumber(parts[3]) or 0
+				player:sendMinitext("DEBUG: NpcId=" .. npcId .. " Look=" .. look .. " Color=" .. color)
 
 				local query = string.format(
 					"INSERT INTO NPCs0 (NpcIdentifier, NpcDescription, NpcMapId, NpcX, NpcY, NpcLook, NpcLookColor) VALUES ('%s', '%s', %d, %d, %d, %d, %d)",
@@ -1107,6 +1110,7 @@ onSay = function(player)
 				player:sendMinitext("Use /reloadnpc to see it!")
 			else
 				player:sendMinitext("Usage: /npcadd [NpcIdentifier] [Look] [Color]")
+				player:sendMinitext("DEBUG: Got " .. #parts .. " parts, need at least 2")
 			end
 			printf = 0
 		end
