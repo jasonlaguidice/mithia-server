@@ -1105,7 +1105,13 @@ onSay = function(player)
 					"INSERT INTO NPCs0 (NpcIdentifier, NpcDescription, NpcMapId, NpcX, NpcY, NpcLook, NpcLookColor) VALUES ('%s', '%s', %d, %d, %d, %d, %d)",
 					npcId, npcId, player.m, player.x, player.y, look, color
 				)
-				sql(query)
+				player:msg(11, "DEBUG: Query: " .. query, player.ID)
+				local success, err = pcall(function() sql(query) end)
+				if success then
+					player:msg(11, "SQL executed successfully", player.ID)
+				else
+					player:msg(11, "SQL ERROR: " .. tostring(err), player.ID)
+				end
 				player:sendMinitext("Added NPC: " .. npcId .. " at " .. player.m .. "," .. player.x .. "," .. player.y)
 				player:sendMinitext("Use /reloadnpc to see it!")
 			else
