@@ -57,17 +57,19 @@ function compile_service(string $container, array $info): array {
 }
 
 function reload_scripts(): array {
-    // Git pull to get latest changes
-    [$pullCode, $pullOut, $pullErr] = run_cmd('cd /opt/mithia-server && git pull 2>&1');
+    // Fetch and reset to force overwrite local files (no merge conflicts)
+    [$fetchCode, $fetchOut, $fetchErr] = run_cmd('cd /opt/mithia-server && git fetch origin 2>&1');
+    [$resetCode, $resetOut, $resetErr] = run_cmd('cd /opt/mithia-server && git reset --hard origin/koinuedit 2>&1');
 
     // Execute /reloadlua command in map server via docker exec
     $reloadCmd = 'docker exec mithia-map /home/RTK/rtk/map-server --lua-reload 2>&1';
     [$reloadCode, $reloadOut, $reloadErr] = run_cmd($reloadCmd);
 
-    $output = "Git Pull:\n" . trim($pullOut . "\n" . $pullErr) . "\n\n";
+    $output = "Git Fetch:\n" . trim($fetchOut . "\n" . $fetchErr) . "\n\n";
+    $output .= "Git Reset (force overwrite):\n" . trim($resetOut . "\n" . $resetErr) . "\n\n";
     $output .= "Lua Reload:\n" . trim($reloadOut . "\n" . $reloadErr);
 
-    if (ok($pullCode)) {
+    if (ok($fetchCode) && ok($resetCode)) {
         return ['success' => true, 'message' => 'Scripts synced and reloaded successfully', 'output' => $output];
     } else {
         return ['success' => false, 'message' => 'Script sync/reload had issues', 'output' => $output];
