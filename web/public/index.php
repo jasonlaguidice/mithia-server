@@ -643,6 +643,96 @@ foreach ($services as $k => $_) {
       }
     }
 
+    /* Modal styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    .modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 1.5rem;
+      padding: 0.25rem 0.5rem;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: var(--text);
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .output-box {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.875rem;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
     /* Loading animation */
     .loading {
       display: inline-block;
@@ -816,10 +906,74 @@ foreach ($services as $k => $_) {
     </div>
   </div>
 
+  <!-- Output Modal -->
+  <div class="modal-overlay" id="outputModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">Output</div>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <pre class="output-box" id="modalOutput"></pre>
+      </div>
+      <div class="modal-footer">
+        <button onclick="copyOutput()" style="padding: 0.5rem 1rem; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; cursor: pointer; border-radius: 8px; font-weight: 500;">
+          📋 Copy to Clipboard
+        </button>
+        <button onclick="closeModal()" style="padding: 0.5rem 1rem; background: rgba(100, 116, 139, 0.15); border: 1px solid rgba(100, 116, 139, 0.3); color: #94a3b8; cursor: pointer; border-radius: 8px; font-weight: 500;">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const services = <?php echo json_encode(array_keys($services)); ?>;
     let activeConsole = (services.includes('mithia-map') ? 'mithia-map' : services[0]);
     let refreshTimer = null;
+
+    // Modal functions
+    function showModal(title, output, isSuccess) {
+      const modal = document.getElementById('outputModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalOutput = document.getElementById('modalOutput');
+
+      const icon = isSuccess ? '✅' : '❌';
+      modalTitle.innerHTML = `${icon} ${title}`;
+      modalOutput.textContent = output;
+      modal.classList.add('active');
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('outputModal');
+      modal.classList.remove('active');
+    }
+
+    function copyOutput() {
+      const output = document.getElementById('modalOutput').textContent;
+      navigator.clipboard.writeText(output).then(() => {
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        btn.style.color = '#22c55e';
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.style.color = '';
+        }, 2000);
+      }).catch(err => {
+        alert('Failed to copy: ' + err.message);
+      });
+    }
+
+    // Close modal on overlay click
+    document.getElementById('outputModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal();
+    });
 
     function fetchStatus() {
       return fetch('status.php')
@@ -1052,18 +1206,21 @@ foreach ($services as $k => $_) {
             message += '\n' + '─'.repeat(50) + '\n\n';
             if (!res.success) hasErrors = true;
           }
-          alert((hasErrors ? '⚠️ ' : '✅ ') + message);
+          showModal('Compilation Results', message, !hasErrors);
         } else {
           // Show result for single service
-          if (result.result.success) {
-            let msg = `✅ ${result.service.toUpperCase()} compiled and restarted successfully!`;
-            if (result.result.output && result.result.output.trim()) {
-              msg += `\n\nOutput:\n${result.result.output}`;
-            }
-            alert(msg);
-          } else {
-            alert(`❌ Compilation failed for ${result.service.toUpperCase()}:\n\n${result.result.message}\n\nOutput:\n${result.result.output}`);
+          const isSuccess = result.result.success;
+          const title = isSuccess
+            ? `${result.service.toUpperCase()} - Compilation Successful`
+            : `${result.service.toUpperCase()} - Compilation Failed`;
+
+          let output = result.result.message + '\n\n';
+          if (result.result.output && result.result.output.trim()) {
+            output += 'Output:\n' + '─'.repeat(50) + '\n';
+            output += result.result.output;
           }
+
+          showModal(title, output, isSuccess);
         }
 
         // Reload page to show updated status
@@ -1094,17 +1251,18 @@ foreach ($services as $k => $_) {
 
         const result = await response.json();
 
-        if (result.result.success) {
-          let msg = '✅ Lua scripts reloaded successfully!';
-          if (result.result.output && result.result.output.trim()) {
-            msg += '\n\nOutput:\n' + result.result.output;
-          }
-          alert(msg);
-        } else {
-          alert('❌ Lua reload failed:\n\n' + result.result.output);
+        const isSuccess = result.result.success;
+        const title = isSuccess ? 'Lua Scripts Reloaded' : 'Lua Reload Failed';
+
+        let output = result.result.message + '\n\n';
+        if (result.result.output && result.result.output.trim()) {
+          output += 'Output:\n' + '─'.repeat(50) + '\n';
+          output += result.result.output;
         }
+
+        showModal(title, output, isSuccess);
       } catch (error) {
-        alert('Error: ' + error.message);
+        showModal('Error', 'Failed to reload Lua scripts:\n\n' + error.message, false);
       } finally {
         btn.disabled = false;
         btn.textContent = originalText;
