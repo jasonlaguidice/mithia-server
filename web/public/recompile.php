@@ -12,58 +12,19 @@ $services = [
 ];
 
 function run_cmd(string $cmd, int $timeout = 300): array {
-    $descriptor = [1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
-    $proc = proc_open($cmd, $descriptor, $pipes);
-    if (!\is_resource($proc)) return [1, '', 'proc_open failed'];
+    // Use exec with output array - simpler and captures ALL output
+    $output_lines = [];
+    $exit_code = -1;
 
-    // Set non-blocking mode on pipes
-    stream_set_blocking($pipes[1], false);
-    stream_set_blocking($pipes[2], false);
+    // Execute command and capture all output (2>&1 already in the command)
+    exec($cmd, $output_lines, $exit_code);
 
-    $stdout = '';
-    $stderr = '';
-    $start = time();
+    // Join all output lines
+    $output = implode("\n", $output_lines);
 
-    // Read output with timeout
-    while (time() - $start < $timeout) {
-        $status = proc_get_status($proc);
-
-        $out = stream_get_contents($pipes[1]);
-        $err = stream_get_contents($pipes[2]);
-        if ($out !== false) $stdout .= $out;
-        if ($err !== false) $stderr .= $err;
-
-        if (!$status['running']) {
-            // Process exited, do final reads to get remaining buffered data
-            usleep(50000); // Give buffers time to flush
-            $out = stream_get_contents($pipes[1]);
-            $err = stream_get_contents($pipes[2]);
-            if ($out !== false) $stdout .= $out;
-            if ($err !== false) $stderr .= $err;
-            break;
-        }
-
-        usleep(100000); // 100ms sleep to avoid busy-waiting
-    }
-
-    // One more final read to be absolutely sure
-    $out = stream_get_contents($pipes[1]);
-    $err = stream_get_contents($pipes[2]);
-    if ($out !== false) $stdout .= $out;
-    if ($err !== false) $stderr .= $err;
-
-    foreach ($pipes as $p) { if (\is_resource($p)) fclose($p); }
-
-    // Check if timed out
-    $status = proc_get_status($proc);
-    if ($status['running']) {
-        proc_terminate($proc, 9); // SIGKILL
-        proc_close($proc);
-        return [1, $stdout, $stderr . "\n[TIMEOUT after {$timeout}s]"];
-    }
-
-    $code = proc_close($proc);
-    return [$code, $stdout, $stderr];
+    // Return in format: [exit_code, stdout, stderr_empty]
+    // Since we use 2>&1 in commands, everything goes to stdout
+    return [$exit_code, $output, ''];
 }
 
 function ok($code): bool { return (int)$code === 0; }
