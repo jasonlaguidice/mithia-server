@@ -27,6 +27,7 @@ services:
       - "./rtk/logs/login:/home/RTK/rtk/logs"
       - "./rtklua:/home/RTK/rtklua"
       - "./rtk/src:/home/RTK/rtk/src"
+      - "./rtk/Makefile:/home/RTK/rtk/Makefile:ro"
     depends_on:
       mithia-db:
         condition: service_healthy
@@ -65,6 +66,7 @@ services:
       - "./rtk/logs/char:/home/RTK/rtk/logs"
       - "./rtklua:/home/RTK/rtklua"
       - "./rtk/src:/home/RTK/rtk/src"
+      - "./rtk/Makefile:/home/RTK/rtk/Makefile:ro"
     depends_on:
       mithia-db:
         condition: service_healthy
@@ -110,6 +112,7 @@ services:
       - "./rtklua:/home/RTK/rtklua"
       - "./mithia-data/maps:/home/RTK/mithia-data/maps"
       - "./rtk/src:/home/RTK/rtk/src"
+      - "./rtk/Makefile:/home/RTK/rtk/Makefile:ro"
     depends_on:
       mithia-char:
         condition: service_healthy
