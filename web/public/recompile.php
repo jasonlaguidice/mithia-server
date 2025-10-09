@@ -6,9 +6,9 @@ set_time_limit(600); // 10 minute max execution time
 header('Content-Type: application/json');
 
 $services = [
-    'mithia-login' => ['name' => 'Login', 'dir' => '/home/RTK/rtk/src/login'],
-    'mithia-char'  => ['name' => 'Char', 'dir' => '/home/RTK/rtk/src/char'],
-    'mithia-map'   => ['name' => 'Map', 'dir' => '/home/RTK/rtk/src/map'],
+    'mithia-login' => ['name' => 'Login', 'target' => 'login'],
+    'mithia-char'  => ['name' => 'Char', 'target' => 'char'],
+    'mithia-map'   => ['name' => 'Map', 'target' => 'map'],
 ];
 
 function run_cmd(string $cmd, int $timeout = 300): array {
@@ -62,14 +62,15 @@ function safe_name(string $name, array $allow): ?string {
 }
 
 function compile_service(string $container, array $info): array {
-    $compileDir = $info['dir'];
+    $target = $info['target'];
     $name = $info['name'];
 
-    // Run make clean && make inside container
+    // Run make from the main rtk directory to compile common + specific server
+    // This ensures all dependencies and variables are properly set
     $cmd = sprintf(
         'docker exec %s bash -c %s 2>&1',
         escapeshellarg($container),
-        escapeshellarg("cd $compileDir && make clean && make")
+        escapeshellarg("cd /home/RTK/rtk && make " . escapeshellarg($target))
     );
 
     [$code, $stdout, $stderr] = run_cmd($cmd, 600); // 10 minute timeout for compilation
