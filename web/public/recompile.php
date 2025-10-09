@@ -27,19 +27,30 @@ function run_cmd(string $cmd, int $timeout = 300): array {
     // Read output with timeout
     while (time() - $start < $timeout) {
         $status = proc_get_status($proc);
-        if (!$status['running']) break;
 
         $out = stream_get_contents($pipes[1]);
         $err = stream_get_contents($pipes[2]);
         if ($out !== false) $stdout .= $out;
         if ($err !== false) $stderr .= $err;
 
+        if (!$status['running']) {
+            // Process exited, do final reads to get remaining buffered data
+            usleep(50000); // Give buffers time to flush
+            $out = stream_get_contents($pipes[1]);
+            $err = stream_get_contents($pipes[2]);
+            if ($out !== false) $stdout .= $out;
+            if ($err !== false) $stderr .= $err;
+            break;
+        }
+
         usleep(100000); // 100ms sleep to avoid busy-waiting
     }
 
-    // Final read
-    $stdout .= stream_get_contents($pipes[1]);
-    $stderr .= stream_get_contents($pipes[2]);
+    // One more final read to be absolutely sure
+    $out = stream_get_contents($pipes[1]);
+    $err = stream_get_contents($pipes[2]);
+    if ($out !== false) $stdout .= $out;
+    if ($err !== false) $stderr .= $err;
 
     foreach ($pipes as $p) { if (\is_resource($p)) fclose($p); }
 
@@ -74,7 +85,23 @@ function compile_service(string $container, array $info): array {
     );
 
     [$code, $stdout, $stderr] = run_cmd($cmd, 600); // 10 minute timeout for compilation
-    $output = trim($stdout . "\n" . $stderr);
+
+    // Combine stdout and stderr, showing both separately for debugging
+    $output = '';
+    if (!empty($stdout)) {
+        $output .= "STDOUT:\n" . $stdout;
+    }
+    if (!empty($stderr)) {
+        if (!empty($stdout)) $output .= "\n\n";
+        $output .= "STDERR:\n" . $stderr;
+    }
+    if (empty($output)) {
+        $output = "(No output captured)";
+    }
+
+    $output .= "\n\nExit Code: " . $code;
+    $output .= "\nStdout Length: " . strlen($stdout);
+    $output .= "\nStderr Length: " . strlen($stderr);
 
     // Check if error is because container not running
     if (strpos($output, 'No such container') !== false || strpos($output, 'is not running') !== false) {
