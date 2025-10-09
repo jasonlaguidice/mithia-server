@@ -917,7 +917,7 @@ foreach ($services as $k => $_) {
         <pre class="output-box" id="modalOutput"></pre>
       </div>
       <div class="modal-footer">
-        <button onclick="copyOutput()" style="padding: 0.5rem 1rem; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; cursor: pointer; border-radius: 8px; font-weight: 500;">
+        <button onclick="copyOutput(event)" style="padding: 0.5rem 1rem; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; cursor: pointer; border-radius: 8px; font-weight: 500;">
           📋 Copy to Clipboard
         </button>
         <button onclick="closeModal()" style="padding: 0.5rem 1rem; background: rgba(100, 116, 139, 0.15); border: 1px solid rgba(100, 116, 139, 0.3); color: #94a3b8; cursor: pointer; border-radius: 8px; font-weight: 500;">
@@ -949,11 +949,12 @@ foreach ($services as $k => $_) {
       modal.classList.remove('active');
     }
 
-    function copyOutput() {
+    function copyOutput(event) {
       const output = document.getElementById('modalOutput').textContent;
+      const btn = event.target;
+      const originalText = btn.textContent;
+
       navigator.clipboard.writeText(output).then(() => {
-        const btn = event.target;
-        const originalText = btn.textContent;
         btn.textContent = '✓ Copied!';
         btn.style.color = '#22c55e';
         setTimeout(() => {
@@ -1222,11 +1223,8 @@ foreach ($services as $k => $_) {
 
           showModal(title, output, isSuccess);
         }
-
-        // Reload page to show updated status
-        setTimeout(() => window.location.reload(), 1000);
       } catch (error) {
-        alert('Error: ' + error.message);
+        showModal('Error', 'Compilation request failed:\n\n' + error.message, false);
       } finally {
         btn.disabled = false;
         btn.textContent = service === 'all' ? 'Recompile All Servers' : 'Recompile';
