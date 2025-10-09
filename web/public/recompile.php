@@ -39,22 +39,12 @@ function compile_service(string $container, array $info): array {
 
     $output = "=== Recompiling $name Server ===\n\n";
 
-    // Step 1: Stop the running process inside the container (but keep container running)
-    $output .= "Step 1: Stopping $target-server process...\n";
-    $stopCmd = sprintf(
-        'docker exec %s bash -c %s 2>&1',
-        escapeshellarg($container),
-        escapeshellarg("pkill -9 $target-server || true")
-    );
-    run_cmd($stopCmd);
-    $output .= "Process stopped.\n\n";
-
-    // Step 2: Compile
-    $output .= "Step 2: Compiling...\n";
+    // Step 1: Compile to a temporary binary name (while server is running)
+    $output .= "Step 1: Compiling new binary...\n";
     $cmd = sprintf(
         'docker exec %s bash -c %s 2>&1',
         escapeshellarg($container),
-        escapeshellarg("cd /home/RTK/rtk && make " . escapeshellarg($target))
+        escapeshellarg("cd /home/RTK/rtk && make " . escapeshellarg($target) . " && mv /home/RTK/rtk/$target-server /home/RTK/rtk/$target-server.new")
     );
 
     [$code, $stdout, $stderr] = run_cmd($cmd, 600);
@@ -65,20 +55,37 @@ function compile_service(string $container, array $info): array {
     }
 
     $output .= "\n" . str_repeat('─', 50);
-    $output .= "\nExit Code: " . $code . "\n";
+    $output .= "\nExit Code: " . $code . "\n\n";
 
-    if (ok($code)) {
-        // Step 3: Restart the container to start the new binary
-        $output .= "\nStep 3: Restarting container with new binary...\n";
-        run_cmd('docker restart ' . escapeshellarg($container) . ' 2>&1');
-        $output .= "Container restarted successfully!";
-        return ['success' => true, 'message' => "$name compiled and restarted successfully", 'output' => $output];
-    } else {
-        // Compilation failed - restart with old binary
-        $output .= "\nCompilation FAILED! Restarting container with previous binary...\n";
-        run_cmd('docker restart ' . escapeshellarg($container) . ' 2>&1');
+    if (!ok($code)) {
         return ['success' => false, 'message' => "$name compilation failed", 'output' => $output];
     }
+
+    // Step 2: Stop the running server process
+    $output .= "Step 2: Stopping $target-server process...\n";
+    $stopCmd = sprintf(
+        'docker exec %s bash -c %s 2>&1',
+        escapeshellarg($container),
+        escapeshellarg("pkill $target-server || true")
+    );
+    run_cmd($stopCmd);
+    $output .= "Process stopped.\n\n";
+
+    // Step 3: Swap the binaries and restart
+    $output .= "Step 3: Swapping binaries and restarting...\n";
+    $swapCmd = sprintf(
+        'docker exec %s bash -c %s 2>&1',
+        escapeshellarg($container),
+        escapeshellarg("mv /home/RTK/rtk/$target-server.new /home/RTK/rtk/$target-server && chmod +x /home/RTK/rtk/$target-server")
+    );
+    run_cmd($swapCmd);
+
+    // Let Docker's restart policy start it automatically, or force restart
+    sleep(2);
+    run_cmd('docker restart ' . escapeshellarg($container) . ' 2>&1');
+
+    $output .= "Container restarted with new binary!";
+    return ['success' => true, 'message' => "$name compiled and restarted successfully", 'output' => $output];
 }
 
 function reload_lua(): array {
