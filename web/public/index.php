@@ -718,13 +718,18 @@ foreach ($services as $k => $_) {
       <div class="msg"><?php echo htmlspecialchars($msg, ENT_QUOTES, 'UTF-8'); ?></div>
     <?php endif; ?>
 
-    <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem;">
-      <button class="compile-btn" onclick="reloadScripts()" style="padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 600; background: rgba(34, 197, 94, 0.15); border-color: rgba(34, 197, 94, 0.3); color: #4ade80;">
-        Sync & Reload Scripts
-      </button>
-      <button class="compile-btn" onclick="compileService('all')" style="padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 600;">
-        Recompile All Servers
-      </button>
+    <div style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 8px;">
+      <p style="margin: 0 0 0.5rem 0; font-size: 0.875rem; color: #94a3b8;">
+        <strong>Workflow:</strong> After <code>git pull</code> on the server, click <strong>Reload Lua</strong> for script changes or <strong>Recompile</strong> for C code changes.
+      </p>
+      <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+        <button class="compile-btn" onclick="reloadScripts()" style="padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 600; background: rgba(34, 197, 94, 0.15); border-color: rgba(34, 197, 94, 0.3); color: #4ade80;">
+          Reload Lua Scripts
+        </button>
+        <button class="compile-btn" onclick="compileService('all')" style="padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 600;">
+          Recompile All Servers
+        </button>
+      </div>
     </div>
 
     <div class="grid">
@@ -1071,12 +1076,12 @@ foreach ($services as $k => $_) {
       }
     }
 
-    // Reload scripts function (git pull + Lua reload)
+    // Reload Lua scripts function
     async function reloadScripts() {
       const btn = event.target;
       const originalText = btn.textContent;
       btn.disabled = true;
-      btn.textContent = 'Syncing...';
+      btn.textContent = 'Reloading...';
 
       try {
         const formData = new FormData();
@@ -1090,13 +1095,13 @@ foreach ($services as $k => $_) {
         const result = await response.json();
 
         if (result.result.success) {
-          let msg = '✅ Scripts synced and reloaded successfully!';
+          let msg = '✅ Lua scripts reloaded successfully!';
           if (result.result.output && result.result.output.trim()) {
             msg += '\n\nOutput:\n' + result.result.output;
           }
           alert(msg);
         } else {
-          alert('❌ Script sync/reload had issues:\n\n' + result.result.output);
+          alert('❌ Lua reload failed:\n\n' + result.result.output);
         }
       } catch (error) {
         alert('Error: ' + error.message);

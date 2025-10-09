@@ -90,24 +90,17 @@ function compile_service(string $container, array $info): array {
     }
 }
 
-function reload_scripts(): array {
-    // Fetch and reset to force overwrite local files (no merge conflicts)
-    // Using 60 second timeout for git operations
-    [$fetchCode, $fetchOut, $fetchErr] = run_cmd('cd /opt/mithia-server && git fetch origin 2>&1', 60);
-    [$resetCode, $resetOut, $resetErr] = run_cmd('cd /opt/mithia-server && git reset --hard origin/koinuedit 2>&1', 30);
-
+function reload_lua(): array {
     // Execute /reloadlua command in map server via docker exec
     $reloadCmd = 'docker exec mithia-map /home/RTK/rtk/map-server --lua-reload 2>&1';
     [$reloadCode, $reloadOut, $reloadErr] = run_cmd($reloadCmd, 10);
 
-    $output = "Git Fetch:\n" . trim($fetchOut . "\n" . $fetchErr) . "\n\n";
-    $output .= "Git Reset (force overwrite):\n" . trim($resetOut . "\n" . $resetErr) . "\n\n";
-    $output .= "Lua Reload:\n" . trim($reloadOut . "\n" . $reloadErr);
+    $output = trim($reloadOut . "\n" . $reloadErr);
 
-    if (ok($fetchCode) && ok($resetCode)) {
-        return ['success' => true, 'message' => 'Scripts synced and reloaded successfully', 'output' => $output];
+    if (ok($reloadCode)) {
+        return ['success' => true, 'message' => 'Lua scripts reloaded successfully', 'output' => $output];
     } else {
-        return ['success' => false, 'message' => 'Script sync/reload had issues', 'output' => $output];
+        return ['success' => false, 'message' => 'Lua reload failed', 'output' => $output];
     }
 }
 
@@ -132,8 +125,8 @@ if ($action === 'compile') {
         echo json_encode(['error' => 'Invalid service']);
     }
 } elseif ($action === 'reload') {
-    // Reload scripts (git pull + reload Lua)
-    $result = reload_scripts();
+    // Reload Lua scripts only
+    $result = reload_lua();
     echo json_encode(['action' => 'reload', 'result' => $result]);
 } else {
     echo json_encode(['error' => 'Invalid action']);
