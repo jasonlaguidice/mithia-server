@@ -58,6 +58,13 @@ function compile_service(string $container, array $info): array {
     $output .= "\nExit Code: " . $code . "\n\n";
 
     if (!ok($code)) {
+        // Clean up failed compilation attempt
+        $output .= "Cleaning up failed compilation...\n";
+        run_cmd(sprintf(
+            'docker exec %s bash -c %s 2>&1',
+            escapeshellarg($container),
+            escapeshellarg("rm -f /home/RTK/rtk/$target-server.new")
+        ));
         return ['success' => false, 'message' => "$name compilation failed", 'output' => $output];
     }
 
