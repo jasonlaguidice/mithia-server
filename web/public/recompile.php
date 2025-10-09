@@ -37,43 +37,46 @@ function compile_service(string $container, array $info): array {
     $target = $info['target'];
     $name = $info['name'];
 
-    // Run make from the main rtk directory to compile common + specific server
-    // This ensures all dependencies and variables are properly set
+    $output = "=== Recompiling $name Server ===\n\n";
+
+    // Step 1: Stop the running process inside the container (but keep container running)
+    $output .= "Step 1: Stopping $target-server process...\n";
+    $stopCmd = sprintf(
+        'docker exec %s bash -c %s 2>&1',
+        escapeshellarg($container),
+        escapeshellarg("pkill -9 $target-server || true")
+    );
+    run_cmd($stopCmd);
+    $output .= "Process stopped.\n\n";
+
+    // Step 2: Compile
+    $output .= "Step 2: Compiling...\n";
     $cmd = sprintf(
         'docker exec %s bash -c %s 2>&1',
         escapeshellarg($container),
         escapeshellarg("cd /home/RTK/rtk && make " . escapeshellarg($target))
     );
 
-    [$code, $stdout, $stderr] = run_cmd($cmd, 600); // 10 minute timeout for compilation
+    [$code, $stdout, $stderr] = run_cmd($cmd, 600);
+    $output .= $stdout;
 
-    // Combine stdout and stderr, showing both separately for debugging
-    $output = '';
-    if (!empty($stdout)) {
-        $output .= "STDOUT:\n" . $stdout;
-    }
     if (!empty($stderr)) {
-        if (!empty($stdout)) $output .= "\n\n";
-        $output .= "STDERR:\n" . $stderr;
-    }
-    if (empty($output)) {
-        $output = "(No output captured)";
+        $output .= "\nSTDERR: " . $stderr;
     }
 
-    $output .= "\n\nExit Code: " . $code;
-    $output .= "\nStdout Length: " . strlen($stdout);
-    $output .= "\nStderr Length: " . strlen($stderr);
-
-    // Check if error is because container not running
-    if (strpos($output, 'No such container') !== false || strpos($output, 'is not running') !== false) {
-        return ['success' => false, 'message' => "$name container is not running", 'output' => $output];
-    }
+    $output .= "\n" . str_repeat('─', 50);
+    $output .= "\nExit Code: " . $code . "\n";
 
     if (ok($code)) {
-        // Restart the service after successful compile
+        // Step 3: Restart the container to start the new binary
+        $output .= "\nStep 3: Restarting container with new binary...\n";
         run_cmd('docker restart ' . escapeshellarg($container) . ' 2>&1');
+        $output .= "Container restarted successfully!";
         return ['success' => true, 'message' => "$name compiled and restarted successfully", 'output' => $output];
     } else {
+        // Compilation failed - restart with old binary
+        $output .= "\nCompilation FAILED! Restarting container with previous binary...\n";
+        run_cmd('docker restart ' . escapeshellarg($container) . ' 2>&1');
         return ['success' => false, 'message' => "$name compilation failed", 'output' => $output];
     }
 }
