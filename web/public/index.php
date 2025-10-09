@@ -954,16 +954,50 @@ foreach ($services as $k => $_) {
       const btn = event.target;
       const originalText = btn.textContent;
 
-      navigator.clipboard.writeText(output).then(() => {
-        btn.textContent = '✓ Copied!';
-        btn.style.color = '#22c55e';
-        setTimeout(() => {
-          btn.textContent = originalText;
-          btn.style.color = '';
-        }, 2000);
-      }).catch(err => {
-        alert('Failed to copy: ' + err.message);
-      });
+      // Try modern clipboard API first
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(output).then(() => {
+          btn.textContent = '✓ Copied!';
+          btn.style.color = '#22c55e';
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.color = '';
+          }, 2000);
+        }).catch(err => {
+          // Fallback to textarea method
+          copyToClipboardFallback(output, btn, originalText);
+        });
+      } else {
+        // Fallback for older browsers or non-HTTPS
+        copyToClipboardFallback(output, btn, originalText);
+      }
+    }
+
+    function copyToClipboardFallback(text, btn, originalText) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          btn.textContent = '✓ Copied!';
+          btn.style.color = '#22c55e';
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.color = '';
+          }, 2000);
+        } else {
+          alert('Copy failed. Please select and copy manually.');
+        }
+      } catch (err) {
+        alert('Copy not supported. Please select and copy manually.');
+      } finally {
+        document.body.removeChild(textarea);
+      }
     }
 
     // Close modal on overlay click
