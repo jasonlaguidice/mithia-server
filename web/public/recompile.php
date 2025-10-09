@@ -65,12 +65,6 @@ function compile_service(string $container, array $info): array {
     $compileDir = $info['dir'];
     $name = $info['name'];
 
-    // Check if container is running
-    [$checkCode, $checkOut, $checkErr] = run_cmd('docker inspect -f {{.State.Running}} ' . escapeshellarg($container) . ' 2>&1');
-    if (!ok($checkCode) || trim($checkOut) !== 'true') {
-        return ['success' => false, 'message' => "$name container is not running", 'output' => ''];
-    }
-
     // Run make clean && make inside container
     $cmd = sprintf(
         'docker exec %s bash -c %s 2>&1',
@@ -78,8 +72,13 @@ function compile_service(string $container, array $info): array {
         escapeshellarg("cd $compileDir && make clean && make")
     );
 
-    [$code, $stdout, $stderr] = run_cmd($cmd);
+    [$code, $stdout, $stderr] = run_cmd($cmd, 600); // 10 minute timeout for compilation
     $output = trim($stdout . "\n" . $stderr);
+
+    // Check if error is because container not running
+    if (strpos($output, 'No such container') !== false || strpos($output, 'is not running') !== false) {
+        return ['success' => false, 'message' => "$name container is not running", 'output' => $output];
+    }
 
     if (ok($code)) {
         // Restart the service after successful compile
